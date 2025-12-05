@@ -47,8 +47,19 @@ export const useDeleteLanguage = () => {
             queryClient.invalidateQueries({ queryKey: ["languages"] });
             toast.success("Dil başarıyla silindi");
         },
-        onError: () => {
-            toast.error("Dil silinirken bir hata oluştu");
+        onError: (error: any) => {
+            // Foreign key constraint hatası kontrolü
+            const errorMessage = error?.message || error?.data?.message || "";
+            if (
+                errorMessage.includes("foreign key constraint") || 
+                errorMessage.includes("still referenced") ||
+                errorMessage.includes("team_member_translations") ||
+                errorMessage.includes("Data integrity violation")
+            ) {
+                toast.error("Bu dil takım üyeleri tarafından kullanılıyor. Önce ilgili takım üyelerinden bu dili kaldırmanız gerekiyor.");
+            } else {
+                toast.error(errorMessage || "Dil silinirken bir hata oluştu");
+            }
         },
     });
 }

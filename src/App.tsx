@@ -22,6 +22,10 @@ import EcoPartnersListPage from "./pages/eco-partners/eco-partners-list-page";
 import EcoPartnerCreatePage from "./pages/eco-partners/eco-partner-create-page";
 import EcoPartnerEditPage from "./pages/eco-partners/eco-partner-edit-page";
 import EcoPartnerDetailPage from "./pages/eco-partners/eco-partner-detail-page";
+import PartnersListPage from "./pages/partners/partners-list-page";
+import PartnerCreatePage from "./pages/partners/partner-create-page";
+import PartnerEditPage from "./pages/partners/partner-edit-page";
+import PartnerDetailPage from "./pages/partners/partner-detail-page";
 
 
 function App() {
@@ -51,6 +55,10 @@ function App() {
 								<Route path="/eco-partners/create" element={<EcoPartnerCreatePage />} />
 								<Route path="/eco-partners/edit/:id" element={<EcoPartnerEditPage />} />
 								<Route path="/eco-partners/detail/:id" element={<EcoPartnerDetailPage />} />
+								<Route path="/partners" element={<PartnersListPage />} />
+								<Route path="/partners/create" element={<PartnerCreatePage />} />
+								<Route path="/partners/edit/:id" element={<PartnerEditPage />} />
+								<Route path="/partners/detail/:id" element={<PartnerDetailPage />} />
 							</Route>
 						</Route>
 					</Routes>

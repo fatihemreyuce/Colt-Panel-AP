@@ -79,7 +79,29 @@ export const fetchClient = async <T, U>(
       return fetchClient(url, options);
     }
 
-    throw new Error("Failed to fetch data");
+    // API'den dönen hata mesajını yakala
+    let errorMessage = "Failed to fetch data";
+    const contentType = response.headers.get("content-type");
+    if (contentType?.includes("application/json")) {
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData?.message || errorData?.error || errorMessage;
+        // Hata objesini oluştur
+        const error = new Error(errorMessage) as any;
+        error.status = response.status;
+        error.data = errorData;
+        throw error;
+      } catch (parseError) {
+        // JSON parse hatası olursa, orijinal error'ı fırlat
+        if (parseError instanceof Error && (parseError as any).status) {
+          throw parseError;
+        }
+      }
+    }
+
+    const error = new Error(errorMessage) as any;
+    error.status = response.status;
+    throw error;
   }
 
   const contentType = response.headers.get("content-type");

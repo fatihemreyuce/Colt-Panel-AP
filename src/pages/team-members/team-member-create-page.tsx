@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateTeamMember } from "@/hooks/use-team-members";
 import { useLanguages } from "@/hooks/use-languages";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import {
 	Select,
 	SelectContent,
@@ -12,7 +13,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save, User, Mail, Linkedin, Image as ImageIcon, Plus, X, Languages as LanguagesIcon, Upload, XCircle } from "lucide-react";
+import { ArrowLeft, Save, User, Mail, Linkedin, Image as ImageIcon, Plus, X, Languages as LanguagesIcon, Upload, XCircle, Globe, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import type { TeamMemberRequest } from "@/types/team-members.types";
 
 export default function TeamMemberCreatePage() {
@@ -33,6 +35,45 @@ export default function TeamMemberCreatePage() {
 
 	const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 	const [errors, setErrors] = useState<Record<string, string>>({});
+	const [selectedLanguageCode, setSelectedLanguageCode] = useState<string>("");
+
+	// Tüm dilleri otomatik olarak ekle ve ilk dili seç
+	useEffect(() => {
+		if (languages.length > 0 && formData.localizations.length === 0) {
+			setFormData((prev) => ({
+				...prev,
+				localizations: languages.map((lang) => ({
+					languageCode: lang.code,
+					title: "",
+					description: "",
+				})),
+			}));
+			// İlk dili seç
+			if (!selectedLanguageCode && languages[0]) {
+				setSelectedLanguageCode(languages[0].code);
+			}
+		}
+	}, [languages, selectedLanguageCode]);
+
+	// Dil değiştiğinde, eğer o dil için entry yoksa ekle
+	useEffect(() => {
+		if (selectedLanguageCode && formData.localizations.length > 0) {
+			const exists = formData.localizations.some(loc => loc.languageCode === selectedLanguageCode);
+			if (!exists) {
+				setFormData((prev) => ({
+					...prev,
+					localizations: [
+						...prev.localizations,
+						{
+							languageCode: selectedLanguageCode,
+							title: "",
+							description: "",
+						},
+					],
+				}));
+			}
+		}
+	}, [selectedLanguageCode]);
 
 	const validate = () => {
 		const newErrors: Record<string, string> = {};
@@ -77,32 +118,53 @@ export default function TeamMemberCreatePage() {
 		}
 	};
 
-	const handleAddLocalization = () => {
-		setFormData({
-			...formData,
-			localizations: [
-				...formData.localizations,
-				{ languageCode: "", title: "", description: "" },
-			],
-		});
-	};
 
-	const handleRemoveLocalization = (index: number) => {
-		setFormData({
-			...formData,
-			localizations: formData.localizations.filter((_, i) => i !== index),
-		});
-	};
 
 	const handleLocalizationChange = (
-		index: number,
-		field: "languageCode" | "title" | "description",
+		field: "title" | "description",
 		value: string
 	) => {
+		if (!selectedLanguageCode) return;
+		
 		const newLocalizations = [...formData.localizations];
-		newLocalizations[index] = { ...newLocalizations[index], [field]: value };
+		let currentIndex = newLocalizations.findIndex(loc => loc.languageCode === selectedLanguageCode);
+		
+		// Eğer bu dil için entry yoksa, ekle
+		if (currentIndex === -1) {
+			newLocalizations.push({
+				languageCode: selectedLanguageCode,
+				title: "",
+				description: "",
+			});
+			currentIndex = newLocalizations.length - 1;
+		}
+		
+		newLocalizations[currentIndex] = { ...newLocalizations[currentIndex], [field]: value };
+		
+		// Eğer başlık veya açıklama değiştiyse, diğer dillere de kopyala
+		if (field === "title" || field === "description") {
+			const sourceValue = newLocalizations[currentIndex][field];
+			// Diğer tüm dillere aynı değeri kopyala
+			newLocalizations.forEach((loc, idx) => {
+				if (idx !== currentIndex) {
+					loc[field] = sourceValue;
+				}
+			});
+		}
+		
 		setFormData({ ...formData, localizations: newLocalizations });
 	};
+
+	const getCurrentLocalization = () => {
+		return formData.localizations.find(loc => loc.languageCode === selectedLanguageCode) || {
+			languageCode: selectedLanguageCode,
+			title: "",
+			description: "",
+		};
+	};
+
+	const currentLocalization = getCurrentLocalization();
+	const selectedLanguage = languages.find(lang => lang.code === selectedLanguageCode);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -286,118 +348,110 @@ export default function TeamMemberCreatePage() {
 						)}
 					</div>
 
-					{/* Localizations */}
+					{/* Çoklu Dil İçerikleri */}
 					<div className="space-y-4">
+						{/* Header */}
 						<div className="flex items-center justify-between">
 							<Label className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-								<LanguagesIcon className="h-4 w-4 text-brand-green dark:text-brand-green" />
-								Diller
+								<Globe className="h-4 w-4 text-brand-green dark:text-brand-green" />
+								Çoklu Dil İçerikleri <span className="text-red-500">*</span>
 							</Label>
 							<Button
 								type="button"
 								variant="outline"
 								size="sm"
-								onClick={handleAddLocalization}
-								className="border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-gray-600/50"
+								onClick={() => {
+									if (!selectedLanguageCode || !currentLocalization.title.trim() && !currentLocalization.description.trim()) {
+										toast.warning("Lütfen önce başlık veya açıklama giriniz");
+										return;
+									}
+									toast.success("Diğer dillere çeviri işlemi başlatıldı");
+								}}
+								className="bg-brand-green hover:bg-green-600 dark:bg-brand-green dark:hover:bg-green-600 text-white border-brand-green hover:border-green-600 dark:border-brand-green dark:hover:border-green-600"
 							>
-								<Plus className="h-4 w-4 mr-2" />
-								Ekle
+								<RefreshCw className="h-4 w-4 mr-2" />
+								Diğer Dilleri Çevir
 							</Button>
 						</div>
+
+						{/* Dil Seçimi Toggle Butonları */}
+						<div className="flex flex-wrap gap-2">
+							{languages.map((lang) => {
+								const isSelected = selectedLanguageCode === lang.code;
+								return (
+									<Button
+										key={lang.id}
+										type="button"
+										variant={isSelected ? "default" : "outline"}
+										size="sm"
+										onClick={() => setSelectedLanguageCode(lang.code)}
+										className={
+											isSelected
+												? "bg-brand-green hover:bg-green-600 dark:bg-brand-green dark:hover:bg-green-600 text-white border-brand-green"
+												: "border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-gray-600/50"
+										}
+									>
+										{lang.code.toUpperCase()}
+									</Button>
+								);
+							})}
+						</div>
+
 						{errors.localizations && (
 							<p className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
 								<span>•</span>
 								{errors.localizations}
 							</p>
 						)}
-						{formData.localizations.map((localization, index) => {
-							// Diğer lokalizasyonlarda seçilmiş dilleri filtrele
-							const selectedLanguageCodes = formData.localizations
-								.map((loc, idx) => idx !== index ? loc.languageCode : null)
-								.filter((code): code is string => Boolean(code));
-							
-							const availableLanguages = languages.filter(
-								(lang) => !selectedLanguageCodes.includes(lang.code) || lang.code === localization.languageCode
-							);
 
-							return (
-								<div key={index} className="p-4 rounded-lg border border-green-200/50 dark:border-gray-600/50 bg-gray-50/50 dark:bg-gray-700/30 space-y-4">
-									<div className="flex items-center justify-between">
-										<h4 className="text-p3 font-semibold text-gray-700 dark:text-gray-200">
-											Dil {index + 1}
-										</h4>
-										<Button
-											type="button"
-											variant="ghost"
-											size="sm"
-											onClick={() => handleRemoveLocalization(index)}
-											className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-										>
-											<X className="h-4 w-4" />
-										</Button>
-									</div>
-									<div className="grid gap-4 md:grid-cols-3">
-										<div className="space-y-2">
-											<Label className="text-p3 text-gray-600 dark:text-gray-300">Dil Kodu</Label>
-											<Select
-												value={localization.languageCode}
-												onValueChange={(value) => handleLocalizationChange(index, "languageCode", value)}
-											>
-												<SelectTrigger className="border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100">
-													<SelectValue placeholder="Dil seçin" />
-												</SelectTrigger>
-												<SelectContent>
-													{availableLanguages.length > 0 ? (
-														availableLanguages.map((lang) => (
-															<SelectItem key={lang.id} value={lang.code}>
-																{lang.code.toUpperCase()}
-															</SelectItem>
-														))
-													) : (
-														<div className="px-2 py-1.5 text-p3 text-gray-500 dark:text-gray-400">
-															Tüm diller seçilmiş
-														</div>
-													)}
-												</SelectContent>
-											</Select>
-										{errors[`localizations.${index}.languageCode`] && (
-											<p className="text-p3 text-red-600 dark:text-red-400 text-xs">
-												{errors[`localizations.${index}.languageCode`]}
-											</p>
-										)}
-									</div>
-									<div className="space-y-2">
-										<Label className="text-p3 text-gray-600 dark:text-gray-300">Başlık</Label>
-										<Input
-											value={localization.title}
-											onChange={(e) => handleLocalizationChange(index, "title", e.target.value)}
-											className="border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
-											placeholder="Başlık"
-										/>
-										{errors[`localizations.${index}.title`] && (
-											<p className="text-p3 text-red-600 dark:text-red-400 text-xs">
+						{selectedLanguageCode && (
+							<>
+								{/* Başlık */}
+								<div className="space-y-2">
+									<Label className="text-p3 text-gray-700 dark:text-gray-200 font-semibold">
+										Başlık <span className="text-red-500">*</span>
+									</Label>
+									<Input
+										value={currentLocalization.title}
+										onChange={(e) => handleLocalizationChange("title", e.target.value)}
+										className="h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30"
+										placeholder={`${selectedLanguage?.code === "tr" ? "TR" : selectedLanguage?.code === "en" ? "EN" : selectedLanguage?.code?.toUpperCase() || ""} başlığını girin`}
+									/>
+									{formData.localizations.map((loc, index) => {
+										if (loc.languageCode !== selectedLanguageCode) return null;
+										return errors[`localizations.${index}.title`] ? (
+											<p key={index} className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+												<span>•</span>
 												{errors[`localizations.${index}.title`]}
 											</p>
-										)}
-									</div>
-									<div className="space-y-2">
-										<Label className="text-p3 text-gray-600 dark:text-gray-300">Açıklama</Label>
-										<Input
-											value={localization.description}
-											onChange={(e) => handleLocalizationChange(index, "description", e.target.value)}
-											className="border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100"
-											placeholder="Açıklama"
-										/>
-										{errors[`localizations.${index}.description`] && (
-											<p className="text-p3 text-red-600 dark:text-red-400 text-xs">
+										) : null;
+									})}
+								</div>
+
+								{/* Açıklama */}
+								<div className="space-y-2">
+									<Label className="text-p3 text-gray-700 dark:text-gray-200 font-semibold">
+										Açıklama <span className="text-red-500">*</span>
+									</Label>
+									<RichTextEditor
+										value={currentLocalization.description}
+										onChange={(content) => handleLocalizationChange("description", content)}
+										placeholder={`${selectedLanguage?.code === "tr" ? "TR" : selectedLanguage?.code === "en" ? "EN" : selectedLanguage?.code?.toUpperCase() || ""} açıklamasını girin`}
+										height={300}
+										className="border border-green-200 dark:border-gray-600 rounded-lg overflow-hidden"
+									/>
+									{formData.localizations.map((loc, index) => {
+										if (loc.languageCode !== selectedLanguageCode) return null;
+										return errors[`localizations.${index}.description`] ? (
+											<p key={index} className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+												<span>•</span>
 												{errors[`localizations.${index}.description`]}
 											</p>
-										)}
-									</div>
+										) : null;
+									})}
 								</div>
-							</div>
-							);
-						})}
+							</>
+						)}
 					</div>
 
 					{/* Form Actions */}

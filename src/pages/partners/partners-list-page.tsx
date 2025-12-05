@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEcoPartners, useDeleteEcoPartner } from "@/hooks/use-eco-partners";
+import { usePartners, useDeletePartner } from "@/hooks/use-partners";
 import { Button } from "@/components/ui/button";
 import {
 	Table,
@@ -15,12 +15,9 @@ import {
 	Plus,
 	Edit,
 	Trash2,
-	ArrowUpDown,
 	Eye,
 	Loader2,
-	Building2,
-	ArrowUp,
-	ArrowDown,
+	Handshake,
 } from "lucide-react";
 import {
 	Empty,
@@ -30,52 +27,52 @@ import {
 	EmptyDescription,
 	EmptyContent,
 } from "@/components/ui/empty";
-import type { EcoPartnerResponse } from "@/types/eco-partners.types";
+import type { PartnerResponse } from "@/types/partners.types";
 
-export default function EcoPartnersListPage() {
+export default function PartnersListPage() {
 	const navigate = useNavigate();
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-	const [selectedEcoPartnerId, setSelectedEcoPartnerId] = useState<number | null>(null);
+	const [selectedPartnerId, setSelectedPartnerId] = useState<number | null>(null);
 
 	// Data fetching
-	const { data, isLoading, isError } = useEcoPartners();
-	const deleteEcoPartnerMutation = useDeleteEcoPartner();
+	const { data, isLoading, isError } = usePartners();
+	const deletePartnerMutation = useDeletePartner();
 
 	// Silme işlemi
 	const handleDelete = useCallback(async () => {
-		if (selectedEcoPartnerId) {
+		if (selectedPartnerId) {
 			try {
-				await deleteEcoPartnerMutation.mutateAsync(selectedEcoPartnerId);
+				await deletePartnerMutation.mutateAsync(selectedPartnerId);
 				setDeleteModalOpen(false);
-				setSelectedEcoPartnerId(null);
+				setSelectedPartnerId(null);
 			} catch (error) {
 				// Error handling is done in the mutation hook
 			}
 		}
-	}, [selectedEcoPartnerId, deleteEcoPartnerMutation]);
+	}, [selectedPartnerId, deletePartnerMutation]);
 
 	// Modal açma
-	const handleOpenDeleteModal = useCallback((ecoPartnerId: number) => {
-		setSelectedEcoPartnerId(ecoPartnerId);
+	const handleOpenDeleteModal = useCallback((partnerId: number) => {
+		setSelectedPartnerId(partnerId);
 		setDeleteModalOpen(true);
 	}, []);
 
 	// Modal kapatma
 	const handleCloseDeleteModal = useCallback(() => {
 		setDeleteModalOpen(false);
-		setSelectedEcoPartnerId(null);
+		setSelectedPartnerId(null);
 	}, []);
 
 	// Computed values
-	const ecoPartners = useMemo(() => {
+	const partners = useMemo(() => {
 		// API Page formatında dönebilir veya direkt array olabilir
-		const partners = Array.isArray(data) ? data : (data?.content || []);
-		return [...partners].sort((a, b) => a.orderIndex - b.orderIndex);
+		const partnerList = Array.isArray(data) ? data : (data?.content || []);
+		return [...partnerList].sort((a, b) => a.orderIndex - b.orderIndex);
 	}, [data]);
 
-	const selectedEcoPartner = useMemo(
-		() => ecoPartners.find((partner) => partner.id === selectedEcoPartnerId),
-		[ecoPartners, selectedEcoPartnerId]
+	const selectedPartner = useMemo(
+		() => partners.find((partner) => partner.id === selectedPartnerId),
+		[partners, selectedPartnerId]
 	);
 
 	return (
@@ -83,14 +80,14 @@ export default function EcoPartnersListPage() {
 			{/* Header */}
 			<div className="flex h-20 items-center justify-between border-b border-green-200/50 dark:border-gray-700/50 bg-gradient-to-r from-green-500/5 to-emerald-500/5 dark:from-gray-800/50 dark:to-gray-800/30 px-6 -mx-6 rounded-b-lg">
 				<h1 className="text-h2 font-display bg-gradient-to-r from-brand-green to-green-600 dark:from-brand-green dark:to-green-400 bg-clip-text text-transparent">
-					Eco Partnerler
+					Partnerler
 				</h1>
 				<Button
-					onClick={() => navigate("/eco-partners/create")}
+					onClick={() => navigate("/partners/create")}
 					className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white shadow-lg shadow-brand-green/30 dark:shadow-brand-green/30 text-p3 font-semibold"
 				>
 					<Plus className="h-4 w-4 mr-2" />
-					Yeni Eco Partner
+					Yeni Partner
 				</Button>
 			</div>
 
@@ -130,13 +127,13 @@ export default function EcoPartnersListPage() {
 									</div>
 								</TableCell>
 							</TableRow>
-						) : ecoPartners.length > 0 ? (
-							ecoPartners.map((partner) => (
-								<EcoPartnerTableRow
+						) : partners.length > 0 ? (
+							partners.map((partner) => (
+								<PartnerTableRow
 									key={partner.id}
 									partner={partner}
-									onView={() => navigate(`/eco-partners/detail/${partner.id}`)}
-									onEdit={() => navigate(`/eco-partners/edit/${partner.id}`)}
+									onView={() => navigate(`/partners/detail/${partner.id}`)}
+									onEdit={() => navigate(`/partners/edit/${partner.id}`)}
 									onDelete={() => handleOpenDeleteModal(partner.id)}
 								/>
 							))
@@ -146,20 +143,20 @@ export default function EcoPartnersListPage() {
 									<Empty className="border-0 py-12">
 										<EmptyHeader>
 											<EmptyMedia variant="icon">
-												<Building2 className="h-6 w-6" />
+												<Handshake className="h-6 w-6" />
 											</EmptyMedia>
-											<EmptyTitle>Eco partner bulunamadı</EmptyTitle>
+											<EmptyTitle>Partner bulunamadı</EmptyTitle>
 											<EmptyDescription>
-												Henüz eco partner eklenmemiş. Yeni bir eco partner ekleyerek başlayabilirsiniz.
+												Henüz partner eklenmemiş. Yeni bir partner ekleyerek başlayabilirsiniz.
 											</EmptyDescription>
 										</EmptyHeader>
 										<EmptyContent>
 											<Button
-												onClick={() => navigate("/eco-partners/create")}
+												onClick={() => navigate("/partners/create")}
 												className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white text-p3 font-semibold"
 											>
 												<Plus className="h-4 w-4 mr-2" />
-												Yeni Eco Partner Ekle
+												Yeni Partner Ekle
 											</Button>
 										</EmptyContent>
 									</Empty>
@@ -175,26 +172,26 @@ export default function EcoPartnersListPage() {
 				open={deleteModalOpen}
 				onConfirm={handleDelete}
 				onCancel={handleCloseDeleteModal}
-				title="Eco Partner'ı Sil"
-				description={`Sıra ${selectedEcoPartner?.orderIndex} numaralı eco partner'ı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
-				confirmationText={`Sıra ${selectedEcoPartner?.orderIndex}`}
+				title="Partner'ı Sil"
+				description={`Sıra ${selectedPartner?.orderIndex} numaralı partner'ı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
+				confirmationText={`Sıra ${selectedPartner?.orderIndex}`}
 				confirmText="Sil"
 				cancelText="İptal"
-				loading={deleteEcoPartnerMutation.isPending}
+				loading={deletePartnerMutation.isPending}
 			/>
 		</div>
 	);
 }
 
-// Eco partner table row component
-interface EcoPartnerTableRowProps {
-	partner: EcoPartnerResponse;
+// Partner table row component
+interface PartnerTableRowProps {
+	partner: PartnerResponse;
 	onView: () => void;
 	onEdit: () => void;
 	onDelete: () => void;
 }
 
-function EcoPartnerTableRow({ partner, onView, onEdit, onDelete }: EcoPartnerTableRowProps) {
+function PartnerTableRow({ partner, onView, onEdit, onDelete }: PartnerTableRowProps) {
 	return (
 		<TableRow className="hover:bg-green-50/30 dark:hover:bg-gray-700/30 transition-colors border-b dark:border-gray-700/50">
 			<TableCell className="font-medium dark:text-gray-200">
@@ -208,12 +205,12 @@ function EcoPartnerTableRow({ partner, onView, onEdit, onDelete }: EcoPartnerTab
 				{partner.logo ? (
 					<img
 						src={partner.logo}
-						alt={`Eco Partner ${partner.orderIndex}`}
+						alt={`Partner ${partner.orderIndex}`}
 						className="h-16 w-16 object-contain border border-green-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700/50 p-2"
 					/>
 				) : (
 					<div className="h-16 w-16 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center border border-green-200 dark:border-gray-600">
-						<Building2 className="h-8 w-8 text-gray-400" />
+						<Handshake className="h-8 w-8 text-gray-400" />
 					</div>
 				)}
 			</TableCell>
