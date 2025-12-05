@@ -28,9 +28,9 @@ export function objectToFormData<
           });
         } else {
           // Array of primitives
-          value.forEach((item, index) => {
-            formData.append(`${key}[${index}]`, String(item));
-          });
+        value.forEach((item, index) => {
+          formData.append(`${key}[${index}]`, String(item));
+        });
         }
       } else if (typeof value === "object") {
         formData.append(key, JSON.stringify(value));

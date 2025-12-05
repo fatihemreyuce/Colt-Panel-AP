@@ -40,6 +40,7 @@ export default function TeamMemberEditPage() {
 	const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [selectedLanguageCode, setSelectedLanguageCode] = useState<string>("");
+	const [translating, setTranslating] = useState(false);
 
 	useEffect(() => {
 		if (teamMember && languages.length > 0) {
