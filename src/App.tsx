@@ -10,6 +10,10 @@ import UsersListPage from "./pages/users/users-list-page";
 import UserCreatePage from "./pages/users/user-create-page";
 import UserEditPage from "./pages/users/user-edit-page";
 import UserDetailPage from "./pages/users/user-detail-page";
+import LanguagesListPage from "./pages/languages/languages-list-page";
+import LanguageCreatePage from "./pages/languages/language-create-page";
+import LanguageEditPage from "./pages/languages/language-edit-page";
+import LanguageDetailPage from "./pages/languages/language-detail-page";
 
 
 function App() {
@@ -27,6 +31,10 @@ function App() {
 								<Route path="/users/create" element={<UserCreatePage />} />
 								<Route path="/users/edit/:id" element={<UserEditPage />} />
 								<Route path="/users/detail/:id" element={<UserDetailPage />} />
+								<Route path="/languages" element={<LanguagesListPage />} />
+								<Route path="/languages/create" element={<LanguageCreatePage />} />
+								<Route path="/languages/edit/:id" element={<LanguageEditPage />} />
+								<Route path="/languages/detail/:id" element={<LanguageDetailPage />} />
 							</Route>
 						</Route>
 					</Routes>
