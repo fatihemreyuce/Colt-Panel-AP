@@ -9,7 +9,12 @@ export const fetchClient = async <T, U>(
   const { body, ...rest } = options;
 
   const requestOptions: RequestInit = rest;
-  const locale = window.location.pathname.split("/")[1];
+  // Extract locale from path or use default
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  // Check if first part is a valid locale (2-3 letter code) or use default
+  const possibleLocale = pathParts[0];
+  const validLocales = ["tr", "en", "de", "fr", "es", "it", "ru", "ar", "zh", "ja", "ko"];
+  const locale = validLocales.includes(possibleLocale?.toLowerCase()) ? possibleLocale.toLowerCase() : "tr";
 
   headers.set("Accept", "application/json");
   headers.set("X-Client-Type", "web");

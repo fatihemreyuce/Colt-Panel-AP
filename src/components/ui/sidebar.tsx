@@ -2,7 +2,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/dark-mode-toggle";
 import { useLoginState } from "@/hooks/use-login-state";
-import { LayoutDashboard, LogOut, Sparkles, Sun, Moon, Users, Languages } from "lucide-react";
+import { LayoutDashboard, LogOut, Sparkles, Sun, Moon, Users, Languages, UserCircle } from "lucide-react";
 
 interface NavItem {
 	to: string;
@@ -28,6 +28,12 @@ const navigationItems: NavItem[] = [
 		to: "/languages",
 		label: "Diller",
 		icon: Languages,
+		end: false,
+	},
+	{
+		to: "/team-members",
+		label: "Takım Üyeleri",
+		icon: UserCircle,
 		end: false,
 	},
 ];

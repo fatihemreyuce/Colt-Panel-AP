@@ -14,6 +14,10 @@ import LanguagesListPage from "./pages/languages/languages-list-page";
 import LanguageCreatePage from "./pages/languages/language-create-page";
 import LanguageEditPage from "./pages/languages/language-edit-page";
 import LanguageDetailPage from "./pages/languages/language-detail-page";
+import TeamMembersListPage from "./pages/team-members/team-members-list-page";
+import TeamMemberCreatePage from "./pages/team-members/team-member-create-page";
+import TeamMemberEditPage from "./pages/team-members/team-member-edit-page";
+import TeamMemberDetailPage from "./pages/team-members/team-member-detail-page";
 
 
 function App() {
@@ -35,6 +39,10 @@ function App() {
 								<Route path="/languages/create" element={<LanguageCreatePage />} />
 								<Route path="/languages/edit/:id" element={<LanguageEditPage />} />
 								<Route path="/languages/detail/:id" element={<LanguageDetailPage />} />
+								<Route path="/team-members" element={<TeamMembersListPage />} />
+								<Route path="/team-members/create" element={<TeamMemberCreatePage />} />
+								<Route path="/team-members/edit/:id" element={<TeamMemberEditPage />} />
+								<Route path="/team-members/detail/:id" element={<TeamMemberDetailPage />} />
 							</Route>
 						</Route>
 					</Routes>

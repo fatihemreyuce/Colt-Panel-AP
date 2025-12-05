@@ -18,10 +18,20 @@ export function objectToFormData<
       ) {
         (value as File[]).forEach((file) => formData.append(key, file));
       } else if (Array.isArray(value)) {
-        // Handle arrays like tagIds
-        value.forEach((item, index) => {
-          formData.append(`${key}[${index}]`, String(item));
-        });
+        // Handle arrays - check if it's an array of objects (like localizations)
+        if (value.length > 0 && typeof value[0] === "object" && !(value[0] instanceof File)) {
+          // Array of objects - append as nested form data
+          value.forEach((item, index) => {
+            Object.entries(item as Record<string, unknown>).forEach(([nestedKey, nestedValue]) => {
+              formData.append(`${key}[${index}].${nestedKey}`, String(nestedValue));
+            });
+          });
+        } else {
+          // Array of primitives
+          value.forEach((item, index) => {
+            formData.append(`${key}[${index}]`, String(item));
+          });
+        }
       } else if (typeof value === "object") {
         formData.append(key, JSON.stringify(value));
       } else {
