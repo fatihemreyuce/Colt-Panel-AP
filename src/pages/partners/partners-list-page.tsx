@@ -78,13 +78,13 @@ export default function PartnersListPage() {
 	return (
 		<div className="w-full py-6 px-6 space-y-6">
 			{/* Header */}
-			<div className="flex h-20 items-center justify-between border-b border-green-200/50 dark:border-gray-700/50 bg-gradient-to-r from-green-500/5 to-emerald-500/5 dark:from-gray-800/50 dark:to-gray-800/30 px-6 -mx-6 rounded-b-lg">
-				<h1 className="text-h2 font-display bg-gradient-to-r from-brand-green to-green-600 dark:from-brand-green dark:to-green-400 bg-clip-text text-transparent">
+			<div className="flex h-16 items-center justify-between border-b border-border px-6 -mx-6 mb-6">
+				<h1 className="text-h2 font-semibold text-foreground">
 					Partnerler
 				</h1>
 				<Button
 					onClick={() => navigate("/partners/create")}
-					className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white shadow-lg shadow-brand-green/30 dark:shadow-brand-green/30 text-p3 font-semibold"
+					className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
 				>
 					<Plus className="h-4 w-4 mr-2" />
 					Yeni Partner
@@ -92,10 +92,10 @@ export default function PartnersListPage() {
 			</div>
 
 			{/* Table */}
-			<div className="rounded-lg border border-green-200/50 dark:border-gray-700/50 overflow-hidden bg-white dark:bg-gray-800/95 shadow-sm dark:shadow-xl dark:shadow-black/20">
+			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
 				<Table>
 					<TableHeader>
-						<TableRow className="bg-green-50/50 dark:bg-gray-700/50">
+						<TableRow className="bg-muted/50">
 							<TableHead className="w-16">Sıra</TableHead>
 							<TableHead>Logo</TableHead>
 							<TableHead>ID</TableHead>
@@ -107,7 +107,7 @@ export default function PartnersListPage() {
 							<TableRow>
 								<TableCell colSpan={4} className="text-center py-12">
 									<div className="flex flex-col items-center justify-center gap-3">
-										<Loader2 className="h-8 w-8 animate-spin text-brand-green dark:text-brand-green" />
+										<Loader2 className="h-8 w-8 animate-spin text-primary" />
 										<p className="text-p3 text-gray-500 dark:text-gray-400">
 											Yükleniyor...
 										</p>
@@ -153,7 +153,7 @@ export default function PartnersListPage() {
 										<EmptyContent>
 											<Button
 												onClick={() => navigate("/partners/create")}
-												className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white text-p3 font-semibold"
+												className="bg-primary text-primary-foreground hover:bg-primary/90"
 											>
 												<Plus className="h-4 w-4 mr-2" />
 												Yeni Partner Ekle
@@ -196,7 +196,7 @@ function PartnerTableRow({ partner, onView, onEdit, onDelete }: PartnerTableRowP
 		<TableRow className="hover:bg-green-50/30 dark:hover:bg-gray-700/30 transition-colors border-b dark:border-gray-700/50">
 			<TableCell className="font-medium dark:text-gray-200">
 				<div className="flex items-center gap-2">
-					<span className="text-h6 font-bold text-brand-green dark:text-brand-green">
+					<span className="text-h6 font-bold text-foreground">
 						{partner.orderIndex}
 					</span>
 				</div>

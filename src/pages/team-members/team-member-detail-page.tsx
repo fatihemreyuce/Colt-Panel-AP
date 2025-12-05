@@ -13,7 +13,7 @@ export default function TeamMemberDetailPage() {
 		return (
 			<div className="w-full py-6 px-6">
 				<div className="flex flex-col items-center justify-center h-64 gap-4">
-					<Loader2 className="h-8 w-8 animate-spin text-brand-green dark:text-brand-green" />
+					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 					<p className="text-p3 text-gray-500 dark:text-gray-400">Yükleniyor...</p>
 				</div>
 			</div>
@@ -27,7 +27,7 @@ export default function TeamMemberDetailPage() {
 					<p className="text-p3 text-gray-500 dark:text-gray-400 mb-4">Takım üyesi bulunamadı</p>
 					<Button
 						onClick={() => navigate("/team-members")}
-						className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 text-white text-p3 font-semibold"
+						className="bg-primary text-primary-foreground hover:bg-primary/90"
 					>
 						Takım Üyeleri Listesine Dön
 					</Button>
@@ -39,26 +39,25 @@ export default function TeamMemberDetailPage() {
 	return (
 		<div className="w-full py-6 px-6 space-y-6">
 			{/* Header */}
-			<div className="flex h-20 items-center justify-between border-b border-green-200/50 dark:border-gray-700/50 bg-gradient-to-r from-green-500/5 to-emerald-500/5 dark:from-gray-800/50 dark:to-gray-800/30 px-6 -mx-6 rounded-b-lg">
+			<div className="flex h-16 items-center justify-between border-b border-border px-6 -mx-6 mb-6">
 				<div className="flex items-center gap-4">
 					<Button
 						variant="ghost"
 						size="icon"
 						onClick={() => navigate("/team-members")}
-						className="hover:bg-green-50 dark:hover:bg-gray-700/50"
 					>
 						<ArrowLeft className="h-4 w-4" />
 					</Button>
 					<div>
-						<h1 className="text-h2 font-display bg-gradient-to-r from-brand-green to-green-600 dark:from-brand-green dark:to-green-400 bg-clip-text text-transparent">
+						<h1 className="text-h2 font-semibold text-foreground">
 							Takım Üyesi Detayları
 						</h1>
-						<p className="text-p3 text-gray-600 dark:text-gray-300 mt-1">Takım üyesi bilgilerini görüntüleyin</p>
+						<p className="text-p3 text-muted-foreground mt-1">Takım üyesi bilgilerini görüntüleyin</p>
 					</div>
 				</div>
 				<Button
 					onClick={() => navigate(`/team-members/edit/${teamMember.id}`)}
-					className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white shadow-lg shadow-brand-green/30 dark:shadow-brand-green/30 text-p3 font-semibold"
+					className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
 				>
 					<Edit className="h-4 w-4 mr-2" />
 					Düzenle
@@ -66,14 +65,14 @@ export default function TeamMemberDetailPage() {
 			</div>
 
 			{/* Info Container */}
-			<div className="rounded-lg border border-green-200/50 dark:border-gray-700/50 overflow-hidden bg-white dark:bg-gray-800/95 shadow-sm dark:shadow-xl dark:shadow-black/20">
+			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
 				{/* Info Header */}
-				<div className="bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-gray-700/50 dark:to-gray-700/30 border-b border-green-200/50 dark:border-gray-600/50 px-6 py-4">
-					<h2 className="text-h5 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-						<User className="h-5 w-5 text-brand-green dark:text-brand-green" />
+				<div className="bg-muted/50 border-b border-border px-6 py-4">
+					<h2 className="text-h5 font-semibold text-foreground flex items-center gap-2">
+						<User className="h-5 w-5 text-muted-foreground" />
 						Takım Üyesi Bilgileri
 					</h2>
-					<p className="text-p3 text-gray-600 dark:text-gray-300 mt-1">Takım üyesi detay bilgileri</p>
+					<p className="text-p3 text-muted-foreground mt-1">Takım üyesi detay bilgileri</p>
 				</div>
 
 				{/* Info Content */}
@@ -84,10 +83,10 @@ export default function TeamMemberDetailPage() {
 							<img
 								src={teamMember.photo}
 								alt={teamMember.name}
-								className="h-32 w-32 rounded-full object-cover border-4 border-green-200 dark:border-gray-600 shadow-lg"
+								className="h-32 w-32 rounded-full object-cover border-4 border-border shadow-lg"
 							/>
 						) : (
-							<div className="h-32 w-32 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-4 border-green-200 dark:border-gray-600">
+							<div className="h-32 w-32 rounded-full bg-muted flex items-center justify-center border-4 border-border">
 								<Users className="h-16 w-16 text-gray-400" />
 							</div>
 						)}
@@ -105,7 +104,7 @@ export default function TeamMemberDetailPage() {
 						{/* ID */}
 						<div className="space-y-2 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-700/30 border border-gray-200/50 dark:border-gray-600/50">
 							<div className="flex items-center gap-2 text-p3 font-semibold text-gray-500 dark:text-gray-400">
-								<User className="h-4 w-4 text-brand-green dark:text-brand-green" />
+								<User className="h-4 w-4 text-muted-foreground" />
 								Takım Üyesi ID
 							</div>
 							<div className="text-h5 font-bold text-gray-900 dark:text-gray-100">
@@ -116,7 +115,7 @@ export default function TeamMemberDetailPage() {
 						{/* Email */}
 						<div className="space-y-2 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-700/30 border border-gray-200/50 dark:border-gray-600/50">
 							<div className="flex items-center gap-2 text-p3 font-semibold text-gray-500 dark:text-gray-400">
-								<Mail className="h-4 w-4 text-brand-green dark:text-brand-green" />
+								<Mail className="h-4 w-4 text-muted-foreground" />
 								E-posta
 							</div>
 							<div className="text-p1 font-semibold text-gray-900 dark:text-gray-100 break-all">
@@ -127,7 +126,7 @@ export default function TeamMemberDetailPage() {
 						{/* LinkedIn */}
 						<div className="space-y-2 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-700/30 border border-gray-200/50 dark:border-gray-600/50">
 							<div className="flex items-center gap-2 text-p3 font-semibold text-gray-500 dark:text-gray-400">
-								<Linkedin className="h-4 w-4 text-brand-green dark:text-brand-green" />
+								<Linkedin className="h-4 w-4 text-muted-foreground" />
 								LinkedIn
 							</div>
 							<div className="text-p1 font-semibold text-gray-900 dark:text-gray-100">
@@ -136,7 +135,7 @@ export default function TeamMemberDetailPage() {
 										href={teamMember.linkedinUrl}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-brand-green dark:text-brand-green hover:underline"
+										className="text-primary hover:underline"
 									>
 										{teamMember.linkedinUrl}
 									</a>
@@ -151,14 +150,14 @@ export default function TeamMemberDetailPage() {
 					{teamMember.localizations && teamMember.localizations.length > 0 && (
 						<div className="space-y-4">
 							<h3 className="text-h5 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-								<ImageIcon className="h-5 w-5 text-brand-green dark:text-brand-green" />
+								<ImageIcon className="h-5 w-5 text-muted-foreground" />
 								Diller
 							</h3>
 							<div className="grid gap-4 md:grid-cols-2">
 								{teamMember.localizations.map((localization, index) => (
 									<div
 										key={index}
-										className="p-4 rounded-lg border border-green-200/50 dark:border-gray-600/50 bg-gray-50/50 dark:bg-gray-700/30 space-y-3"
+										className="p-4 rounded-lg border border-border bg-muted/50 space-y-3"
 									>
 										<div className="flex items-center gap-2">
 											<span className="text-p3 font-semibold text-brand-green dark:text-brand-green">

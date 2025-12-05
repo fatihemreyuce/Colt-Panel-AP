@@ -71,8 +71,8 @@ export default function UserEditPage() {
 		return (
 			<div className="w-full py-6 px-6">
 				<div className="flex flex-col items-center justify-center h-64 gap-4">
-					<Loader2 className="h-8 w-8 animate-spin text-green-500 dark:text-green-400" />
-					<p className="text-p3 text-gray-500 dark:text-gray-400">Yükleniyor...</p>
+					<Loader2 className="h-8 w-8 animate-spin text-primary" />
+					<p className="text-p3 text-muted-foreground">Yükleniyor...</p>
 				</div>
 			</div>
 		);
@@ -82,8 +82,8 @@ export default function UserEditPage() {
 		return (
 			<div className="w-full py-6 px-6">
 				<div className="text-center py-12">
-					<p className="text-p3 text-gray-500 dark:text-gray-400 mb-4">Kullanıcı bulunamadı</p>
-					<Button onClick={() => navigate("/users")} className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 text-white text-p3 font-semibold">
+					<p className="text-p3 text-muted-foreground mb-4">Kullanıcı bulunamadı</p>
+					<Button onClick={() => navigate("/users")} className="bg-primary text-primary-foreground hover:bg-primary/90">
 						Geri Dön
 					</Button>
 				</div>
@@ -94,53 +94,52 @@ export default function UserEditPage() {
 	return (
 		<div className="w-full py-6 px-6 space-y-6">
 			{/* Header */}
-			<div className="flex h-20 items-center gap-4 border-b border-green-200/50 dark:border-gray-700/50 bg-gradient-to-r from-green-500/5 to-emerald-500/5 dark:from-gray-800/50 dark:to-gray-800/30 px-6 -mx-6 rounded-b-lg">
+			<div className="flex h-16 items-center gap-4 border-b border-border px-6 -mx-6 mb-6">
 				<Button
 					variant="ghost"
 					size="icon"
 					onClick={() => navigate("/users")}
-					className="hover:bg-green-50 dark:hover:bg-green-950/30"
 				>
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
 				<div>
-					<h1 className="text-h2 font-display bg-gradient-to-r from-brand-green to-green-600 dark:from-brand-green dark:to-green-500 bg-clip-text text-transparent">
+					<h1 className="text-h2 font-semibold text-foreground">
 						Kullanıcı Düzenle
 					</h1>
-					<p className="text-p3 text-gray-600 dark:text-gray-400 mt-1">Kullanıcı bilgilerini güncelleyin</p>
+					<p className="text-p3 text-muted-foreground mt-1">Kullanıcı bilgilerini güncelleyin</p>
 				</div>
 			</div>
 			
 			{/* Form Container */}
-			<div className="rounded-lg border border-green-200/50 dark:border-gray-700/50 overflow-hidden bg-white dark:bg-gray-800/95 shadow-sm dark:shadow-xl dark:shadow-black/20">
+			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
 					{/* Form Header */}
-					<div className="bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-gray-700/50 dark:to-gray-700/30 border-b border-green-200/50 dark:border-gray-600/50 px-6 py-4">
-						<h2 className="text-h5 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-							<User className="h-5 w-5 text-brand-green dark:text-brand-green" />
+					<div className="bg-muted/50 border-b border-border px-6 py-4">
+						<h2 className="text-h5 font-semibold text-foreground flex items-center gap-2">
+							<User className="h-5 w-5 text-muted-foreground" />
 							Kullanıcı Bilgileri
 						</h2>
-						<p className="text-p3 text-gray-600 dark:text-gray-300 mt-1">Kullanıcı bilgilerini güncelleyin</p>
+						<p className="text-p3 text-muted-foreground mt-1">Kullanıcı bilgilerini güncelleyin</p>
 					</div>
 
 					{/* Form Content */}
 					<form onSubmit={handleSubmit} className="p-6 space-y-6">
 						{/* Username Field */}
 						<div className="space-y-2">
-							<Label htmlFor="username" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-								<User className="h-4 w-4 text-brand-green dark:text-brand-green" />
+							<Label htmlFor="username" className="text-p3 font-semibold flex items-center gap-2">
+								<User className="h-4 w-4 text-muted-foreground" />
 								Kullanıcı Adı
 							</Label>
 							<Input
 								id="username"
 								value={formData.username}
 								onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-								className={`h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30 focus-visible:border-green-500 dark:focus-visible:border-brand-green transition-all ${
-									errors.username ? "border-red-500 dark:border-red-500 focus-visible:ring-red-500/20" : ""
+								className={`h-11 ${
+									errors.username ? "border-destructive focus-visible:ring-destructive" : ""
 								}`}
 								placeholder="Kullanıcı adı giriniz"
 							/>
 							{errors.username && (
-								<p className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+								<p className="text-p3 text-destructive flex items-center gap-1">
 									<span>•</span>
 									{errors.username}
 								</p>
@@ -149,8 +148,8 @@ export default function UserEditPage() {
 
 						{/* Email Field */}
 						<div className="space-y-2">
-							<Label htmlFor="email" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-								<Mail className="h-4 w-4 text-brand-green dark:text-brand-green" />
+							<Label htmlFor="email" className="text-p3 font-semibold flex items-center gap-2">
+								<Mail className="h-4 w-4 text-muted-foreground" />
 								E-posta
 							</Label>
 							<Input
@@ -158,13 +157,13 @@ export default function UserEditPage() {
 								type="email"
 								value={formData.email}
 								onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-								className={`h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30 focus-visible:border-green-500 dark:focus-visible:border-brand-green transition-all ${
-									errors.email ? "border-red-500 dark:border-red-500 focus-visible:ring-red-500/20" : ""
+								className={`h-11 ${
+									errors.email ? "border-destructive focus-visible:ring-destructive" : ""
 								}`}
 								placeholder="ornek@email.com"
 							/>
 							{errors.email && (
-								<p className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+								<p className="text-p3 text-destructive flex items-center gap-1">
 									<span>•</span>
 									{errors.email}
 								</p>
@@ -173,9 +172,9 @@ export default function UserEditPage() {
 
 						{/* Password Field */}
 						<div className="space-y-2">
-							<Label htmlFor="password" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-								<Lock className="h-4 w-4 text-brand-green dark:text-brand-green" />
-								Şifre <span className="text-p3 font-regular text-gray-500 dark:text-gray-400">(Değiştirmek için doldurun)</span>
+							<Label htmlFor="password" className="text-p3 font-semibold flex items-center gap-2">
+								<Lock className="h-4 w-4 text-muted-foreground" />
+								Şifre <span className="text-p3 font-regular text-muted-foreground">(Değiştirmek için doldurun)</span>
 							</Label>
 							<div className="relative">
 								<Input
@@ -183,22 +182,22 @@ export default function UserEditPage() {
 									type={showPassword ? "text" : "password"}
 									value={formData.password}
 									onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-									className={`h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30 focus-visible:border-green-500 dark:focus-visible:border-brand-green pr-10 transition-all ${
-										errors.password ? "border-red-500 dark:border-red-500 focus-visible:ring-red-500/20" : ""
+									className={`h-11 pr-10 ${
+										errors.password ? "border-destructive focus-visible:ring-destructive" : ""
 									}`}
 									placeholder="Yeni şifre giriniz (opsiyonel)"
 								/>
 								<button
 									type="button"
 									onClick={() => setShowPassword(!showPassword)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-green-600 dark:hover:text-brand-green transition-colors p-1 rounded-md hover:bg-green-50 dark:hover:bg-gray-600/50"
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-muted"
 									aria-label={showPassword ? "Şifreyi gizle" : "Şifreyi göster"}
 								>
 									{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
 								</button>
 							</div>
 							{errors.password && (
-								<p className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+								<p className="text-p3 text-destructive flex items-center gap-1">
 									<span>•</span>
 									{errors.password}
 								</p>
@@ -206,19 +205,19 @@ export default function UserEditPage() {
 						</div>
 
 						{/* Form Actions */}
-						<div className="flex items-center justify-end gap-4 pt-6 border-t border-green-200/50 dark:border-gray-600/50">
+						<div className="flex items-center justify-end gap-4 pt-6 border-t border-border">
 							<Button
 								type="button"
 								variant="outline"
 								onClick={() => navigate("/users")}
-								className="border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-gray-600/50 min-w-[100px]"
+								className="min-w-[100px]"
 							>
 								İptal
 							</Button>
 							<Button
 								type="submit"
 								disabled={updateUserMutation.isPending}
-								className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white shadow-lg shadow-brand-green/30 dark:shadow-brand-green/20 min-w-[120px] text-p3 font-semibold"
+								className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
 							>
 								{updateUserMutation.isPending ? (
 									<>

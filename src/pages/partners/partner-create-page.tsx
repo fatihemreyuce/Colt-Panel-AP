@@ -68,27 +68,26 @@ export default function PartnerCreatePage() {
 	return (
 		<div className="w-full py-6 px-6 space-y-6">
 			{/* Header */}
-			<div className="flex h-20 items-center gap-4 border-b border-green-200/50 dark:border-gray-700/50 bg-gradient-to-r from-green-500/5 to-emerald-500/5 dark:from-gray-800/50 dark:to-gray-800/30 px-6 -mx-6 rounded-b-lg">
+			<div className="flex h-16 items-center gap-4 border-b border-border px-6 -mx-6 mb-6">
 				<Button
 					variant="ghost"
 					size="icon"
 					onClick={() => navigate("/partners")}
-					className="hover:bg-green-50 dark:hover:bg-gray-700/50"
 				>
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
 				<div>
-					<h1 className="text-h2 font-display bg-gradient-to-r from-brand-green to-green-600 dark:from-brand-green dark:to-green-400 bg-clip-text text-transparent">
+					<h1 className="text-h2 font-semibold text-foreground">
 						Yeni Partner Oluştur
 					</h1>
-					<p className="text-p3 text-gray-600 dark:text-gray-300 mt-1">Yeni bir partner ekleyin</p>
+					<p className="text-p3 text-muted-foreground mt-1">Yeni bir partner ekleyin</p>
 				</div>
 			</div>
 
 			{/* Form Container */}
-			<div className="rounded-lg border border-green-200/50 dark:border-gray-700/50 overflow-hidden bg-white dark:bg-gray-800/95 shadow-sm dark:shadow-xl dark:shadow-black/20">
+			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
 				{/* Form Header */}
-				<div className="bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-gray-700/50 dark:to-gray-700/30 border-b border-green-200/50 dark:border-gray-600/50 px-6 py-4">
+				<div className="bg-muted/50 border-b border-border px-6 py-4">
 					<h2 className="text-h5 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
 						<Handshake className="h-5 w-5 text-brand-green dark:text-brand-green" />
 						Partner Bilgileri
@@ -100,7 +99,7 @@ export default function PartnerCreatePage() {
 				<form onSubmit={handleSubmit} className="p-6 space-y-6">
 					{/* Logo Field */}
 					<div className="space-y-2">
-						<Label htmlFor="logo" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
+						<Label htmlFor="logo" className="text-p3 font-semibold flex items-center gap-2">
 							<ImageIcon className="h-4 w-4 text-brand-green dark:text-brand-green" />
 							Logo
 						</Label>
@@ -110,7 +109,7 @@ export default function PartnerCreatePage() {
 									<img
 										src={logoPreview}
 										alt="Preview"
-										className="h-32 w-32 rounded-xl object-contain border-2 border-green-200 dark:border-gray-600 shadow-lg bg-white dark:bg-gray-700/50 p-2"
+										className="h-32 w-32 rounded-xl object-contain border-2 border-border shadow-lg bg-card p-2"
 									/>
 									<button
 										type="button"
@@ -126,7 +125,7 @@ export default function PartnerCreatePage() {
 								</div>
 								<label
 									htmlFor="logo"
-									className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-green-50 dark:hover:bg-gray-600/50 cursor-pointer transition-colors text-p3 font-semibold text-gray-700 dark:text-gray-200"
+									className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card hover:bg-muted cursor-pointer transition-colors text-p3 font-semibold"
 								>
 									<Upload className="h-4 w-4 text-brand-green dark:text-brand-green" />
 									Logoyu Değiştir
@@ -142,14 +141,14 @@ export default function PartnerCreatePage() {
 						) : (
 							<label
 								htmlFor="logo"
-								className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-green-300 dark:border-gray-600 rounded-xl bg-green-50/50 dark:bg-gray-700/30 hover:bg-green-100/50 dark:hover:bg-gray-700/50 cursor-pointer transition-all hover:border-brand-green dark:hover:border-brand-green group"
+								className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-border rounded-xl bg-muted/50 hover:bg-muted cursor-pointer transition-all hover:border-primary group"
 							>
 								<div className="flex flex-col items-center justify-center pt-5 pb-6">
-									<Upload className="h-12 w-12 text-brand-green dark:text-brand-green mb-4 group-hover:scale-110 transition-transform" />
-									<p className="text-p3 font-semibold text-gray-700 dark:text-gray-200 mb-2">
+									<Upload className="h-12 w-12 text-muted-foreground mb-4 group-hover:scale-110 transition-transform" />
+									<p className="text-p3 font-semibold mb-2">
 										Logo Yükle
 									</p>
-									<p className="text-p3 text-gray-500 dark:text-gray-400 text-center px-4">
+									<p className="text-p3 text-muted-foreground text-center px-4">
 										PNG, JPG veya SVG (Max. 5MB)
 									</p>
 								</div>
@@ -172,8 +171,8 @@ export default function PartnerCreatePage() {
 
 					{/* Order Index Field */}
 					<div className="space-y-2">
-						<Label htmlFor="orderIndex" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-							<Hash className="h-4 w-4 text-brand-green dark:text-brand-green" />
+						<Label htmlFor="orderIndex" className="text-p3 font-semibold flex items-center gap-2">
+							<Hash className="h-4 w-4 text-muted-foreground" />
 							Sıra Numarası
 						</Label>
 						<Input
@@ -182,36 +181,36 @@ export default function PartnerCreatePage() {
 							min="0"
 							value={formData.orderIndex}
 							onChange={(e) => setFormData({ ...formData, orderIndex: parseInt(e.target.value) || 0 })}
-							className={`h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30 focus-visible:border-green-500 dark:focus-visible:border-brand-green transition-all ${
-								errors.orderIndex ? "border-red-500 dark:border-red-500 focus-visible:ring-red-500/20" : ""
+							className={`h-11 ${
+								errors.orderIndex ? "border-destructive focus-visible:ring-destructive" : ""
 							}`}
 							placeholder="0"
 						/>
 						{errors.orderIndex && (
-							<p className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+							<p className="text-p3 text-destructive flex items-center gap-1">
 								<span>•</span>
 								{errors.orderIndex}
 							</p>
 						)}
-						<p className="text-p3 text-gray-500 dark:text-gray-400">
+						<p className="text-p3 text-muted-foreground">
 							Partner'ların görüntülenme sırasını belirler. Düşük numara önce gösterilir.
 						</p>
 					</div>
 
 					{/* Form Actions */}
-					<div className="flex items-center justify-end gap-4 pt-6 border-t border-green-200/50 dark:border-gray-600/50">
+					<div className="flex items-center justify-end gap-4 pt-6 border-t border-border">
 						<Button
 							type="button"
 							variant="outline"
 							onClick={() => navigate("/partners")}
-							className="border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-gray-600/50 min-w-[100px]"
+							className="min-w-[100px]"
 						>
 							İptal
 						</Button>
 						<Button
 							type="submit"
 							disabled={createPartnerMutation.isPending}
-							className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white shadow-lg shadow-brand-green/30 dark:shadow-brand-green/20 min-w-[120px] text-p3 font-semibold"
+							className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
 						>
 							{createPartnerMutation.isPending ? (
 								<>

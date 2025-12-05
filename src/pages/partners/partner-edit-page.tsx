@@ -84,7 +84,7 @@ export default function PartnerEditPage() {
 		return (
 			<div className="w-full py-6 px-6">
 				<div className="flex flex-col items-center justify-center h-64 gap-4">
-					<Loader2 className="h-8 w-8 animate-spin text-brand-green dark:text-brand-green" />
+					<Loader2 className="h-8 w-8 animate-spin text-primary" />
 					<p className="text-p3 text-gray-500 dark:text-gray-400">Yükleniyor...</p>
 				</div>
 			</div>
@@ -96,7 +96,7 @@ export default function PartnerEditPage() {
 			<div className="w-full py-6 px-6">
 				<div className="text-center py-12">
 					<p className="text-p3 text-gray-500 dark:text-gray-400 mb-4">Partner bulunamadı</p>
-					<Button onClick={() => navigate("/partners")} className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 text-white text-p3 font-semibold">
+					<Button onClick={() => navigate("/partners")} className="bg-primary text-primary-foreground hover:bg-primary/90">
 						Geri Dön
 					</Button>
 				</div>
@@ -107,29 +107,28 @@ export default function PartnerEditPage() {
 	return (
 		<div className="w-full py-6 px-6 space-y-6">
 			{/* Header */}
-			<div className="flex h-20 items-center gap-4 border-b border-green-200/50 dark:border-gray-700/50 bg-gradient-to-r from-green-500/5 to-emerald-500/5 dark:from-gray-800/50 dark:to-gray-800/30 px-6 -mx-6 rounded-b-lg">
+			<div className="flex h-16 items-center gap-4 border-b border-border px-6 -mx-6 mb-6">
 				<Button
 					variant="ghost"
 					size="icon"
 					onClick={() => navigate("/partners")}
-					className="hover:bg-green-50 dark:hover:bg-gray-700/50"
 				>
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
 				<div>
-					<h1 className="text-h2 font-display bg-gradient-to-r from-brand-green to-green-600 dark:from-brand-green dark:to-green-400 bg-clip-text text-transparent">
+					<h1 className="text-h2 font-semibold text-foreground">
 						Partner Düzenle
 					</h1>
-					<p className="text-p3 text-gray-600 dark:text-gray-300 mt-1">Partner bilgilerini güncelleyin</p>
+					<p className="text-p3 text-muted-foreground mt-1">Partner bilgilerini güncelleyin</p>
 				</div>
 			</div>
 
 			{/* Form Container */}
-			<div className="rounded-lg border border-green-200/50 dark:border-gray-700/50 overflow-hidden bg-white dark:bg-gray-800/95 shadow-sm dark:shadow-xl dark:shadow-black/20">
+			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
 				{/* Form Header */}
-				<div className="bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-gray-700/50 dark:to-gray-700/30 border-b border-green-200/50 dark:border-gray-600/50 px-6 py-4">
+				<div className="bg-muted/50 border-b border-border px-6 py-4">
 					<h2 className="text-h5 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-						<Handshake className="h-5 w-5 text-brand-green dark:text-brand-green" />
+						<Handshake className="h-5 w-5 text-muted-foreground" />
 						Partner Bilgileri
 					</h2>
 					<p className="text-p3 text-gray-600 dark:text-gray-300 mt-1">Partner bilgilerini güncelleyin</p>
@@ -140,7 +139,7 @@ export default function PartnerEditPage() {
 					{/* Logo Field */}
 					<div className="space-y-2">
 						<Label htmlFor="logo" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-							<ImageIcon className="h-4 w-4 text-brand-green dark:text-brand-green" />
+							<ImageIcon className="h-4 w-4 text-muted-foreground" />
 							Logo
 						</Label>
 						{logoPreview ? (
@@ -167,7 +166,7 @@ export default function PartnerEditPage() {
 									htmlFor="logo"
 									className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-green-50 dark:hover:bg-gray-600/50 cursor-pointer transition-colors text-p3 font-semibold text-gray-700 dark:text-gray-200"
 								>
-									<Upload className="h-4 w-4 text-brand-green dark:text-brand-green" />
+									<Upload className="h-4 w-4 text-muted-foreground" />
 									Logoyu Değiştir
 								</label>
 								<Input
@@ -184,7 +183,7 @@ export default function PartnerEditPage() {
 								className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-green-300 dark:border-gray-600 rounded-xl bg-green-50/50 dark:bg-gray-700/30 hover:bg-green-100/50 dark:hover:bg-gray-700/50 cursor-pointer transition-all hover:border-brand-green dark:hover:border-brand-green group"
 							>
 								<div className="flex flex-col items-center justify-center pt-5 pb-6">
-									<Upload className="h-12 w-12 text-brand-green dark:text-brand-green mb-4 group-hover:scale-110 transition-transform" />
+									<Upload className="h-12 w-12 text-muted-foreground mb-4 group-hover:scale-110 transition-transform" />
 									<p className="text-p3 font-semibold text-gray-700 dark:text-gray-200 mb-2">
 										Logo Yükle
 									</p>
@@ -235,19 +234,19 @@ export default function PartnerEditPage() {
 					</div>
 
 					{/* Form Actions */}
-					<div className="flex items-center justify-end gap-4 pt-6 border-t border-green-200/50 dark:border-gray-600/50">
+					<div className="flex items-center justify-end gap-4 pt-6 border-t border-border">
 						<Button
 							type="button"
 							variant="outline"
 							onClick={() => navigate("/partners")}
-							className="border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-gray-600/50 min-w-[100px]"
+							className="min-w-[100px]"
 						>
 							İptal
 						</Button>
 						<Button
 							type="submit"
 							disabled={updatePartnerMutation.isPending}
-							className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white shadow-lg shadow-brand-green/30 dark:shadow-brand-green/20 min-w-[120px] text-p3 font-semibold"
+							className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
 						>
 							{updatePartnerMutation.isPending ? (
 								<>

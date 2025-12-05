@@ -258,53 +258,52 @@ export default function TeamMemberCreatePage() {
 	return (
 		<div className="w-full py-6 px-6 space-y-6">
 			{/* Header */}
-			<div className="flex h-20 items-center gap-4 border-b border-green-200/50 dark:border-gray-700/50 bg-gradient-to-r from-green-500/5 to-emerald-500/5 dark:from-gray-800/50 dark:to-gray-800/30 px-6 -mx-6 rounded-b-lg">
+			<div className="flex h-16 items-center gap-4 border-b border-border px-6 -mx-6 mb-6">
 				<Button
 					variant="ghost"
 					size="icon"
 					onClick={() => navigate("/team-members")}
-					className="hover:bg-green-50 dark:hover:bg-gray-700/50"
 				>
 					<ArrowLeft className="h-4 w-4" />
 				</Button>
 				<div>
-					<h1 className="text-h2 font-display bg-gradient-to-r from-brand-green to-green-600 dark:from-brand-green dark:to-green-400 bg-clip-text text-transparent">
+					<h1 className="text-h2 font-semibold text-foreground">
 						Yeni Takım Üyesi Oluştur
 					</h1>
-					<p className="text-p3 text-gray-600 dark:text-gray-300 mt-1">Yeni bir takım üyesi ekleyin</p>
+					<p className="text-p3 text-muted-foreground mt-1">Yeni bir takım üyesi ekleyin</p>
 				</div>
 			</div>
 
 			{/* Form Container */}
-			<div className="rounded-lg border border-green-200/50 dark:border-gray-700/50 overflow-hidden bg-white dark:bg-gray-800/95 shadow-sm dark:shadow-xl dark:shadow-black/20">
+			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
 				{/* Form Header */}
-				<div className="bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-gray-700/50 dark:to-gray-700/30 border-b border-green-200/50 dark:border-gray-600/50 px-6 py-4">
-					<h2 className="text-h5 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-						<User className="h-5 w-5 text-brand-green dark:text-brand-green" />
+				<div className="bg-muted/50 border-b border-border px-6 py-4">
+					<h2 className="text-h5 font-semibold text-foreground flex items-center gap-2">
+						<User className="h-5 w-5 text-muted-foreground" />
 						Takım Üyesi Bilgileri
 					</h2>
-					<p className="text-p3 text-gray-600 dark:text-gray-300 mt-1">Yeni takım üyesi için gerekli bilgileri giriniz</p>
+					<p className="text-p3 text-muted-foreground mt-1">Yeni takım üyesi için gerekli bilgileri giriniz</p>
 				</div>
 
 				{/* Form Content */}
 				<form onSubmit={handleSubmit} className="p-6 space-y-6">
 					{/* Name Field */}
 					<div className="space-y-2">
-						<Label htmlFor="name" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-							<User className="h-4 w-4 text-brand-green dark:text-brand-green" />
+						<Label htmlFor="name" className="text-p3 font-semibold flex items-center gap-2">
+							<User className="h-4 w-4 text-muted-foreground" />
 							İsim
 						</Label>
 						<Input
 							id="name"
 							value={formData.name}
 							onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-							className={`h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30 focus-visible:border-green-500 dark:focus-visible:border-brand-green transition-all ${
-								errors.name ? "border-red-500 dark:border-red-500 focus-visible:ring-red-500/20" : ""
+							className={`h-11 ${
+								errors.name ? "border-destructive focus-visible:ring-destructive" : ""
 							}`}
 							placeholder="İsim giriniz"
 						/>
 						{errors.name && (
-							<p className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+							<p className="text-p3 text-destructive flex items-center gap-1">
 								<span>•</span>
 								{errors.name}
 							</p>
@@ -313,8 +312,8 @@ export default function TeamMemberCreatePage() {
 
 					{/* Email Field */}
 					<div className="space-y-2">
-						<Label htmlFor="email" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-							<Mail className="h-4 w-4 text-brand-green dark:text-brand-green" />
+						<Label htmlFor="email" className="text-p3 font-semibold flex items-center gap-2">
+							<Mail className="h-4 w-4 text-muted-foreground" />
 							E-posta
 						</Label>
 						<Input
@@ -322,13 +321,13 @@ export default function TeamMemberCreatePage() {
 							type="email"
 							value={formData.email}
 							onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-							className={`h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30 focus-visible:border-green-500 dark:focus-visible:border-brand-green transition-all ${
-								errors.email ? "border-red-500 dark:border-red-500 focus-visible:ring-red-500/20" : ""
+							className={`h-11 ${
+								errors.email ? "border-destructive focus-visible:ring-destructive" : ""
 							}`}
 							placeholder="ornek@email.com"
 						/>
 						{errors.email && (
-							<p className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+							<p className="text-p3 text-destructive flex items-center gap-1">
 								<span>•</span>
 								{errors.email}
 							</p>
@@ -337,8 +336,8 @@ export default function TeamMemberCreatePage() {
 
 					{/* LinkedIn URL Field */}
 					<div className="space-y-2">
-						<Label htmlFor="linkedinUrl" className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-							<Linkedin className="h-4 w-4 text-brand-green dark:text-brand-green" />
+						<Label htmlFor="linkedinUrl" className="text-p3 font-semibold flex items-center gap-2">
+							<Linkedin className="h-4 w-4 text-muted-foreground" />
 							LinkedIn URL
 						</Label>
 						<Input
@@ -346,13 +345,13 @@ export default function TeamMemberCreatePage() {
 							type="url"
 							value={formData.linkedinUrl}
 							onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
-							className={`h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30 focus-visible:border-green-500 dark:focus-visible:border-brand-green transition-all ${
-								errors.linkedinUrl ? "border-red-500 dark:border-red-500 focus-visible:ring-red-500/20" : ""
+							className={`h-11 ${
+								errors.linkedinUrl ? "border-destructive focus-visible:ring-destructive" : ""
 							}`}
 							placeholder="https://linkedin.com/in/..."
 						/>
 						{errors.linkedinUrl && (
-							<p className="text-p3 text-red-600 dark:text-red-400 flex items-center gap-1">
+							<p className="text-p3 text-destructive flex items-center gap-1">
 								<span>•</span>
 								{errors.linkedinUrl}
 							</p>
@@ -371,7 +370,7 @@ export default function TeamMemberCreatePage() {
 									<img
 										src={photoPreview}
 										alt="Preview"
-										className="h-32 w-32 rounded-xl object-cover border-2 border-green-200 dark:border-gray-600 shadow-lg"
+										className="h-32 w-32 rounded-xl object-cover border-2 border-border shadow-lg"
 									/>
 									<button
 										type="button"
@@ -387,9 +386,9 @@ export default function TeamMemberCreatePage() {
 								</div>
 								<label
 									htmlFor="photo"
-									className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 dark:border-gray-600 bg-white dark:bg-gray-700/50 hover:bg-green-50 dark:hover:bg-gray-600/50 cursor-pointer transition-colors text-p3 font-semibold text-gray-700 dark:text-gray-200"
+									className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card hover:bg-muted cursor-pointer transition-colors text-p3 font-semibold"
 								>
-									<Upload className="h-4 w-4 text-brand-green dark:text-brand-green" />
+									<Upload className="h-4 w-4 text-muted-foreground" />
 									Fotoğrafı Değiştir
 								</label>
 								<Input
@@ -403,10 +402,10 @@ export default function TeamMemberCreatePage() {
 						) : (
 							<label
 								htmlFor="photo"
-								className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-green-300 dark:border-gray-600 rounded-xl bg-green-50/50 dark:bg-gray-700/30 hover:bg-green-100/50 dark:hover:bg-gray-700/50 cursor-pointer transition-all hover:border-brand-green dark:hover:border-brand-green group"
+								className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-border rounded-xl bg-muted/50 hover:bg-muted cursor-pointer transition-all hover:border-primary group"
 							>
 								<div className="flex flex-col items-center justify-center pt-5 pb-6">
-									<Upload className="h-12 w-12 text-brand-green dark:text-brand-green mb-4 group-hover:scale-110 transition-transform" />
+									<Upload className="h-12 w-12 text-muted-foreground mb-4 group-hover:scale-110 transition-transform" />
 									<p className="text-p3 font-semibold text-gray-700 dark:text-gray-200 mb-2">
 										Fotoğraf Yükle
 									</p>
@@ -429,17 +428,17 @@ export default function TeamMemberCreatePage() {
 					<div className="space-y-4">
 						{/* Header */}
 						<div className="flex items-center justify-between">
-							<Label className="text-p3 text-gray-700 dark:text-gray-200 font-semibold flex items-center gap-2">
-								<Globe className="h-4 w-4 text-brand-green dark:text-brand-green" />
-								Çoklu Dil İçerikleri <span className="text-red-500">*</span>
+							<Label className="text-p3 font-semibold flex items-center gap-2">
+								<Globe className="h-4 w-4 text-muted-foreground" />
+								Çoklu Dil İçerikleri <span className="text-destructive">*</span>
 							</Label>
 							<Button
 								type="button"
-								variant="outline"
+								variant="default"
 								size="sm"
 								onClick={handleTranslate}
 								disabled={translating}
-								className="bg-brand-green hover:bg-green-600 dark:bg-brand-green dark:hover:bg-green-600 text-white border-brand-green hover:border-green-600 dark:border-brand-green dark:hover:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+								className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
 								<RefreshCw className={`h-4 w-4 mr-2 ${translating ? "animate-spin" : ""}`} />
 								{translating ? "Çeviriliyor..." : "Diğer Dilleri Çevir"}
@@ -459,8 +458,8 @@ export default function TeamMemberCreatePage() {
 										onClick={() => setSelectedLanguageCode(lang.code)}
 										className={
 											isSelected
-												? "bg-brand-green hover:bg-green-600 dark:bg-brand-green dark:hover:bg-green-600 text-white border-brand-green"
-												: "border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-gray-600/50"
+												? "bg-primary text-primary-foreground hover:bg-primary/90"
+												: ""
 										}
 									>
 										{lang.code.toUpperCase()}
@@ -486,7 +485,7 @@ export default function TeamMemberCreatePage() {
 									<Input
 										value={currentLocalization.title}
 										onChange={(e) => handleLocalizationChange("title", e.target.value)}
-										className="h-11 border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-100 focus-visible:ring-2 focus-visible:ring-green-500/20 dark:focus-visible:ring-brand-green/30"
+										className="h-11"
 										placeholder={`${selectedLanguage?.code === "tr" ? "TR" : selectedLanguage?.code === "en" ? "EN" : selectedLanguage?.code?.toUpperCase() || ""} başlığını girin`}
 									/>
 									{formData.localizations.map((loc, index) => {
@@ -510,7 +509,7 @@ export default function TeamMemberCreatePage() {
 										onChange={(content) => handleLocalizationChange("description", content)}
 										placeholder={`${selectedLanguage?.code === "tr" ? "TR" : selectedLanguage?.code === "en" ? "EN" : selectedLanguage?.code?.toUpperCase() || ""} açıklamasını girin`}
 										height={300}
-										className="border border-green-200 dark:border-gray-600 rounded-lg overflow-hidden"
+										className="border border-border rounded-lg overflow-hidden"
 									/>
 									{formData.localizations.map((loc, index) => {
 										if (loc.languageCode !== selectedLanguageCode) return null;
@@ -527,19 +526,19 @@ export default function TeamMemberCreatePage() {
 					</div>
 
 					{/* Form Actions */}
-					<div className="flex items-center justify-end gap-4 pt-6 border-t border-green-200/50 dark:border-gray-600/50">
+					<div className="flex items-center justify-end gap-4 pt-6 border-t border-border">
 						<Button
 							type="button"
 							variant="outline"
 							onClick={() => navigate("/team-members")}
-							className="border-green-200 dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-200 hover:bg-green-50 dark:hover:bg-gray-600/50 min-w-[100px]"
+							className="min-w-[100px]"
 						>
 							İptal
 						</Button>
 						<Button
 							type="submit"
 							disabled={createTeamMemberMutation.isPending}
-							className="bg-gradient-to-r from-brand-green to-green-600 hover:from-green-600 hover:to-green-700 dark:from-brand-green dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white shadow-lg shadow-brand-green/30 dark:shadow-brand-green/20 min-w-[120px] text-p3 font-semibold"
+							className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
 						>
 							{createTeamMemberMutation.isPending ? (
 								<>
