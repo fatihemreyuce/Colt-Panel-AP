@@ -16,6 +16,7 @@ import {
 import { ArrowLeft, Save, User, Mail, Linkedin, Image as ImageIcon, Plus, X, Languages as LanguagesIcon, Loader2, Upload, XCircle, Globe, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import type { TeamMemberRequest } from "@/types/team-members.types";
+import { translateText, translateHtml } from "@/services/translate-service";
 
 export default function TeamMemberEditPage() {
 	const navigate = useNavigate();
@@ -193,6 +194,81 @@ export default function TeamMemberEditPage() {
 
 	const currentLocalization = getCurrentLocalization();
 	const selectedLanguage = languages.find(lang => lang.code === selectedLanguageCode);
+
+	const handleTranslate = async () => {
+		if (!selectedLanguageCode || (!currentLocalization.title.trim() && !currentLocalization.description.trim())) {
+			toast.warning("Lütfen önce başlık veya açıklama giriniz");
+			return;
+		}
+
+		setTranslating(true);
+		try {
+			const sourceTitle = currentLocalization.title.trim();
+			const sourceDescription = currentLocalization.description.trim();
+
+			if (!sourceTitle && !sourceDescription) {
+				toast.warning("Lütfen önce başlık veya açıklama giriniz");
+				setTranslating(false);
+				return;
+			}
+
+			const newLocalizations = [...formData.localizations];
+			const sourceIndex = newLocalizations.findIndex(loc => loc.languageCode === selectedLanguageCode);
+
+			// Diğer tüm dillere çevir
+			const translatePromises = languages
+				.filter(lang => lang.code !== selectedLanguageCode)
+				.map(async (lang) => {
+					const targetIndex = newLocalizations.findIndex(loc => loc.languageCode === lang.code);
+					
+					// Eğer bu dil için entry yoksa, oluştur
+					if (targetIndex === -1) {
+						newLocalizations.push({
+							languageCode: lang.code,
+							title: "",
+							description: "",
+						});
+					}
+
+					const finalIndex = targetIndex === -1 ? newLocalizations.length - 1 : targetIndex;
+
+					// Başlık çevir
+					if (sourceTitle) {
+						try {
+							const translatedTitle = await translateText(sourceTitle, lang.code, selectedLanguageCode);
+							newLocalizations[finalIndex] = {
+								...newLocalizations[finalIndex],
+								title: translatedTitle,
+							};
+						} catch (error) {
+							console.error(`Title translation error for ${lang.code}:`, error);
+						}
+					}
+
+					// Açıklama çevir (HTML içeriği)
+					if (sourceDescription) {
+						try {
+							const translatedDescription = await translateHtml(sourceDescription, lang.code, selectedLanguageCode);
+							newLocalizations[finalIndex] = {
+								...newLocalizations[finalIndex],
+								description: translatedDescription,
+							};
+						} catch (error) {
+							console.error(`Description translation error for ${lang.code}:`, error);
+						}
+					}
+				});
+
+			await Promise.all(translatePromises);
+			setFormData({ ...formData, localizations: newLocalizations });
+			toast.success("Diğer dillere çeviri işlemi tamamlandı");
+		} catch (error: any) {
+			console.error("Translation error:", error);
+			toast.error(error?.message || "Çeviri işlemi sırasında bir hata oluştu");
+		} finally {
+			setTranslating(false);
+		}
+	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -418,17 +494,12 @@ export default function TeamMemberEditPage() {
 								type="button"
 								variant="outline"
 								size="sm"
-								onClick={() => {
-									if (!selectedLanguageCode || (!currentLocalization.title.trim() && !currentLocalization.description.trim())) {
-										toast.warning("Lütfen önce başlık veya açıklama giriniz");
-										return;
-									}
-									toast.success("Diğer dillere çeviri işlemi başlatıldı");
-								}}
-								className="bg-brand-green hover:bg-green-600 dark:bg-brand-green dark:hover:bg-green-600 text-white border-brand-green hover:border-green-600 dark:border-brand-green dark:hover:border-green-600"
+								onClick={handleTranslate}
+								disabled={translating}
+								className="bg-brand-green hover:bg-green-600 dark:bg-brand-green dark:hover:bg-green-600 text-white border-brand-green hover:border-green-600 dark:border-brand-green dark:hover:border-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-								<RefreshCw className="h-4 w-4 mr-2" />
-								Diğer Dilleri Çevir
+								<RefreshCw className={`h-4 w-4 mr-2 ${translating ? "animate-spin" : ""}`} />
+								{translating ? "Çeviriliyor..." : "Diğer Dilleri Çevir"}
 							</Button>
 						</div>
 
