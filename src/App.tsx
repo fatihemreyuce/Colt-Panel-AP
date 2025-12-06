@@ -26,6 +26,17 @@ import PartnersListPage from "./pages/partners/partners-list-page";
 import PartnerCreatePage from "./pages/partners/partner-create-page";
 import PartnerEditPage from "./pages/partners/partner-edit-page";
 import PartnerDetailPage from "./pages/partners/partner-detail-page";
+import AssetsListPage from "./pages/assets/assets-list-page";
+import AssetCreatePage from "./pages/assets/asset-create-page";
+import AssetEditPage from "./pages/assets/asset-edit-page";
+import AssetDetailPage from "./pages/assets/asset-detail-page";
+import OfficesListPage from "./pages/offices/offices-list-page";
+import OfficeCreatePage from "./pages/offices/office-create-page";
+import OfficeEditPage from "./pages/offices/office-edit-page";
+import OfficeDetailPage from "./pages/offices/office-detail-page";
+import BackupsListPage from "./pages/backups/backups-list-page";
+import BackupCreatePage from "./pages/backups/backup-create-page";
+import BackupDetailPage from "./pages/backups/backup-detail-page";
 
 
 function App() {
@@ -59,6 +70,17 @@ function App() {
 								<Route path="/partners/create" element={<PartnerCreatePage />} />
 								<Route path="/partners/edit/:id" element={<PartnerEditPage />} />
 								<Route path="/partners/detail/:id" element={<PartnerDetailPage />} />
+								<Route path="/assets" element={<AssetsListPage />} />
+								<Route path="/assets/create" element={<AssetCreatePage />} />
+								<Route path="/assets/edit/:id" element={<AssetEditPage />} />
+								<Route path="/assets/detail/:id" element={<AssetDetailPage />} />
+								<Route path="/offices" element={<OfficesListPage />} />
+								<Route path="/offices/create" element={<OfficeCreatePage />} />
+								<Route path="/offices/edit/:id" element={<OfficeEditPage />} />
+								<Route path="/offices/detail/:id" element={<OfficeDetailPage />} />
+								<Route path="/backups" element={<BackupsListPage />} />
+								<Route path="/backups/create" element={<BackupCreatePage />} />
+								<Route path="/backups/detail/:id" element={<BackupDetailPage />} />
 							</Route>
 						</Route>
 					</Routes>
