@@ -211,9 +211,10 @@ export default function TeamMembersListPage() {
 	}, []);
 
 	// Computed values
-	const totalPages = data?.totalPages ?? 0;
-	const currentPage = data?.number ?? 0;
-	const totalElements = data?.totalElements ?? 0;
+	// Backend nested yapı döndürüyor: data.page.totalPages
+	const totalPages = (data as any)?.page?.totalPages ?? data?.totalPages ?? 0;
+	const currentPage = (data as any)?.page?.number ?? data?.number ?? 0;
+	const totalElements = (data as any)?.page?.totalElements ?? data?.totalElements ?? 0;
 	const teamMembers = data?.content ?? [];
 
 	const selectedTeamMember = useMemo(
@@ -386,34 +387,94 @@ export default function TeamMembersListPage() {
 			</div>
 
 			{/* Pagination */}
-			{totalPages > 1 && (
-				<div className="flex items-center justify-between">
-					<div className="text-p3 text-muted-foreground">
-						Toplam <span className="font-semibold text-foreground">{totalElements}</span> takım üyesi
-					</div>
-					<div className="flex items-center gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => handlePageChange(page - 1)}
-							disabled={currentPage === 0 || isLoading}
-						>
-							<ChevronLeft className="h-4 w-4" />
-						</Button>
-						<span className="text-p3 font-semibold px-4 min-w-[120px] text-center text-foreground">
-							Sayfa {currentPage + 1} / {totalPages}
-						</span>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => handlePageChange(page + 1)}
-							disabled={currentPage >= totalPages - 1 || isLoading}
-						>
-							<ChevronRight className="h-4 w-4" />
-						</Button>
-					</div>
+			<div className="flex items-center justify-between">
+				<div className="text-p3 text-muted-foreground">
+					Toplam <span className="font-semibold text-foreground">{totalElements}</span> takım üyesi
 				</div>
-			)}
+				<div className="flex items-center gap-1">
+					{/* Önceki butonu */}
+					{currentPage > 0 && (
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => handlePageChange(currentPage - 1)}
+							disabled={isLoading}
+							className="h-9 text-foreground hover:bg-muted"
+						>
+							<ChevronLeft className="h-4 w-4 mr-1" />
+							Önceki
+						</Button>
+					)}
+					
+					{/* Sayfa 1 */}
+					<Button
+						variant={currentPage === 0 ? "default" : "ghost"}
+						size="sm"
+						onClick={() => handlePageChange(0)}
+						disabled={isLoading}
+						className={`h-9 min-w-[40px] ${
+							currentPage === 0 
+								? "bg-muted text-foreground hover:bg-muted/80" 
+								: "text-foreground hover:bg-muted"
+						}`}
+					>
+						1
+					</Button>
+					
+					{/* Sayfa 2 */}
+					{totalPages > 1 && (
+						<Button
+							variant={currentPage === 1 ? "default" : "ghost"}
+							size="sm"
+							onClick={() => handlePageChange(1)}
+							disabled={isLoading}
+							className={`h-9 min-w-[40px] ${
+								currentPage === 1 
+									? "bg-muted text-foreground hover:bg-muted/80" 
+									: "text-foreground hover:bg-muted"
+							}`}
+						>
+							2
+						</Button>
+					)}
+					
+					{/* Sayfa 3 (eğer sayfa 1 veya 2'deysek) */}
+					{(currentPage === 0 || currentPage === 1) && totalPages > 2 && (
+						<Button
+							variant={currentPage === 2 ? "default" : "ghost"}
+							size="sm"
+							onClick={() => handlePageChange(2)}
+							disabled={isLoading}
+							className={`h-9 min-w-[40px] ${
+								currentPage === 2 
+									? "bg-muted text-foreground hover:bg-muted/80" 
+									: "text-foreground hover:bg-muted"
+							}`}
+						>
+							3
+						</Button>
+					)}
+					
+					{/* Üç nokta (mevcut sayfa 2'den büyükse) */}
+					{currentPage > 2 && (
+						<span className="text-p3 text-muted-foreground px-1">...</span>
+					)}
+					
+					{/* Sonraki butonu */}
+					{currentPage < totalPages - 1 && (
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={() => handlePageChange(currentPage + 1)}
+							disabled={isLoading}
+							className="h-9 text-foreground hover:bg-muted"
+						>
+							Sonraki
+							<ChevronRight className="h-4 w-4 ml-1" />
+						</Button>
+					)}
+				</div>
+			</div>
 
 			{/* Delete Confirmation Modal */}
 			<ConfirmModal
