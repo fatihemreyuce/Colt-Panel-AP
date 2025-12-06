@@ -3,23 +3,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useUpdateComponent, useGetComponentById } from "@/hooks/use-components";
 import { useComponentTypes } from "@/hooks/use-component-type";
 import { useLanguages } from "@/hooks/use-languages";
+import { useAssets } from "@/hooks/use-assets";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { ArrowLeft, Save, Box, Plus, X, Loader2, Upload, Languages as LanguagesIcon, FileImage, RefreshCw } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { translateText } from "@/services/translation-service";
+import { ArrowLeft, Save, Box, Loader2 } from "lucide-react";
+import { translateText } from "@/services/translate-service";
 import { toast } from "sonner";
+import { ComponentBasicFields } from "@/components/component-basic-fields";
+import { ComponentLocalizations } from "@/components/component-localizations";
+import { AssetList } from "@/components/asset-list";
 import type { componentRequest, localization } from "@/types/components.types";
-import type { assetRequest } from "@/types/assets.types";
+import type { localization as assetLocalization } from "@/types/assets.types";
 
 export default function ComponentEditPage() {
 	const navigate = useNavigate();
@@ -31,9 +24,11 @@ export default function ComponentEditPage() {
 	// Component types ve languages için data fetching
 	const { data: componentTypesData } = useComponentTypes("", 0, 1000, "id,ASC");
 	const { data: languagesData } = useLanguages(0, 1000, "id,ASC");
+	const { data: assetsData } = useAssets("", 0, 1000, "id,ASC");
 	
 	const componentTypes = componentTypesData?.content || [];
 	const languages = languagesData?.content || [];
+	const availableAssets = assetsData?.content || [];
 
 	const [formData, setFormData] = useState<componentRequest>({
 		name: "",
@@ -42,11 +37,43 @@ export default function ComponentEditPage() {
 		localizations: [],
 		assets: [],
 		link: "",
+		sortOrder: 0,
 	});
 
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [activeLanguageTab, setActiveLanguageTab] = useState<string>("");
 	const [isTranslating, setIsTranslating] = useState(false);
+	const [assetActiveTabs, setAssetActiveTabs] = useState<Record<number, string>>({});
+	const [isTranslatingAsset, setIsTranslatingAsset] = useState<Record<number, boolean>>({});
+	const [selectedMediaId, setSelectedMediaId] = useState<string>("");
+
+	// Tip seçildiğinde veya değiştiğinde Value ve Link alanlarını otomatik güncelle
+	useEffect(() => {
+		if (formData.typeId && formData.typeId !== 0 && componentTypes.length > 0) {
+			const selectedType = componentTypes.find(type => type.id === formData.typeId);
+			if (selectedType) {
+				setFormData(prev => {
+					const updates: Partial<componentRequest> = {};
+					
+					// Value alanını güncelle (eğer tip value destekliyorsa)
+					if (selectedType.hasValue) {
+						updates.value = selectedType.type.toLowerCase().replace(/\s+/g, '-');
+					} else {
+						updates.value = "";
+					}
+					
+					// Link alanını güncelle (eğer tip link destekliyorsa)
+					if (selectedType.hasLink) {
+						updates.link = `#${selectedType.type.toLowerCase().replace(/\s+/g, '-')}`;
+					} else {
+						updates.link = "";
+					}
+					
+					return { ...prev, ...updates };
+				});
+			}
+		}
+	}, [formData.typeId, componentTypes]);
 
 	// Component yüklendiğinde formData'yı doldur
 	useEffect(() => {
@@ -60,6 +87,7 @@ export default function ComponentEditPage() {
 					title: "",
 					description: "",
 					excerpt: "",
+					subdescription: "",
 				};
 			});
 
@@ -82,6 +110,7 @@ export default function ComponentEditPage() {
 				localizations: allLocalizations,
 				assets: existingAssets,
 				link: component.link || "",
+				sortOrder: component.sortOrder || 0,
 			});
 			// İlk dili aktif tab olarak ayarla
 			if (allLocalizations.length > 0 && !activeLanguageTab) {
@@ -113,30 +142,48 @@ export default function ComponentEditPage() {
 					const updates: Partial<localization> = {};
 
 					// Başlık çevirisi
-					if (sourceLoc.title) {
+					if (sourceLoc.title && sourceLoc.title.trim()) {
 						try {
-							const titleTranslation = await translateText({
-								sourceLanguage: sourceLanguageCode,
-								targetLanguage: targetLoc.languageCode,
-								text: sourceLoc.title,
-							});
-							updates.title = titleTranslation.translatedText;
-						} catch (error) {
-							console.error(`Title translation failed for ${targetLoc.languageCode}:`, error);
+							const titleTranslation = await translateText(
+								sourceLoc.title,
+								targetLoc.languageCode,
+								sourceLanguageCode
+							);
+							updates.title = titleTranslation;
+						} catch (error: any) {
+							const errorMessage = error?.message || error?.data?.message || "An internal server error occurred. Please try again later.";
+							console.error(`Title translation failed for ${targetLoc.languageCode}:`, errorMessage);
+							// Backend hatası için daha açıklayıcı mesaj
+							if (error?.status === 500) {
+								toast.error(`Çeviri servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin. (${targetLoc.languageCode.toUpperCase()})`, {
+									duration: 5000,
+								});
+							} else {
+								toast.error(`Başlık çevirisi başarısız (${targetLoc.languageCode.toUpperCase()}): ${errorMessage}`);
+							}
 						}
 					}
 
 					// Özet çevirisi
-					if (sourceLoc.excerpt) {
+					if (sourceLoc.excerpt && sourceLoc.excerpt.trim()) {
 						try {
-							const excerptTranslation = await translateText({
-								sourceLanguage: sourceLanguageCode,
-								targetLanguage: targetLoc.languageCode,
-								text: sourceLoc.excerpt,
-							});
-							updates.excerpt = excerptTranslation.translatedText;
-						} catch (error) {
-							console.error(`Excerpt translation failed for ${targetLoc.languageCode}:`, error);
+							const excerptTranslation = await translateText(
+								sourceLoc.excerpt,
+								targetLoc.languageCode,
+								sourceLanguageCode
+							);
+							updates.excerpt = excerptTranslation;
+						} catch (error: any) {
+							const errorMessage = error?.message || error?.data?.message || "An internal server error occurred. Please try again later.";
+							console.error(`Excerpt translation failed for ${targetLoc.languageCode}:`, errorMessage);
+							// Backend hatası için daha açıklayıcı mesaj
+							if (error?.status === 500) {
+								toast.error(`Çeviri servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin. (${targetLoc.languageCode.toUpperCase()})`, {
+									duration: 5000,
+								});
+							} else {
+								toast.error(`Özet çevirisi başarısız (${targetLoc.languageCode.toUpperCase()}): ${errorMessage}`);
+							}
 						}
 					}
 
@@ -146,15 +193,24 @@ export default function ComponentEditPage() {
 							// HTML tag'lerini temizle
 							const plainText = sourceLoc.description.replace(/<[^>]*>/g, "");
 							if (plainText.trim()) {
-								const descTranslation = await translateText({
-									sourceLanguage: sourceLanguageCode,
-									targetLanguage: targetLoc.languageCode,
-									text: plainText,
-								});
-								updates.description = descTranslation.translatedText;
+								const descTranslation = await translateText(
+									plainText,
+									targetLoc.languageCode,
+									sourceLanguageCode
+								);
+								updates.description = descTranslation;
 							}
-						} catch (error) {
-							console.error(`Description translation failed for ${targetLoc.languageCode}:`, error);
+						} catch (error: any) {
+							const errorMessage = error?.message || error?.data?.message || "An internal server error occurred. Please try again later.";
+							console.error(`Description translation failed for ${targetLoc.languageCode}:`, errorMessage);
+							// Backend hatası için daha açıklayıcı mesaj
+							if (error?.status === 500) {
+								toast.error(`Çeviri servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin. (${targetLoc.languageCode.toUpperCase()})`, {
+									duration: 5000,
+								});
+							} else {
+								toast.error(`Açıklama çevirisi başarısız (${targetLoc.languageCode.toUpperCase()}): ${errorMessage}`);
+							}
 						}
 					}
 
@@ -175,9 +231,21 @@ export default function ComponentEditPage() {
 				})
 			}));
 
-			toast.success("Çeviriler başarıyla tamamlandı");
-		} catch (error) {
-			toast.error("Çeviri sırasında bir hata oluştu");
+			// Başarılı çeviri sayısını kontrol et
+			const successfulTranslations = results.filter(r => r.updates && Object.keys(r.updates).length > 0).length;
+			if (successfulTranslations > 0) {
+				toast.success(`${successfulTranslations} dil için çeviriler tamamlandı`);
+			} else {
+				toast.warning("Çeviriler tamamlandı ancak bazı çeviriler başarısız oldu. Lütfen manuel olarak kontrol edin.");
+			}
+		} catch (error: any) {
+			if (error?.status === 500) {
+				toast.error("Çeviri servisi şu anda kullanılamıyor. Lütfen backend servisini kontrol edin veya daha sonra tekrar deneyin.", {
+					duration: 6000,
+				});
+			} else {
+				toast.error("Çeviri sırasında bir hata oluştu");
+			}
 			console.error("Translation error:", error);
 		} finally {
 			setIsTranslating(false);
@@ -215,7 +283,7 @@ export default function ComponentEditPage() {
 		}));
 	};
 
-	const handleAssetLocalizationChange = (assetIndex: number, locIndex: number, field: keyof localization, value: string) => {
+	const handleAssetLocalizationChange = (assetIndex: number, locIndex: number, field: keyof assetLocalization, value: string) => {
 		setFormData(prev => ({
 			...prev,
 			assets: prev.assets.map((asset, i) => {
@@ -232,23 +300,206 @@ export default function ComponentEditPage() {
 		}));
 	};
 
-	const addAsset = () => {
-		setFormData(prev => ({
-			...prev,
-			assets: [
-				...prev.assets,
-				{
-					type: "",
-					file: undefined,
-					localizations: languages.map(lang => ({
-						languageCode: lang.code,
-						title: "",
-						description: "",
-						subdescription: "",
-					}))
+	// Asset çeviri fonksiyonu
+	const handleAssetTranslate = async (assetIndex: number, sourceLanguageCode: string) => {
+		const asset = formData.assets[assetIndex];
+		if (!asset) {
+			toast.error("Medya bulunamadı");
+			return;
+		}
+
+		const sourceIndex = asset.localizations.findIndex(loc => loc.languageCode === sourceLanguageCode);
+		if (sourceIndex === -1) {
+			toast.error("Kaynak dil bulunamadı");
+			return;
+		}
+
+		const sourceLoc = asset.localizations[sourceIndex];
+		if (!sourceLoc.title && !sourceLoc.description && !sourceLoc.subdescription) {
+			toast.error("Çevrilecek içerik bulunamadı");
+			return;
+		}
+
+		setIsTranslatingAsset(prev => ({ ...prev, [assetIndex]: true }));
+		try {
+			// Tüm dilleri çevir
+			const translationPromises = asset.localizations
+				.filter((_, index) => index !== sourceIndex)
+				.map(async (targetLoc) => {
+					const updates: Partial<assetLocalization> = {};
+
+					// Başlık çevirisi
+					if (sourceLoc.title && sourceLoc.title.trim()) {
+						try {
+							const titleTranslation = await translateText(
+								sourceLoc.title,
+								targetLoc.languageCode,
+								sourceLanguageCode
+							);
+							updates.title = titleTranslation;
+						} catch (error: any) {
+							const errorMessage = error?.message || error?.data?.message || "An internal server error occurred. Please try again later.";
+							console.error(`Asset title translation failed for ${targetLoc.languageCode}:`, errorMessage);
+							if (error?.status === 500) {
+								toast.error(`Çeviri servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin. (${targetLoc.languageCode.toUpperCase()})`, {
+									duration: 5000,
+								});
+							} else {
+								toast.error(`Başlık çevirisi başarısız (${targetLoc.languageCode.toUpperCase()}): ${errorMessage}`);
+							}
+						}
+					}
+
+					// Açıklama çevirisi
+					if (sourceLoc.description) {
+						try {
+							const plainText = sourceLoc.description.replace(/<[^>]*>/g, "");
+							if (plainText.trim()) {
+								const descTranslation = await translateText(
+									plainText,
+									targetLoc.languageCode,
+									sourceLanguageCode
+								);
+								updates.description = descTranslation;
+							}
+						} catch (error: any) {
+							const errorMessage = error?.message || error?.data?.message || "An internal server error occurred. Please try again later.";
+							console.error(`Asset description translation failed for ${targetLoc.languageCode}:`, errorMessage);
+							if (error?.status === 500) {
+								toast.error(`Çeviri servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin. (${targetLoc.languageCode.toUpperCase()})`, {
+									duration: 5000,
+								});
+							} else {
+								toast.error(`Açıklama çevirisi başarısız (${targetLoc.languageCode.toUpperCase()}): ${errorMessage}`);
+							}
+						}
+					}
+
+					// Alt açıklama çevirisi
+					if (sourceLoc.subdescription) {
+						try {
+							const plainText = sourceLoc.subdescription.replace(/<[^>]*>/g, "");
+							if (plainText.trim()) {
+								const subdescTranslation = await translateText(
+									plainText,
+									targetLoc.languageCode,
+									sourceLanguageCode
+								);
+								updates.subdescription = subdescTranslation;
+							}
+						} catch (error: any) {
+							const errorMessage = error?.message || error?.data?.message || "An internal server error occurred. Please try again later.";
+							console.error(`Asset subdescription translation failed for ${targetLoc.languageCode}:`, errorMessage);
+							if (error?.status === 500) {
+								toast.error(`Çeviri servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin. (${targetLoc.languageCode.toUpperCase()})`, {
+									duration: 5000,
+								});
+							} else {
+								toast.error(`Alt açıklama çevirisi başarısız (${targetLoc.languageCode.toUpperCase()}): ${errorMessage}`);
+							}
+						}
+					}
+
+					return { targetIndex: asset.localizations.findIndex(loc => loc.languageCode === targetLoc.languageCode), updates };
+				});
+
+			const results = await Promise.all(translationPromises);
+
+			// Çevirileri formData'ya uygula
+			setFormData(prev => ({
+				...prev,
+				assets: prev.assets.map((a, i) => {
+					if (i === assetIndex) {
+						return {
+							...a,
+							localizations: a.localizations.map((loc, index) => {
+								const result = results.find(r => r.targetIndex === index);
+								if (result) {
+									return { ...loc, ...result.updates };
+								}
+								return loc;
+							})
+						};
+					}
+					return a;
+				})
+			}));
+
+			// Başarılı çeviri sayısını kontrol et
+			const successfulTranslations = results.filter(r => r.updates && Object.keys(r.updates).length > 0).length;
+			if (successfulTranslations > 0) {
+				toast.success(`${successfulTranslations} dil için çeviriler tamamlandı`);
+			} else {
+				toast.warning("Çeviriler tamamlandı ancak bazı çeviriler başarısız oldu. Lütfen manuel olarak kontrol edin.");
+			}
+		} catch (error: any) {
+			if (error?.status === 500) {
+				toast.error("Çeviri servisi şu anda kullanılamıyor. Lütfen backend servisini kontrol edin veya daha sonra tekrar deneyin.", {
+					duration: 6000,
+				});
+			} else {
+				toast.error("Çeviri sırasında bir hata oluştu");
+			}
+			console.error("Asset translation error:", error);
+		} finally {
+			setIsTranslatingAsset(prev => ({ ...prev, [assetIndex]: false }));
+		}
+	};
+
+	const addAsset = (assetId?: string) => {
+		if (assetId) {
+			// Mevcut asset'ı seç
+			const selectedAsset = availableAssets.find(a => a.id.toString() === assetId);
+			if (selectedAsset) {
+				// Bu asset zaten ekli mi kontrol et
+				const isAlreadyAdded = formData.assets.some(a => 
+					a.assetId === selectedAsset.id
+				);
+				
+				if (isAlreadyAdded) {
+					toast.warning("Bu medya zaten eklenmiş");
+					return;
 				}
-			]
-		}));
+				
+				setFormData(prev => ({
+					...prev,
+					assets: [
+						...prev.assets,
+						{
+							type: selectedAsset.type,
+							assetId: selectedAsset.id,
+							localizations: selectedAsset.localizations.length > 0 
+								? selectedAsset.localizations 
+								: languages.map(lang => ({
+									languageCode: lang.code,
+									title: "",
+									description: "",
+									subdescription: "",
+								}))
+						}
+					]
+				}));
+				toast.success("Medya başarıyla eklendi");
+			}
+		} else {
+			// Yeni boş asset ekle
+			setFormData(prev => ({
+				...prev,
+				assets: [
+					...prev.assets,
+					{
+						type: undefined,
+						file: undefined,
+						localizations: languages.map(lang => ({
+							languageCode: lang.code,
+							title: "",
+							description: "",
+							subdescription: "",
+						}))
+					}
+				]
+			}));
+		}
 	};
 
 	const removeAsset = (index: number) => {
@@ -332,334 +583,48 @@ export default function ComponentEditPage() {
 
 				{/* Form Content */}
 				<form onSubmit={handleSubmit} className="p-6 space-y-6">
-					{/* Basic Fields */}
-					<div className="grid gap-6 md:grid-cols-2">
-						{/* Name Field */}
-						<div className="space-y-2">
-							<Label htmlFor="name" className="text-p3 font-semibold flex items-center gap-2">
-								<Box className="h-4 w-4 text-muted-foreground" />
-								Ad
-							</Label>
-							<Input
-								id="name"
-								value={formData.name}
-								onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-								className={`h-11 ${
-									errors.name ? "border-destructive focus-visible:ring-destructive" : ""
-								}`}
-								placeholder="Bileşen adı giriniz"
-							/>
-							{errors.name && (
-								<p className="text-p3 text-destructive flex items-center gap-1">
-									<span>•</span>
-									{errors.name}
-								</p>
-							)}
-						</div>
+					<ComponentBasicFields
+						name={formData.name}
+						typeId={formData.typeId}
+						value={formData.value}
+						link={formData.link}
+						componentTypes={componentTypes}
+						errors={errors}
+						onNameChange={(value) => setFormData({ ...formData, name: value })}
+						onTypeChange={(value) => setFormData({ ...formData, typeId: value })}
+					/>
 
-						{/* Type Field */}
-						<div className="space-y-2">
-							<Label htmlFor="typeId" className="text-p3 font-semibold flex items-center gap-2">
-								<Box className="h-4 w-4 text-muted-foreground" />
-								Tip
-							</Label>
-							<Select
-								value={formData.typeId.toString()}
-								onValueChange={(value) => setFormData({ ...formData, typeId: parseInt(value) })}
-							>
-								<SelectTrigger className={`h-11 ${
-									errors.typeId ? "border-destructive focus-visible:ring-destructive" : ""
-								}`}>
-									<SelectValue placeholder="Tip seçiniz" />
-								</SelectTrigger>
-								<SelectContent>
-									{componentTypes.map((type) => (
-										<SelectItem key={type.id} value={type.id.toString()}>
-											{type.type}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							{errors.typeId && (
-								<p className="text-p3 text-destructive flex items-center gap-1">
-									<span>•</span>
-									{errors.typeId}
-								</p>
-							)}
-						</div>
-					</div>
+					<ComponentLocalizations
+						localizations={formData.localizations}
+						languages={languages}
+						activeLanguageTab={activeLanguageTab}
+						isTranslating={isTranslating}
+						onTabChange={setActiveLanguageTab}
+						onLocalizationChange={handleLocalizationChange}
+						onTranslate={handleTranslate}
+					/>
 
-					{/* Value Field */}
-					<div className="space-y-2">
-						<Label htmlFor="value" className="text-p3 font-semibold">
-							Değer
-						</Label>
-						<Input
-							id="value"
-							value={formData.value}
-							onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-							className="h-11"
-							placeholder="Değer giriniz (opsiyonel)"
-						/>
-					</div>
-
-					{/* Link Field */}
-					<div className="space-y-2">
-						<Label htmlFor="link" className="text-p3 font-semibold">
-							Link
-						</Label>
-						<Input
-							id="link"
-							value={formData.link}
-							onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-							className="h-11"
-							placeholder="Link giriniz (opsiyonel)"
-						/>
-					</div>
-
-					{/* Localizations Section */}
-					<div className="space-y-4 pt-4 border-t border-border">
-						<div className="flex items-center justify-between">
-							<h3 className="text-h5 font-semibold text-foreground flex items-center gap-2">
-								<LanguagesIcon className="h-5 w-5" />
-								Çeviriler
-							</h3>
-							{activeLanguageTab && (
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={() => handleTranslate(activeLanguageTab)}
-									disabled={isTranslating}
-									className="gap-2"
-								>
-									<RefreshCw className={`h-4 w-4 ${isTranslating ? "animate-spin" : ""}`} />
-									Diğer Dilleri Çevir
-								</Button>
-							)}
-						</div>
-						{formData.localizations.length > 0 && (
-							<Tabs value={activeLanguageTab} onValueChange={setActiveLanguageTab} className="w-full">
-								<TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${formData.localizations.length}, minmax(0, 1fr))` }}>
-									{formData.localizations.map((localization, index) => {
-										const language = languages.find(l => l.code === localization.languageCode);
-										return (
-											<TabsTrigger key={index} value={localization.languageCode}>
-												{language?.code.toUpperCase() || localization.languageCode}
-											</TabsTrigger>
-										);
-									})}
-								</TabsList>
-								{formData.localizations.map((localization, index) => {
-									const language = languages.find(l => l.code === localization.languageCode);
-									return (
-										<TabsContent key={index} value={localization.languageCode} className="mt-4">
-											<div className="space-y-3">
-												<div className="space-y-2">
-													<Label className="text-p3 font-semibold">Başlık *</Label>
-													<Input
-														value={localization.title}
-														onChange={(e) => handleLocalizationChange(index, "title", e.target.value)}
-														className="h-11"
-														placeholder={`${language?.code.toUpperCase() || localization.languageCode} başlığını girin`}
-													/>
-												</div>
-												<div className="space-y-2">
-													<Label className="text-p3 font-semibold">Özet</Label>
-													<Input
-														value={localization.excerpt}
-														onChange={(e) => handleLocalizationChange(index, "excerpt", e.target.value)}
-														className="h-11"
-														placeholder={`${language?.code.toUpperCase() || localization.languageCode} özetini girin`}
-													/>
-												</div>
-												<div className="space-y-2">
-													<Label className="text-p3 font-semibold">Açıklama *</Label>
-													<RichTextEditor
-														value={localization.description}
-														onChange={(content) => handleLocalizationChange(index, "description", content)}
-														placeholder={`${language?.code.toUpperCase() || localization.languageCode} açıklamasını girin`}
-														height={400}
-													/>
-												</div>
-											</div>
-										</TabsContent>
-									);
-								})}
-							</Tabs>
-						)}
-					</div>
-
-					{/* Assets Section */}
-					<div className="space-y-4 pt-4 border-t border-border">
-						<div className="flex items-center justify-between">
-							<h3 className="text-h5 font-semibold text-foreground flex items-center gap-2">
-								<FileImage className="h-5 w-5" />
-								Setler
-							</h3>
-							<Button
-								type="button"
-								variant="outline"
-								size="sm"
-								onClick={addAsset}
-							>
-								<Plus className="h-4 w-4 mr-2" />
-								Set Ekle
-							</Button>
-						</div>
-						<div className="space-y-4">
-							{formData.assets.map((asset, assetIndex) => {
-								const isExistingAsset = typeof asset.file === "string";
-								return (
-									<div key={assetIndex} className="p-4 rounded-lg border border-border bg-muted/30">
-										<div className="flex items-center justify-between mb-4">
-											<h4 className="text-p3 font-semibold text-foreground">
-												Set {assetIndex + 1}
-											</h4>
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												onClick={() => removeAsset(assetIndex)}
-												className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-											>
-												<X className="h-4 w-4" />
-											</Button>
-										</div>
-										<div className="space-y-3">
-											{/* Asset Type */}
-											<div className="space-y-2">
-												<Label className="text-xs font-medium text-muted-foreground">Tip</Label>
-												<Input
-													value={asset.type}
-													onChange={(e) => setFormData(prev => ({
-														...prev,
-														assets: prev.assets.map((a, i) =>
-															i === assetIndex ? { ...a, type: e.target.value } : a
-														)
-													}))}
-													className="h-10"
-													placeholder="Set tipi giriniz"
-												/>
-											</div>
-											{/* Asset File */}
-											<div className="space-y-2">
-												<Label className="text-xs font-medium text-muted-foreground">Dosya</Label>
-												{isExistingAsset && asset.file ? (
-													<div className="space-y-2">
-														<div className="p-3 rounded border border-border bg-background">
-															<p className="text-xs text-muted-foreground mb-2">Mevcut dosya:</p>
-															<a href={asset.file as string} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
-																{asset.file}
-															</a>
-														</div>
-														<Button
-															type="button"
-															variant="outline"
-															size="sm"
-															onClick={() => {
-																const input = document.createElement("input");
-																input.type = "file";
-																input.accept = "image/*,video/*,application/*";
-																input.onchange = (e) => {
-																	const target = e.target as HTMLInputElement;
-																	handleAssetFileChange(assetIndex, target.files?.[0] || null);
-																};
-																input.click();
-															}}
-														>
-															<Upload className="h-4 w-4 mr-2" />
-															Dosyayı Değiştir
-														</Button>
-													</div>
-												) : (
-													<label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-														<div className="flex flex-col items-center justify-center pt-3 pb-2">
-															<Upload className="h-6 w-6 text-muted-foreground mb-1" />
-															<p className="text-xs text-muted-foreground">
-																<span className="font-semibold">Dosya yüklemek için tıklayın</span>
-															</p>
-														</div>
-														<input
-															type="file"
-															className="hidden"
-															accept="image/*,video/*,application/*"
-															onChange={(e) => handleAssetFileChange(assetIndex, e.target.files?.[0] || null)}
-														/>
-													</label>
-												)}
-												{asset.file && typeof asset.file !== "string" && (
-													<p className="text-xs text-muted-foreground">
-														Seçili: {asset.file.name}
-													</p>
-												)}
-											</div>
-											{/* Asset Localizations */}
-											<div className="space-y-3 pt-2 border-t border-border">
-												<Label className="text-xs font-medium text-muted-foreground">Çeviriler</Label>
-												{asset.localizations.length > 0 && (
-													<Tabs defaultValue={asset.localizations[0]?.languageCode || ""} className="w-full">
-														<TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${asset.localizations.length}, minmax(0, 1fr))` }}>
-															{asset.localizations.map((loc, locIndex) => {
-																const language = languages.find(l => l.code === loc.languageCode);
-																return (
-																	<TabsTrigger key={locIndex} value={loc.languageCode} className="text-xs">
-																		{language?.code.toUpperCase() || loc.languageCode}
-																	</TabsTrigger>
-																);
-															})}
-														</TabsList>
-														{asset.localizations.map((loc, locIndex) => {
-															const language = languages.find(l => l.code === loc.languageCode);
-															return (
-																<TabsContent key={locIndex} value={loc.languageCode} className="mt-3">
-																	<div className="space-y-2">
-																		<Input
-																			value={loc.title}
-																			onChange={(e) => handleAssetLocalizationChange(assetIndex, locIndex, "title", e.target.value)}
-																			className="h-9 text-xs"
-																			placeholder="Başlık"
-																		/>
-																		<RichTextEditor
-																			value={loc.description}
-																			onChange={(content) => handleAssetLocalizationChange(assetIndex, locIndex, "description", content)}
-																			placeholder={`${language?.code.toUpperCase() || loc.languageCode} açıklamasını girin`}
-																			height={250}
-																		/>
-																		<RichTextEditor
-																			value={loc.subdescription}
-																			onChange={(content) => handleAssetLocalizationChange(assetIndex, locIndex, "subdescription", content)}
-																			placeholder={`${language?.code.toUpperCase() || loc.languageCode} alt açıklamasını girin`}
-																			height={250}
-																		/>
-																	</div>
-																</TabsContent>
-															);
-														})}
-													</Tabs>
-												)}
-											</div>
-										</div>
-									</div>
-								);
-							})}
-							{formData.assets.length === 0 && (
-								<div className="text-center py-8 text-muted-foreground">
-									<p className="text-p3">Henüz set eklenmemiş</p>
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={addAsset}
-										className="mt-4"
-									>
-										<Plus className="h-4 w-4 mr-2" />
-										İlk Seti Ekle
-									</Button>
-								</div>
-							)}
-						</div>
-					</div>
+					<AssetList
+						assets={formData.assets}
+						availableAssets={availableAssets}
+						languages={languages}
+						selectedMediaId={selectedMediaId}
+						assetActiveTabs={assetActiveTabs}
+						isTranslatingAsset={isTranslatingAsset}
+						onSelectMedia={setSelectedMediaId}
+						onAddAsset={addAsset}
+						onRemoveAsset={removeAsset}
+						onAssetTypeChange={(assetIndex, value) => setFormData(prev => ({
+							...prev,
+							assets: prev.assets.map((a, i) =>
+								i === assetIndex ? { ...a, type: value } : a
+							)
+						}))}
+						onAssetFileChange={handleAssetFileChange}
+						onAssetLocalizationChange={handleAssetLocalizationChange}
+						onAssetTabChange={(assetIndex, value) => setAssetActiveTabs(prev => ({ ...prev, [assetIndex]: value }))}
+						onAssetTranslate={handleAssetTranslate}
+					/>
 
 					{/* Form Actions */}
 					<div className="flex items-center justify-end gap-4 pt-6 border-t border-border">

@@ -6,3 +6,5 @@ export interface LanguageResponse {
     id: number;
     code: string;
 }
+
+export type language = LanguageResponse;

@@ -5,6 +5,7 @@ export interface localization{
     title: string;
     description: string;
     excerpt: string;
+    subdescription: string;
 }
 
 export interface componentRequest{
@@ -13,6 +14,7 @@ export interface componentRequest{
     value: string;
     localizations: localization[];
     assets: assetRequest[];
+    sortOrder: number;
     link: string;
 }
 

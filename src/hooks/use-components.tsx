@@ -30,8 +30,9 @@ export const useCreateComponentAsset = () => {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({componentId, asset}: {componentId: number, asset: assetRequest}) => createComponentAsset(componentId, asset),
-        onSuccess: () => {
+        onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ["components"] });
+            queryClient.invalidateQueries({ queryKey: ["component", variables.componentId] });
             toast.success("Bileşen seti başarıyla oluşturuldu");
         },
         onError: () => {

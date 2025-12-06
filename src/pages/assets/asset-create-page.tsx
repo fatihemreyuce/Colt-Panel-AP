@@ -89,7 +89,7 @@ export default function AssetCreatePage() {
 		if (!formData.file) {
 			newErrors.file = "Dosya gereklidir";
 		}
-		if (!formData.type.trim()) {
+		if (!formData.type || !formData.type.trim()) {
 			newErrors.type = "Tip gereklidir";
 		}
 		if (formData.localizations.length === 0) {

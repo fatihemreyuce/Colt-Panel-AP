@@ -297,7 +297,7 @@ export default function ComponentsListPage() {
 							<SortableHeader field="name">Ad</SortableHeader>
 							<SortableHeader field="type">Tip</SortableHeader>
 							<TableHead>Değer</TableHead>
-							<TableHead>Setler</TableHead>
+							<TableHead>Medya</TableHead>
 							<TableHead className="text-right">İşlemler</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -440,7 +440,7 @@ function ComponentTableRow({ component, onView, onEdit, onDelete }: ComponentTab
 				)}
 			</TableCell>
 			<TableCell>
-				<span className="text-p3 text-foreground">{component.assets?.length || 0} set</span>
+				<span className="text-p3 text-foreground">{component.assets?.length || 0} medya</span>
 			</TableCell>
 			<TableCell className="text-right">
 				<div className="flex items-center justify-end gap-2">

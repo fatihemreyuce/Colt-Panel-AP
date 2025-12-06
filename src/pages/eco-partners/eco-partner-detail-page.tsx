@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetEcoPartnerById } from "@/hooks/use-eco-partners";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Building2, Loader2, Hash, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Edit, Building2, Loader2, Hash } from "lucide-react";
 
 export default function EcoPartnerDetailPage() {
 	const { id } = useParams<{ id: string }>();

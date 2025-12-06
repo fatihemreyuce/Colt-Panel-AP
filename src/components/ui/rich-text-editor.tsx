@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { Editor } from "@tinymce/tinymce-react";
+// @ts-ignore - tinymce types may not be available
 import type { Editor as TinyMCEEditor } from "tinymce";
 
 interface RichTextEditorProps {

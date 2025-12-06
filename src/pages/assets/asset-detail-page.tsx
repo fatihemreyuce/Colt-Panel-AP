@@ -37,8 +37,6 @@ export default function AssetDetailPage() {
 	}
 
 	const defaultTitle = asset.localizations[0]?.title || "Başlık yok";
-	const defaultDescription = asset.localizations[0]?.description || "";
-	const defaultSubdescription = asset.localizations[0]?.subdescription || "";
 
 	return (
 		<div className="w-full py-6 px-6 space-y-6">

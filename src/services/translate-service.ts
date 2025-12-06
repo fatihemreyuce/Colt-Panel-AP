@@ -57,7 +57,6 @@ export async function translateText(
 		const data: TranslateResponse = await response.json();
 		return data.data.translations[0]?.translatedText || text;
 	} catch (error) {
-		console.error("Translation error:", error);
 		throw error;
 	}
 }

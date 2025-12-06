@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetPartnerById } from "@/hooks/use-partners";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Handshake, Loader2, Hash, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Edit, Handshake, Loader2, Hash } from "lucide-react";
 
 export default function PartnerDetailPage() {
 	const { id } = useParams<{ id: string }>();

@@ -18,12 +18,31 @@ export function objectToFormData<
       ) {
         (value as File[]).forEach((file) => formData.append(key, file));
       } else if (Array.isArray(value)) {
-        // Handle arrays - check if it's an array of objects (like localizations)
+        // Handle arrays - check if it's an array of objects (like localizations or assets)
         if (value.length > 0 && typeof value[0] === "object" && !(value[0] instanceof File)) {
           // Array of objects - append as nested form data
           value.forEach((item, index) => {
             Object.entries(item as Record<string, unknown>).forEach(([nestedKey, nestedValue]) => {
-              formData.append(`${key}[${index}].${nestedKey}`, String(nestedValue));
+              if (nestedValue !== null && nestedValue !== undefined) {
+                if (nestedValue instanceof File) {
+                  formData.append(`${key}[${index}].${nestedKey}`, nestedValue);
+                } else if (Array.isArray(nestedValue)) {
+                  // Handle nested arrays (like localizations in assets)
+                  nestedValue.forEach((nestedItem, nestedIndex) => {
+                    if (typeof nestedItem === "object" && !(nestedItem instanceof File)) {
+                      Object.entries(nestedItem as Record<string, unknown>).forEach(([deepKey, deepValue]) => {
+                        formData.append(`${key}[${index}].${nestedKey}[${nestedIndex}].${deepKey}`, String(deepValue));
+                      });
+                    } else {
+                      formData.append(`${key}[${index}].${nestedKey}[${nestedIndex}]`, String(nestedItem));
+                    }
+                  });
+                } else if (typeof nestedValue === "object") {
+                  formData.append(`${key}[${index}].${nestedKey}`, JSON.stringify(nestedValue));
+                } else {
+                  formData.append(`${key}[${index}].${nestedKey}`, String(nestedValue));
+                }
+              }
             });
           });
         } else {

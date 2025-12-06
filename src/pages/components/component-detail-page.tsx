@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetComponentById } from "@/hooks/use-components";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Box, Loader2, Link as LinkIcon, Languages as LanguagesIcon, FileImage } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Edit, Box, Loader2, Link as LinkIcon, Languages as LanguagesIcon, FileImage, File, Video, Image as ImageIcon } from "lucide-react";
 
 export default function ComponentDetailPage() {
 	const { id } = useParams<{ id: string }>();
@@ -192,49 +193,122 @@ export default function ComponentDetailPage() {
 					)}
 
 					{/* Assets Section */}
-					{component.assets && component.assets.length > 0 && (
+					{component.assets && component.assets.length > 0 ? (
+						<div className="space-y-6 pt-6 mt-6 border-t border-border">
+							<div className="flex items-center justify-between">
+								<h3 className="text-h5 font-semibold text-foreground flex items-center gap-2">
+									<FileImage className="h-5 w-5 text-primary" />
+									Medya
+								</h3>
+								<span className="text-p3 text-muted-foreground bg-muted px-3 py-1 rounded-full">
+									{component.assets.length} {component.assets.length === 1 ? 'medya' : 'medya'}
+								</span>
+							</div>
+							<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+								{component.assets.map((assetItem: any, index: number) => {
+									// Backend'den gelen response'da asset nested olabilir (asset.asset) veya direkt olabilir
+									const asset = assetItem.asset || assetItem;
+									const assetId = asset.id || assetItem.id || index;
+									
+									// Asset type'a göre icon seç
+									const getAssetIcon = () => {
+										if (asset.type === 'VIDEO') return <Video className="h-5 w-5 text-primary" />;
+										if (asset.type === 'IMAGE') return <ImageIcon className="h-5 w-5 text-primary" />;
+										return <File className="h-5 w-5 text-primary" />;
+									};
+									
+									return (
+										<div key={assetId} className="group relative p-6 rounded-xl border-2 border-border bg-card hover:border-primary/50 transition-all duration-200 shadow-sm hover:shadow-md">
+											<div className="space-y-4">
+												{/* Header with Type */}
+												<div className="flex items-start justify-between">
+													<div className="flex items-center gap-3">
+														<div className="p-2 rounded-lg bg-primary/10">
+															{getAssetIcon()}
+														</div>
+														<div>
+															<Label className="text-xs font-medium text-muted-foreground mb-1 block">Tip</Label>
+															<p className="text-p2 font-semibold text-foreground">{asset.type || "N/A"}</p>
+														</div>
+													</div>
+												</div>
+
+												{/* File Preview/URL */}
+												{asset.url && (
+													<div className="space-y-2">
+														<Label className="text-xs font-medium text-muted-foreground">Dosya</Label>
+														{asset.mime && asset.mime.startsWith('image/') ? (
+															<div className="mt-2 rounded-lg overflow-hidden border border-border bg-muted/50">
+																<img 
+																	src={asset.url} 
+																	alt={asset.type || "Asset"}
+																	className="w-full h-auto max-h-64 object-contain"
+																	onError={(e) => {
+																		console.error("Image load error:", asset.url);
+																		(e.target as HTMLImageElement).style.display = 'none';
+																	}}
+																/>
+															</div>
+														) : (
+															<div className="p-3 rounded-lg border border-border bg-muted/30">
+																<a
+																	href={asset.url}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	className="text-xs text-primary hover:underline break-all flex items-center gap-2"
+																>
+																	<File className="h-4 w-4 flex-shrink-0" />
+																	<span className="truncate">{asset.url}</span>
+																</a>
+															</div>
+														)}
+													</div>
+												)}
+
+												{/* Localizations */}
+												{asset.localizations && asset.localizations.length > 0 && (
+													<div className="pt-4 border-t border-border">
+														<Label className="text-xs font-medium text-muted-foreground mb-3 flex items-center gap-2">
+															<LanguagesIcon className="h-4 w-4" />
+															Çeviriler
+														</Label>
+														<div className="space-y-3">
+															{asset.localizations.map((loc: any, locIndex: number) => (
+																<div key={locIndex} className="p-3 rounded-lg border border-border bg-muted/30 space-y-2">
+																	<div className="flex items-center gap-2">
+																		<span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
+																			{loc.languageCode?.toUpperCase() || "N/A"}
+																		</span>
+																		{loc.title && (
+																			<span className="text-xs font-medium text-foreground truncate">{loc.title}</span>
+																		)}
+																	</div>
+																	{loc.description && (
+																		<div className="text-xs text-muted-foreground line-clamp-2" dangerouslySetInnerHTML={{ __html: loc.description }} />
+																	)}
+																	{loc.subdescription && (
+																		<div className="text-xs text-muted-foreground italic">{loc.subdescription}</div>
+																	)}
+																</div>
+															))}
+														</div>
+													</div>
+												)}
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						</div>
+					) : (
 						<div className="space-y-4 pt-6 mt-6 border-t border-border">
 							<h3 className="text-h5 font-semibold text-foreground flex items-center gap-2 mb-4">
 								<FileImage className="h-5 w-5" />
-								Setler ({component.assets.length})
+								Medya
 							</h3>
-							<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-								{component.assets.map((asset, index) => (
-									<div key={asset.id || index} className="p-4 rounded-lg border border-border bg-muted/30">
-										<div className="space-y-3">
-											<div>
-												<p className="text-xs font-medium text-muted-foreground mb-1">Tip</p>
-												<p className="text-p3 font-semibold text-foreground">{asset.type}</p>
-											</div>
-											{asset.url && (
-												<div>
-													<p className="text-xs font-medium text-muted-foreground mb-1">Dosya</p>
-													<a
-														href={asset.url}
-														target="_blank"
-														rel="noopener noreferrer"
-														className="text-xs text-primary hover:underline break-all"
-													>
-														{asset.url}
-													</a>
-												</div>
-											)}
-											{asset.localizations && asset.localizations.length > 0 && (
-												<div className="pt-2 border-t border-border">
-													<p className="text-xs font-medium text-muted-foreground mb-2">Çeviriler</p>
-													<div className="space-y-2">
-														{asset.localizations.map((loc, locIndex) => (
-															<div key={locIndex} className="text-xs">
-																<span className="font-semibold text-foreground">{loc.languageCode.toUpperCase()}:</span>
-																{loc.title && <span className="ml-1 text-muted-foreground">{loc.title}</span>}
-															</div>
-														))}
-													</div>
-												</div>
-											)}
-										</div>
-									</div>
-								))}
+							<div className="p-8 rounded-lg border-2 border-dashed border-border bg-muted/30 text-center">
+								<FileImage className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+								<p className="text-p3 text-muted-foreground">Bu bileşene henüz medya eklenmemiş.</p>
 							</div>
 						</div>
 					)}

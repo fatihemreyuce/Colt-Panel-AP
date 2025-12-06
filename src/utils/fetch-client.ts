@@ -85,7 +85,17 @@ export const fetchClient = async <T, U>(
     if (contentType?.includes("application/json")) {
       try {
         const errorData = await response.json();
-        errorMessage = errorData?.message || errorData?.error || errorMessage;
+        // Hata mesajını farklı formatlardan çıkar
+        errorMessage = errorData?.message || 
+                      errorData?.error?.message || 
+                      errorData?.error || 
+                      (typeof errorData === 'string' ? errorData : errorMessage);
+        
+        // 500 hatası için özel mesaj
+        if (response.status === 500) {
+          errorMessage = errorData?.message || "An internal server error occurred. Please try again later.";
+        }
+        
         // Hata objesini oluştur
         const error = new Error(errorMessage) as any;
         error.status = response.status;
@@ -97,6 +107,11 @@ export const fetchClient = async <T, U>(
           throw parseError;
         }
       }
+    }
+
+    // JSON olmayan hatalar için
+    if (response.status === 500) {
+      errorMessage = "An internal server error occurred. Please try again later.";
     }
 
     const error = new Error(errorMessage) as any;

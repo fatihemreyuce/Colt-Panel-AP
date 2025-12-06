@@ -6,14 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { ArrowLeft, Save, User, Mail, Linkedin, Image as ImageIcon, Plus, X, Languages as LanguagesIcon, Upload, XCircle, Globe, RefreshCw } from "lucide-react";
+import { ArrowLeft, Save, User, Mail, Linkedin, Image as ImageIcon, Upload, XCircle, Globe, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import type { TeamMemberRequest } from "@/types/team-members.types";
 import { translateText, translateHtml } from "@/services/translate-service";
@@ -186,7 +179,6 @@ export default function TeamMemberCreatePage() {
 			}
 
 			const newLocalizations = [...formData.localizations];
-			const sourceIndex = newLocalizations.findIndex(loc => loc.languageCode === selectedLanguageCode);
 
 			// Diğer tüm dillere çevir
 			const translatePromises = languages

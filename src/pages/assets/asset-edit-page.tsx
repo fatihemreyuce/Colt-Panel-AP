@@ -117,7 +117,7 @@ export default function AssetEditPage() {
 
 	const validate = () => {
 		const newErrors: Record<string, string> = {};
-		if (!formData.type.trim()) {
+		if (!formData.type || !formData.type.trim()) {
 			newErrors.type = "Tip gereklidir";
 		}
 		if (formData.localizations.length === 0) {

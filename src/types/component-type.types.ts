@@ -22,3 +22,5 @@ export interface componentTypeResponse{
     photo?:string;
     hasLink: boolean;
 }
+
+export type componentType = componentTypeResponse;
