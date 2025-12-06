@@ -238,28 +238,72 @@ export default function ComponentDetailPage() {
 													<div className="space-y-2">
 														<Label className="text-xs font-medium text-muted-foreground">Dosya</Label>
 														{asset.mime && asset.mime.startsWith('image/') ? (
-															<div className="mt-2 rounded-lg overflow-hidden border border-border bg-muted/50">
+															<div className="mt-2 rounded-lg overflow-hidden border border-border bg-muted/50 p-2 flex items-center justify-center min-h-[200px]">
 																<img 
 																	src={asset.url} 
-																	alt={asset.type || "Asset"}
-																	className="w-full h-auto max-h-64 object-contain"
+																	alt={asset.localizations?.[0]?.title || asset.type || "Asset"}
+																	className="max-w-full max-h-64 object-contain rounded"
 																	onError={(e) => {
-																		console.error("Image load error:", asset.url);
-																		(e.target as HTMLImageElement).style.display = 'none';
+																		const target = e.target as HTMLImageElement;
+																		target.style.display = 'none';
+																		const parent = target.parentElement;
+																		if (parent) {
+																			const fallback = parent.querySelector('.image-error-fallback') as HTMLElement;
+																			if (fallback) {
+																				fallback.classList.remove('hidden');
+																			}
+																		}
 																	}}
 																/>
+																{/* Fallback for image load error */}
+																<div className="hidden image-error-fallback p-4 text-center w-full">
+																	<File className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+																	<p className="text-xs text-muted-foreground mb-2">Görüntü yüklenemedi</p>
+																	<a 
+																		href={asset.url} 
+																		target="_blank" 
+																		rel="noopener noreferrer" 
+																		className="text-xs text-primary hover:underline"
+																	>
+																		Dosyayı Görüntüle
+																	</a>
+																</div>
+															</div>
+														) : asset.mime && asset.mime.startsWith('video/') ? (
+															<div className="p-3 rounded-lg border border-border bg-muted/30">
+																<div className="flex items-center gap-3">
+																	<Video className="h-8 w-8 text-primary flex-shrink-0" />
+																	<div className="flex-1 min-w-0">
+																		<p className="text-xs font-medium text-muted-foreground mb-1">Video Dosyası</p>
+																		<a
+																			href={asset.url}
+																			target="_blank"
+																			rel="noopener noreferrer"
+																			className="text-xs text-primary hover:underline break-all flex items-center gap-2"
+																		>
+																			<File className="h-4 w-4 flex-shrink-0" />
+																			<span className="truncate">{asset.url}</span>
+																		</a>
+																	</div>
+																</div>
 															</div>
 														) : (
 															<div className="p-3 rounded-lg border border-border bg-muted/30">
-																<a
-																	href={asset.url}
-																	target="_blank"
-																	rel="noopener noreferrer"
-																	className="text-xs text-primary hover:underline break-all flex items-center gap-2"
-																>
-																	<File className="h-4 w-4 flex-shrink-0" />
-																	<span className="truncate">{asset.url}</span>
-																</a>
+																<div className="flex items-center gap-3">
+																	<File className="h-8 w-8 text-muted-foreground flex-shrink-0" />
+																	<div className="flex-1 min-w-0">
+																		<p className="text-xs font-medium text-muted-foreground mb-1">Dosya</p>
+																		<a
+																			href={asset.url}
+																			target="_blank"
+																			rel="noopener noreferrer"
+																			className="text-xs text-primary hover:underline break-all flex items-center gap-2"
+																		>
+																			<File className="h-4 w-4 flex-shrink-0" />
+																			<span className="truncate">{asset.url}</span>
+																		</a>
+																	</div>
+																</div>
 															</div>
 														)}
 													</div>

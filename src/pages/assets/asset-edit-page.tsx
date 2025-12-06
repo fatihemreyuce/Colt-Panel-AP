@@ -21,8 +21,6 @@ import { translateText, translateHtml } from "@/services/translate-service";
 const ASSET_TYPES = [
 	{ value: "IMAGE", label: "Görsel" },
 	{ value: "VIDEO", label: "Video" },
-	{ value: "DOCUMENT", label: "Döküman" },
-	{ value: "OTHER", label: "Diğer" },
 ];
 
 export default function AssetEditPage() {

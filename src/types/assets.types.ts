@@ -9,8 +9,7 @@ export interface assetRequest{
     file?: File|string;
     localizations: localization[];
     type?: string;
-    assetId?: number;
-    mime?: string;
+    
 }
 
 export interface assetResponse{
