@@ -136,13 +136,13 @@ export default function Sidebar() {
 			</nav>
 
 			{/* Footer with dark mode toggle and logout */}
-			<div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border bg-card/50 backdrop-blur-sm dark:bg-card space-y-2 animate-in fade-in slide-in-from-bottom duration-300">
+			<div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border bg-card/50 backdrop-blur-sm dark:bg-card space-y-2">
 				{/* Dark Mode Toggle */}
-				<div className="flex items-center justify-between px-3 py-2 rounded-lg bg-secondary/50 hover:bg-secondary transition-all duration-300 hover:scale-[1.02] cursor-pointer group/theme">
-					<div className="flex items-center gap-2">
-						<Sun className="h-4 w-4 text-muted-foreground dark:hidden transition-transform duration-300 group-hover/theme:rotate-180" />
-						<Moon className="h-4 w-4 text-muted-foreground hidden dark:block transition-transform duration-300 group-hover/theme:rotate-180" />
-						<span className="text-sm font-medium text-foreground transition-colors duration-200">Tema</span>
+				<div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+					<div className="flex items-center gap-2.5">
+						<Sun className="h-4 w-4 text-muted-foreground dark:hidden" />
+						<Moon className="h-4 w-4 text-muted-foreground hidden dark:block" />
+						<span className="text-sm font-semibold text-foreground">Tema</span>
 					</div>
 					<DarkModeToggle size="sm" />
 				</div>
@@ -152,10 +152,10 @@ export default function Sidebar() {
 					variant="ghost"
 					onClick={handleLogout}
 					disabled={!isActionable || isLoading}
-					className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive transition-all duration-300 hover:scale-[1.02] hover:translate-x-1 group/logout"
+					className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
 					aria-busy={isLoading}
 				>
-					<LogOut className={`h-4 w-4 transition-transform duration-300 ${isLoading ? "animate-spin" : "group-hover/logout:translate-x-1"}`} />
+					<LogOut className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
 					{isLoading ? "Çıkış yapılıyor..." : "Çıkış Yap"}
 				</Button>
 			</div>

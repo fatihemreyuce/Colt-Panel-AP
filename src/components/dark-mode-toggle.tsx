@@ -72,10 +72,10 @@ export default function DarkModeToggle({ className, size = "md" }: DarkModeToggl
 	return (
 		<button
 			onClick={toggleTheme}
-			className={`group relative inline-flex items-center ${sizeClasses[size]} rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500/50 dark:focus:ring-green-400/50 focus:ring-offset-2 ${
+			className={`group relative inline-flex items-center ${sizeClasses[size]} rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
 				isDark 
-					? "bg-gray-700 hover:bg-gray-600" 
-					: "bg-green-500 hover:bg-green-600"
+					? "bg-muted hover:bg-muted/80 border border-border" 
+					: "bg-foreground hover:bg-foreground/90"
 			} ${className || ""}`}
 			aria-label="Toggle dark mode"
 		>
@@ -83,17 +83,19 @@ export default function DarkModeToggle({ className, size = "md" }: DarkModeToggl
 			<div className={`absolute left-1.5 flex items-center justify-center transition-all duration-300 ${
 				isDark ? "opacity-0 scale-0" : "opacity-100 scale-100"
 			}`}>
-				<Sun className={`${iconSizes[size]} text-yellow-200`} />
+				<Sun className={`${iconSizes[size]} text-background`} />
 			</div>
 			<div className={`absolute right-1.5 flex items-center justify-center transition-all duration-300 ${
 				isDark ? "opacity-100 scale-100" : "opacity-0 scale-0"
 			}`}>
-				<Moon className={`${iconSizes[size]} text-gray-200`} />
+				<Moon className={`${iconSizes[size]} text-background`} />
 			</div>
 			
 			{/* Slider */}
 			<span
-				className={`${sliderSizes[size]} ${translateClasses[size]} absolute rounded-full bg-white shadow-md transition-all duration-300 ease-in-out`}
+				className={`${sliderSizes[size]} ${translateClasses[size]} absolute rounded-full bg-background shadow-md transition-all duration-300 ease-in-out ${
+					isDark ? "border border-border" : ""
+				}`}
 			/>
 		</button>
 	);
