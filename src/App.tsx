@@ -37,6 +37,21 @@ import OfficeDetailPage from "./pages/offices/office-detail-page";
 import BackupsListPage from "./pages/backups/backups-list-page";
 import BackupCreatePage from "./pages/backups/backup-create-page";
 import BackupDetailPage from "./pages/backups/backup-detail-page";
+import NotificationsListPage from "./pages/notifications/notifications-list-page";
+import NotificationCreatePage from "./pages/notifications/notification-create-page";
+import NotificationEditPage from "./pages/notifications/notification-edit-page";
+import NotificationDetailPage from "./pages/notifications/notification-detail-page";
+import NotificationSubscribersListPage from "./pages/notification-subscribers/notification-subscribers-list-page";
+import NotificationSubscriberCreatePage from "./pages/notification-subscribers/notification-subscriber-create-page";
+import NotificationSubscriberDetailPage from "./pages/notification-subscribers/notification-subscriber-detail-page";
+import ComponentTypesListPage from "./pages/component-types/component-types-list-page";
+import ComponentTypeCreatePage from "./pages/component-types/component-type-create-page";
+import ComponentTypeEditPage from "./pages/component-types/component-type-edit-page";
+import ComponentTypeDetailPage from "./pages/component-types/component-type-detail-page";
+import ComponentsListPage from "./pages/components/components-list-page";
+import ComponentCreatePage from "./pages/components/component-create-page";
+import ComponentEditPage from "./pages/components/component-edit-page";
+import ComponentDetailPage from "./pages/components/component-detail-page";
 
 
 function App() {
@@ -81,6 +96,21 @@ function App() {
 								<Route path="/backups" element={<BackupsListPage />} />
 								<Route path="/backups/create" element={<BackupCreatePage />} />
 								<Route path="/backups/detail/:id" element={<BackupDetailPage />} />
+								<Route path="/notifications" element={<NotificationsListPage />} />
+								<Route path="/notifications/create" element={<NotificationCreatePage />} />
+								<Route path="/notifications/edit/:id" element={<NotificationEditPage />} />
+								<Route path="/notifications/detail/:id" element={<NotificationDetailPage />} />
+								<Route path="/notification-subscribers" element={<NotificationSubscribersListPage />} />
+								<Route path="/notification-subscribers/create" element={<NotificationSubscriberCreatePage />} />
+								<Route path="/notification-subscribers/detail/:id" element={<NotificationSubscriberDetailPage />} />
+								<Route path="/component-types" element={<ComponentTypesListPage />} />
+								<Route path="/component-types/create" element={<ComponentTypeCreatePage />} />
+								<Route path="/component-types/edit/:id" element={<ComponentTypeEditPage />} />
+								<Route path="/component-types/detail/:id" element={<ComponentTypeDetailPage />} />
+								<Route path="/components" element={<ComponentsListPage />} />
+								<Route path="/components/create" element={<ComponentCreatePage />} />
+								<Route path="/components/edit/:id" element={<ComponentEditPage />} />
+								<Route path="/components/detail/:id" element={<ComponentDetailPage />} />
 							</Route>
 						</Route>
 					</Routes>
