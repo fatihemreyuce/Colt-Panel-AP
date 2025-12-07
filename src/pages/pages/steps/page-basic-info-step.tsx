@@ -145,7 +145,7 @@ export function PageBasicInfoStep({
 			<div className="space-y-2">
 				<Label className="text-p3 font-semibold flex items-center gap-2">
 					<File className="h-4 w-4 text-muted-foreground" />
-					Dosya *
+					Dosya
 				</Label>
 				{filePreview || formData.fileAsset ? (
 					<div className="flex items-center gap-4">
@@ -207,7 +207,7 @@ export function PageBasicInfoStep({
 			<div className="space-y-2">
 				<Label className="text-p3 font-semibold flex items-center gap-2">
 					<ImageIcon className="h-4 w-4 text-muted-foreground" />
-					Görsel *
+					Görsel
 				</Label>
 				{imagePreview || formData.imageAsset ? (
 					<div className="flex items-center gap-4">

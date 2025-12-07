@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useTeamMembers } from "@/hooks/use-team-members";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -18,7 +17,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Trash2, Users } from "lucide-react";
+import { Plus, Trash2, Users } from "lucide-react";
 import type { TeamMemberResponse } from "@/types/team-members.types";
 
 interface PageTeamMembersStepCreateProps {
@@ -34,12 +33,7 @@ export function PageTeamMembersStepCreate({
 
 	const teamMembers = teamMembersData?.content || [];
 
-	const [searchInput, setSearchInput] = useState("");
 	const [selectedTeamMemberId, setSelectedTeamMemberId] = useState<number | null>(null);
-
-	const filteredTeamMembers = teamMembers.filter((member) =>
-		member.name.toLowerCase().includes(searchInput.toLowerCase())
-	);
 
 	const handleAddTeamMember = () => {
 		if (!selectedTeamMemberId) {
@@ -71,20 +65,6 @@ export function PageTeamMembersStepCreate({
 					Takım Üyesi Ekle
 				</h3>
 				<div className="space-y-4">
-					{/* Team Member Search */}
-					<div className="space-y-2">
-						<Label className="text-p3 font-semibold">Takım Üyesi Ara</Label>
-						<div className="relative">
-							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-							<Input
-								placeholder="Takım üyesi ara..."
-								value={searchInput}
-								onChange={(e) => setSearchInput(e.target.value)}
-								className="pl-10"
-							/>
-						</div>
-					</div>
-
 					{/* Team Member Selection */}
 					<div className="space-y-2">
 						<Label className="text-p3 font-semibold">Takım Üyesi Seç</Label>
@@ -96,7 +76,7 @@ export function PageTeamMembersStepCreate({
 								<SelectValue placeholder="Takım üyesi seçiniz" />
 							</SelectTrigger>
 							<SelectContent>
-								{filteredTeamMembers.map((member) => (
+								{teamMembers.map((member) => (
 									<SelectItem key={member.id} value={member.id.toString()}>
 										{member.name} ({member.email})
 									</SelectItem>

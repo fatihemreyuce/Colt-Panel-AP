@@ -40,7 +40,19 @@ import {
 	EmptyDescription,
 	EmptyContent,
 } from "@/components/ui/empty";
-import type { assetResponse } from "@/types/assets.types";
+import type { assetResponse, localization } from "@/types/assets.types";
+
+// Helper function to get Turkish localization first, fallback to first available
+const getPreferredLocalization = (localizations: localization[]): localization | null => {
+	if (!localizations || localizations.length === 0) return null;
+	
+	// Try to find Turkish first
+	const turkish = localizations.find(loc => loc.languageCode.toLowerCase() === "tr");
+	if (turkish) return turkish;
+	
+	// Fallback to first available
+	return localizations[0];
+};
 
 type SortField = "id" | "type" | "createdAt";
 type SortOrder = "ASC" | "DESC";
@@ -393,7 +405,7 @@ export default function AssetsListPage() {
 				onCancel={handleCloseDeleteModal}
 				title="Seti Sil"
 				description={`Bu seti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
-				confirmationText={selectedAsset?.localizations[0]?.title || "Set"}
+				confirmationText={selectedAsset ? (getPreferredLocalization(selectedAsset.localizations)?.title || "Set") : "Set"}
 				confirmText="Sil"
 				cancelText="İptal"
 				loading={deleteAssetMutation.isPending}
@@ -411,8 +423,9 @@ interface AssetTableRowProps {
 }
 
 function AssetTableRow({ asset, onView, onEdit, onDelete }: AssetTableRowProps) {
-	const defaultTitle = asset.localizations[0]?.title || "Başlık yok";
-	const defaultDescription = asset.localizations[0]?.description || "";
+	const preferredLoc = getPreferredLocalization(asset.localizations);
+	const defaultTitle = preferredLoc?.title || "Başlık yok";
+	const defaultDescription = preferredLoc?.description || "";
 
 	return (
 		<TableRow className="hover:bg-muted/50 transition-colors">

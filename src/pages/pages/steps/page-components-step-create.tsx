@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useComponents } from "@/hooks/use-components";
 import { useComponentTypes } from "@/hooks/use-component-type";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -19,7 +18,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Plus, Search, Trash2, Box, Layers } from "lucide-react";
+import { Plus, Trash2, Box } from "lucide-react";
 import type { componentRequest, componentResponse } from "@/types/components.types";
 
 interface SelectedComponent {
@@ -43,16 +42,10 @@ export function PageComponentsStepCreate({
 	const components = componentsData?.content || [];
 	const componentTypes = componentTypesData?.content || [];
 
-	const [searchInput, setSearchInput] = useState("");
 	const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
-	const [selectedComponentTypeId, setSelectedComponentTypeId] = useState<number>(0);
-
-	const filteredComponents = components.filter((comp) =>
-		comp.name.toLowerCase().includes(searchInput.toLowerCase())
-	);
 
 	const handleAddComponent = () => {
-		if (!selectedComponentId || selectedComponentTypeId === 0) {
+		if (!selectedComponentId) {
 			return;
 		}
 
@@ -66,13 +59,12 @@ export function PageComponentsStepCreate({
 
 		const newComponent: SelectedComponent = {
 			componentId: selectedComponentId,
-			componentTypeId: selectedComponentTypeId,
+			componentTypeId: component.typeId, // Use component's own typeId
 			component: component,
 		};
 
 		onComponentsChange([...selectedComponents, newComponent]);
 		setSelectedComponentId(null);
-		setSelectedComponentTypeId(0);
 	};
 
 	const handleRemoveComponent = (componentId: number) => {
@@ -88,20 +80,6 @@ export function PageComponentsStepCreate({
 					Bileşen Ekle
 				</h3>
 				<div className="space-y-4">
-					{/* Component Search */}
-					<div className="space-y-2">
-						<Label className="text-p3 font-semibold">Bileşen Ara</Label>
-						<div className="relative">
-							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-							<Input
-								placeholder="Bileşen ara..."
-								value={searchInput}
-								onChange={(e) => setSearchInput(e.target.value)}
-								className="pl-10"
-							/>
-						</div>
-					</div>
-
 					{/* Component Selection */}
 					<div className="space-y-2">
 						<Label className="text-p3 font-semibold">Bileşen Seç</Label>
@@ -113,7 +91,7 @@ export function PageComponentsStepCreate({
 								<SelectValue placeholder="Bileşen seçiniz" />
 							</SelectTrigger>
 							<SelectContent>
-								{filteredComponents.map((component) => (
+								{components.map((component) => (
 									<SelectItem key={component.id} value={component.id.toString()}>
 										{component.name} ({component.type})
 									</SelectItem>
@@ -122,38 +100,9 @@ export function PageComponentsStepCreate({
 						</Select>
 					</div>
 
-					{/* Component Type Selection */}
-					<div className="space-y-2">
-						<Label className="text-p3 font-semibold flex items-center gap-2">
-							<Layers className="h-4 w-4 text-muted-foreground" />
-							Bileşen Tipi *
-						</Label>
-						<Select
-							value={selectedComponentTypeId && selectedComponentTypeId !== 0 ? selectedComponentTypeId.toString() : ""}
-							onValueChange={(value) => {
-								if (value) {
-									setSelectedComponentTypeId(parseInt(value, 10));
-								} else {
-									setSelectedComponentTypeId(0);
-								}
-							}}
-						>
-							<SelectTrigger className="h-11">
-								<SelectValue placeholder="Bileşen tipi seçiniz" />
-							</SelectTrigger>
-							<SelectContent>
-								{componentTypes.map((type) => (
-									<SelectItem key={type.id} value={type.id.toString()}>
-										{type.type}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-
 					<Button
 						onClick={handleAddComponent}
-						disabled={!selectedComponentId || selectedComponentTypeId === 0}
+						disabled={!selectedComponentId}
 						className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
 					>
 						<Plus className="h-4 w-4 mr-2" />

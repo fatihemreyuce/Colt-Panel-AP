@@ -54,6 +54,11 @@ export function objectToFormData<
       } else if (typeof value === "object") {
         formData.append(key, JSON.stringify(value));
       } else {
+        // Skip if value is 0 and key ends with "Id" or "AssetId" (like fileAssetId, imageAssetId)
+        // These are optional fields and 0 means "not set"
+        if (value === 0 && (key.endsWith("Id") || key.endsWith("AssetId"))) {
+          return; // Skip this field
+        }
         if (String(value) !== "") {
           formData.append(key, String(value));
         }

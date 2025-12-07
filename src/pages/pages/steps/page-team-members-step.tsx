@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTeamMembers } from "@/hooks/use-team-members";
 import { useCreatePageTeamMember, useDeletePageTeamMember } from "@/hooks/use-page";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -20,7 +19,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
-import { Plus, Search, Trash2, Loader2, Users } from "lucide-react";
+import { Plus, Trash2, Loader2, Users } from "lucide-react";
 import type { TeamMemberRequest } from "@/types/team-members.types";
 import { useGetPage } from "@/hooks/use-page";
 
@@ -37,14 +36,9 @@ export function PageTeamMembersStep({ pageId }: PageTeamMembersStepProps) {
 	const teamMembers = teamMembersData?.content || [];
 	const pageTeamMembers = page?.teamMembers?.map((item) => item.teamMember) || [];
 
-	const [searchInput, setSearchInput] = useState("");
 	const [selectedTeamMemberId, setSelectedTeamMemberId] = useState<number | null>(null);
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [teamMemberToDelete, setTeamMemberToDelete] = useState<number | null>(null);
-
-	const filteredTeamMembers = teamMembers.filter((member) =>
-		member.name.toLowerCase().includes(searchInput.toLowerCase())
-	);
 
 	const handleAddTeamMember = async () => {
 		if (!selectedTeamMemberId) {
@@ -54,12 +48,19 @@ export function PageTeamMembersStep({ pageId }: PageTeamMembersStepProps) {
 		const teamMember = teamMembers.find((tm) => tm.id === selectedTeamMemberId);
 		if (!teamMember) return;
 
-		// Backend expects { teamMemberId: number } for existing team members
+		// Calculate sortOrder: find max sortOrder and add 1, or start from 1 if no team members
+		const existingSortOrders = page?.teamMembers
+			?.map((item) => item.sortOrder)
+			.filter((order): order is number => order !== null) || [];
+		const maxSortOrder = existingSortOrders.length > 0 ? Math.max(...existingSortOrders) : 0;
+		const newSortOrder = maxSortOrder + 1;
+
+		// Backend expects { teamMemberId: number, sortOrder?: number } for existing team members
 		// Using type assertion to maintain hook/service/types structure
 		try {
 			await createPageTeamMemberMutation.mutateAsync({
 				id: pageId,
-				teamMember: { teamMemberId: teamMember.id } as TeamMemberRequest,
+				teamMember: { teamMemberId: teamMember.id, sortOrder: newSortOrder } as TeamMemberRequest,
 			});
 			setSelectedTeamMemberId(null);
 		} catch (error) {
@@ -96,20 +97,6 @@ export function PageTeamMembersStep({ pageId }: PageTeamMembersStepProps) {
 					Takım Üyesi Ekle
 				</h3>
 				<div className="space-y-4">
-					{/* Team Member Search */}
-					<div className="space-y-2">
-						<Label className="text-p3 font-semibold">Takım Üyesi Ara</Label>
-						<div className="relative">
-							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-							<Input
-								placeholder="Takım üyesi ara..."
-								value={searchInput}
-								onChange={(e) => setSearchInput(e.target.value)}
-								className="pl-10"
-							/>
-						</div>
-					</div>
-
 					{/* Team Member Selection */}
 					<div className="space-y-2">
 						<Label className="text-p3 font-semibold">Takım Üyesi Seç</Label>
@@ -121,7 +108,7 @@ export function PageTeamMembersStep({ pageId }: PageTeamMembersStepProps) {
 								<SelectValue placeholder="Takım üyesi seçiniz" />
 							</SelectTrigger>
 							<SelectContent>
-								{filteredTeamMembers.map((member) => (
+								{teamMembers.map((member) => (
 									<SelectItem key={member.id} value={member.id.toString()}>
 										{member.name} ({member.email})
 									</SelectItem>

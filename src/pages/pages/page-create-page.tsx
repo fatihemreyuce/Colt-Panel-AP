@@ -4,6 +4,7 @@ import { useCreatePage, useCreatePageComponent, useCreatePageTeamMember } from "
 import { usePageTypes } from "@/hooks/use-page-type";
 import { useLanguages } from "@/hooks/use-languages";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Stepper } from "@/components/ui/stepper";
 import { ArrowLeft, Save, FileText, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import type { PageRequest, localizations } from "@/types/page.types";
@@ -109,12 +110,6 @@ export default function PageCreatePage() {
 		if (!formData.typeId || formData.typeId === 0) {
 			newErrors.typeId = "Sayfa tipi seçilmelidir";
 		}
-		if ((!formData.fileAssetId || formData.fileAssetId === 0) && !formData.fileAsset) {
-			newErrors.fileAsset = "Dosya yüklenmelidir";
-		}
-		if ((!formData.imageAssetId || formData.imageAssetId === 0) && !formData.imageAsset) {
-			newErrors.imageAsset = "Görsel yüklenmelidir";
-		}
 
 		// Validate localizations
 		formData.localizations.forEach((loc, index) => {
@@ -142,37 +137,63 @@ export default function PageCreatePage() {
 			return;
 		}
 
-		try {
-			// Step 1: Create page
-			const createdPage = await createPageMutation.mutateAsync(formData);
+		// Validate team members
+		if (selectedTeamMembers.length === 0) {
+			toast.error("En az bir takım üyesi seçilmelidir");
+			setCurrentStep(2); // Go to team members step
+			return;
+		}
 
-			// Step 2: Add components
+		try {
+			// Step 1: Create page - Clean up formData before sending
+			const cleanedFormData = { ...formData };
+			// Remove fileAssetId and imageAssetId if they are 0
+			if (cleanedFormData.fileAssetId === 0) {
+				delete cleanedFormData.fileAssetId;
+			}
+			if (cleanedFormData.imageAssetId === 0) {
+				delete cleanedFormData.imageAssetId;
+			}
+			// Remove fileAsset and imageAsset if they are undefined
+			if (!cleanedFormData.fileAsset) {
+				delete cleanedFormData.fileAsset;
+			}
+			if (!cleanedFormData.imageAsset) {
+				delete cleanedFormData.imageAsset;
+			}
+			const createdPage = await createPageMutation.mutateAsync(cleanedFormData);
+
+			// Step 2: Add components with sortOrder
 			if (selectedComponents.length > 0) {
-				for (const selectedComponent of selectedComponents) {
-					// Backend expects { componentId: number } for existing components
+				for (let i = 0; i < selectedComponents.length; i++) {
+					const selectedComponent = selectedComponents[i];
+					const sortOrder = i + 1; // Start from 1
+					// Backend expects { componentId: number, sortOrder?: number } for existing components
 					// Using type assertion to maintain hook/service/types structure
 					await createPageComponentMutation.mutateAsync({
 						id: createdPage.id,
-						component: { componentId: selectedComponent.component.id } as componentRequest,
+						component: { componentId: selectedComponent.component.id, sortOrder } as componentRequest,
 					});
 				}
 			}
 
-			// Step 3: Add team members
+			// Step 3: Add team members with sortOrder
 			if (selectedTeamMembers.length > 0) {
-				for (const teamMember of selectedTeamMembers) {
-					// Backend expects { teamMemberId: number } for existing team members
+				for (let i = 0; i < selectedTeamMembers.length; i++) {
+					const teamMember = selectedTeamMembers[i];
+					const sortOrder = i + 1; // Start from 1
+					// Backend expects { teamMemberId: number, sortOrder?: number } for existing team members
 					// Using type assertion to maintain hook/service/types structure
 					await createPageTeamMemberMutation.mutateAsync({
 						id: createdPage.id,
-						teamMember: { teamMemberId: teamMember.id } as TeamMemberRequest,
+						teamMember: { teamMemberId: teamMember.id, sortOrder } as TeamMemberRequest,
 					});
 				}
 			}
 
-			// Step 4: Navigate to detail page
+			// Step 4: Navigate to list page
 			toast.success("Sayfa başarıyla oluşturuldu");
-			navigate(`/pages/detail/${createdPage.id}`);
+			navigate(`/pages`);
 		} catch (error) {
 			// Error handled by mutations
 		}
@@ -431,99 +452,117 @@ export default function PageCreatePage() {
 		createPageTeamMemberMutation.isPending;
 
 	return (
-		<div className="w-full py-6 px-6 space-y-6">
+		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
 			{/* Header */}
-			<div className="flex h-16 items-center gap-4 border-b border-border px-6 -mx-6 mb-6">
-				<Button variant="ghost" size="icon" onClick={() => navigate("/pages")}>
-					<ArrowLeft className="h-4 w-4" />
-				</Button>
-				<div>
-					<h1 className="text-h2 font-semibold text-foreground">Yeni Sayfa Oluştur</h1>
-					<p className="text-p3 text-muted-foreground mt-1">Yeni bir sayfa oluşturun</p>
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<div className="flex items-center gap-4">
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => navigate("/pages")}
+						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
+					>
+						<ArrowLeft className="h-5 w-5" />
+					</Button>
+					<div className="space-y-1">
+						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+							Yeni Sayfa Oluştur
+						</h1>
+						<p className="text-muted-foreground text-sm ml-1">
+							Adım adım yeni bir sayfa oluşturun
+						</p>
+					</div>
 				</div>
 			</div>
 
 			{/* Stepper */}
-			<div className="rounded-lg border border-border p-6 bg-card shadow-sm">
-				<Stepper
-					steps={STEPS}
-					currentStep={currentStep}
-					onStepClick={handleStepClick}
-				/>
-			</div>
+			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
+				<CardContent className="pt-6 bg-gradient-to-br from-primary/5 to-transparent">
+					<Stepper
+						steps={STEPS}
+						currentStep={currentStep}
+						onStepClick={handleStepClick}
+					/>
+				</CardContent>
+			</Card>
 
 			{/* Form Container */}
-			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
-				{/* Form Header */}
-				<div className="bg-muted/50 border-b border-border px-6 py-4">
-					<h2 className="text-h5 font-semibold text-foreground flex items-center gap-2">
-						<FileText className="h-5 w-5 text-muted-foreground" />
-						{STEPS[currentStep].label}
-					</h2>
-					<p className="text-p3 text-muted-foreground mt-1">
-						{STEPS[currentStep].description}
-					</p>
-				</div>
-
-				{/* Form Content */}
-				<form onSubmit={handleSubmit} className="p-6 space-y-6">
-					{renderStepContent()}
-
-					{/* Form Actions */}
-					<div className="flex items-center justify-between pt-6 border-t border-border">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => navigate("/pages")}
-							className="min-w-[100px]"
-						>
-							İptal
-						</Button>
-						<div className="flex items-center gap-4">
-							{currentStep > 0 && (
-								<Button
-									type="button"
-									variant="outline"
-									onClick={handlePrevious}
-									className="min-w-[100px]"
-									disabled={isSaving}
-								>
-									<ChevronLeft className="h-4 w-4 mr-2" />
-									Önceki
-								</Button>
-							)}
-							{currentStep < STEPS.length - 1 ? (
-								<Button
-									type="button"
-									onClick={handleNext}
-									className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[100px]"
-								>
-									Sonraki
-									<ChevronRight className="h-4 w-4 ml-2" />
-								</Button>
-							) : (
-								<Button
-									type="submit"
-									disabled={isSaving}
-									className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
-								>
-									{isSaving ? (
-										<>
-											<Loader2 className="h-4 w-4 mr-2 animate-spin" />
-											Kaydediliyor...
-										</>
-									) : (
-										<>
-											<Save className="h-4 w-4 mr-2" />
-											Kaydet
-										</>
-									)}
-								</Button>
-							)}
+			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
+				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
+					<div className="flex items-center gap-3">
+						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+							<FileText className="h-6 w-6 text-primary" />
+						</div>
+						<div>
+							<CardTitle className="text-xl font-bold">{STEPS[currentStep].label}</CardTitle>
+							<CardDescription className="text-xs">{STEPS[currentStep].description}</CardDescription>
 						</div>
 					</div>
-				</form>
-			</div>
+				</CardHeader>
+				<CardContent>
+					<form onSubmit={handleSubmit} className="space-y-6">
+						{renderStepContent()}
+
+						{/* Form Actions */}
+						<div className="flex items-center justify-between pt-6 border-t">
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => navigate("/pages")}
+								size="lg"
+								className="min-w-[120px]"
+							>
+								İptal
+							</Button>
+							<div className="flex items-center gap-3">
+								{currentStep > 0 && (
+									<Button
+										type="button"
+										variant="outline"
+										onClick={handlePrevious}
+										size="lg"
+										className="min-w-[120px]"
+										disabled={isSaving}
+									>
+										<ChevronLeft className="h-4 w-4 mr-2" />
+										Önceki
+									</Button>
+								)}
+								{currentStep < STEPS.length - 1 ? (
+									<Button
+										type="button"
+										onClick={handleNext}
+										size="lg"
+										className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[120px]"
+									>
+										Sonraki
+										<ChevronRight className="h-4 w-4 ml-2" />
+									</Button>
+								) : (
+									<Button
+										type="submit"
+										disabled={isSaving}
+										size="lg"
+										className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[140px]"
+									>
+										{isSaving ? (
+											<>
+												<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+												Kaydediliyor...
+											</>
+										) : (
+											<>
+												<Save className="h-4 w-4 mr-2" />
+												Kaydet
+											</>
+										)}
+									</Button>
+								)}
+							</div>
+						</div>
+					</form>
+				</CardContent>
+			</Card>
 		</div>
 	);
 }

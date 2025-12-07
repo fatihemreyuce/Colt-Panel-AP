@@ -17,10 +17,10 @@ export const useCreateAsset = () => {
         mutationFn: (asset: assetRequest) => createAsset(asset),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["assets"] });
-            toast.success("Setler başarıyla oluşturuldu");
+            toast.success("Set başarıyla oluşturuldu");
         },
         onError: () => {
-            toast.error("Setler oluşturulurken bir hata oluştu");
+            toast.error("Set oluşturulurken bir hata oluştu");
         },
     });
 }
@@ -31,10 +31,10 @@ export const useUpdateAsset = () => {
         mutationFn: ({id, asset}: {id: number, asset: assetRequest}) => updateAsset(id, asset),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["assets"] });
-            toast.success("Setler başarıyla güncellendi");
+            toast.success("Set başarıyla güncellendi");
         },
         onError: () => {
-            toast.error("Setler güncellenirken bir hata oluştu");
+            toast.error("Set güncellenirken bir hata oluştu");
         },
     });
 }
@@ -45,10 +45,22 @@ export const useDeleteAsset = () => {
         mutationFn: (id: number) => deleteAsset(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["assets"] });
-            toast.success("Setler başarıyla silindi");
+            toast.success("Set başarıyla silindi");
         },
-        onError: () => {
-            toast.error("Setler silinirken bir hata oluştu");
+        onError: (error: any) => {
+            // Foreign key constraint hatası kontrolü
+            const errorMessage = error?.message || error?.data?.message || "";
+            if (
+                errorMessage.includes("foreign key constraint") || 
+                errorMessage.includes("still referenced") ||
+                errorMessage.includes("fk_pages_image_asset") ||
+                errorMessage.includes("fk_pages_file_asset") ||
+                errorMessage.includes("Data integrity violation")
+            ) {
+                toast.error("Bu set sayfalarda kullanılıyor. Önce ilgili sayfalardan bu seti kaldırmanız gerekiyor.");
+            } else {
+                toast.error(errorMessage || "Set silinirken bir hata oluştu");
+            }
         },
     });
 }

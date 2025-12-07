@@ -2,6 +2,19 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useGetAsset } from "@/hooks/use-assets";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit, Image as ImageIcon, FileImage, Loader2, Globe } from "lucide-react";
+import type { localization } from "@/types/assets.types";
+
+// Helper function to get Turkish localization first, fallback to first available
+const getPreferredLocalization = (localizations: localization[]): localization | null => {
+	if (!localizations || localizations.length === 0) return null;
+	
+	// Try to find Turkish first
+	const turkish = localizations.find(loc => loc.languageCode.toLowerCase() === "tr");
+	if (turkish) return turkish;
+	
+	// Fallback to first available
+	return localizations[0];
+};
 
 export default function AssetDetailPage() {
 	const { id } = useParams<{ id: string }>();
@@ -36,7 +49,8 @@ export default function AssetDetailPage() {
 		);
 	}
 
-	const defaultTitle = asset.localizations[0]?.title || "Başlık yok";
+	const preferredLoc = getPreferredLocalization(asset.localizations);
+	const defaultTitle = preferredLoc?.title || "Başlık yok";
 
 	return (
 		<div className="w-full py-6 px-6 space-y-6">
@@ -168,7 +182,14 @@ export default function AssetDetailPage() {
 							Çoklu Dil İçerikleri
 						</div>
 						<div className="grid gap-4">
-							{asset.localizations.map((loc, index) => (
+							{/* Sort localizations: Turkish first, then others */}
+							{[...asset.localizations].sort((a, b) => {
+								const aIsTurkish = a.languageCode.toLowerCase() === "tr";
+								const bIsTurkish = b.languageCode.toLowerCase() === "tr";
+								if (aIsTurkish && !bIsTurkish) return -1;
+								if (!aIsTurkish && bIsTurkish) return 1;
+								return 0;
+							}).map((loc, index) => (
 								<div key={index} className="p-4 rounded-lg bg-muted/50 border border-border">
 									<div className="flex items-center gap-2 mb-3">
 										<span className="text-p3 font-semibold text-foreground bg-primary/10 text-primary px-3 py-1 rounded-md">

@@ -57,15 +57,15 @@ export interface PageResponse {
     localizations: localizations[];
     components: {
         component: componentResponse;
-        sortOrder: number ;
+        sortOrder: number | null;
     }[];
     assets:{
         asset: assetResponse;
-        sortOrder: number ;
+        sortOrder: number | null;
     }[];
     teamMembers: {
         teamMember: TeamMemberResponse;
-        sortOrder: number ;
+        sortOrder: number | null;
     }[];
     createdAt: string;
     updatedAt: string;

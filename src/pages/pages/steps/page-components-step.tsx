@@ -21,7 +21,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
-import { Plus, Search, Trash2, X, Loader2, Box, Layers } from "lucide-react";
+import { Plus, Trash2, X, Loader2, Box, Layers } from "lucide-react";
 import type { componentRequest, componentResponse } from "@/types/components.types";
 import { useGetPage } from "@/hooks/use-page";
 import { useParams } from "react-router-dom";
@@ -41,15 +41,10 @@ export function PageComponentsStep({ pageId }: PageComponentsStepProps) {
 	const componentTypes = componentTypesData?.content || [];
 	const pageComponents = page?.components?.map((item) => item.component) || [];
 
-	const [searchInput, setSearchInput] = useState("");
 	const [selectedComponentId, setSelectedComponentId] = useState<number | null>(null);
 	const [selectedComponentTypeId, setSelectedComponentTypeId] = useState<number>(0);
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [componentToDelete, setComponentToDelete] = useState<number | null>(null);
-
-	const filteredComponents = components.filter((comp) =>
-		comp.name.toLowerCase().includes(searchInput.toLowerCase())
-	);
 
 	const handleAddComponent = async () => {
 		if (!selectedComponentId || selectedComponentTypeId === 0) {
@@ -59,12 +54,19 @@ export function PageComponentsStep({ pageId }: PageComponentsStepProps) {
 		const component = components.find((c) => c.id === selectedComponentId);
 		if (!component) return;
 
-		// Backend expects { componentId: number } for existing components
+		// Calculate sortOrder: find max sortOrder and add 1, or start from 1 if no components
+		const existingSortOrders = page?.components
+			?.map((item) => item.sortOrder)
+			.filter((order): order is number => order !== null) || [];
+		const maxSortOrder = existingSortOrders.length > 0 ? Math.max(...existingSortOrders) : 0;
+		const newSortOrder = maxSortOrder + 1;
+
+		// Backend expects { componentId: number, sortOrder?: number } for existing components
 		// Using type assertion to maintain hook/service/types structure
 		try {
 			await createPageComponentMutation.mutateAsync({
 				id: pageId,
-				component: { componentId: component.id } as componentRequest,
+				component: { componentId: component.id, sortOrder: newSortOrder } as componentRequest,
 			});
 			setSelectedComponentId(null);
 			setSelectedComponentTypeId(0);
@@ -102,20 +104,6 @@ export function PageComponentsStep({ pageId }: PageComponentsStepProps) {
 					Bileşen Ekle
 				</h3>
 				<div className="space-y-4">
-					{/* Component Search */}
-					<div className="space-y-2">
-						<Label className="text-p3 font-semibold">Bileşen Ara</Label>
-						<div className="relative">
-							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-							<Input
-								placeholder="Bileşen ara..."
-								value={searchInput}
-								onChange={(e) => setSearchInput(e.target.value)}
-								className="pl-10"
-							/>
-						</div>
-					</div>
-
 					{/* Component Selection */}
 					<div className="space-y-2">
 						<Label className="text-p3 font-semibold">Bileşen Seç</Label>
@@ -127,7 +115,7 @@ export function PageComponentsStep({ pageId }: PageComponentsStepProps) {
 								<SelectValue placeholder="Bileşen seçiniz" />
 							</SelectTrigger>
 							<SelectContent>
-								{filteredComponents.map((component) => (
+								{components.map((component) => (
 									<SelectItem key={component.id} value={component.id.toString()}>
 										{component.name} ({component.type})
 									</SelectItem>
