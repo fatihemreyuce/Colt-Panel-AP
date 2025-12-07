@@ -52,6 +52,13 @@ import ComponentsListPage from "./pages/components/components-list-page";
 import ComponentCreatePage from "./pages/components/component-create-page";
 import ComponentEditPage from "./pages/components/component-edit-page";
 import ComponentDetailPage from "./pages/components/component-detail-page";
+import ContactFormsListPage from "./pages/contact-forms/contact-forms-list-page";
+import ContactFormDetailPage from "./pages/contact-forms/contact-form-detail-page";
+import ContactFormPage from "./pages/contact-forms/contact-form-page";
+import PageTypesListPage from "./pages/page-types/page-types-list-page";
+import PageTypeCreatePage from "./pages/page-types/page-type-create-page";
+import PageTypeEditPage from "./pages/page-types/page-type-edit-page";
+import PageTypeDetailPage from "./pages/page-types/page-type-detail-page";
 
 
 function App() {
@@ -111,8 +118,16 @@ function App() {
 								<Route path="/components/create" element={<ComponentCreatePage />} />
 								<Route path="/components/edit/:id" element={<ComponentEditPage />} />
 								<Route path="/components/detail/:id" element={<ComponentDetailPage />} />
+								<Route path="/contact-forms" element={<ContactFormsListPage />} />
+								<Route path="/contact-forms/detail/:id" element={<ContactFormDetailPage />} />
+								<Route path="/page-types" element={<PageTypesListPage />} />
+								<Route path="/page-types/create" element={<PageTypeCreatePage />} />
+								<Route path="/page-types/edit/:id" element={<PageTypeEditPage />} />
+								<Route path="/page-types/detail/:id" element={<PageTypeDetailPage />} />
 							</Route>
 						</Route>
+						{/* Public Routes */}
+						<Route path="/contact" element={<ContactFormPage />} />
 					</Routes>
 				</BrowserRouter>
 			</LoginProvider>

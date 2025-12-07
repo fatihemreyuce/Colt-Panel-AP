@@ -2,7 +2,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/dark-mode-toggle";
 import { useLoginState } from "@/hooks/use-login-state";
-import { LayoutDashboard, LogOut, Sparkles, Sun, Moon, Users, Languages, UserCircle, Building2, Handshake, FileImage, Briefcase, Database, Bell, Mail, Layers, Box } from "lucide-react";
+import { LayoutDashboard, LogOut, Sparkles, Sun, Moon, Users, Languages, UserCircle, Building2, Handshake, FileImage, Briefcase, Database, Bell, Mail, Layers, Box, MessageSquare, FileType } from "lucide-react";
 
 interface NavItem {
 	to: string;
@@ -88,6 +88,18 @@ const navigationItems: NavItem[] = [
 		to: "/components",
 		label: "Bileşenler",
 		icon: Box,
+		end: false,
+	},
+	{
+		to: "/contact-forms",
+		label: "İletişim Formları",
+		icon: MessageSquare,
+		end: false,
+	},
+	{
+		to: "/page-types",
+		label: "Sayfa Tipleri",
+		icon: FileType,
 		end: false,
 	},
 ];
