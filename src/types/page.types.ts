@@ -57,7 +57,7 @@ export interface PageResponse {
     localizations: localizations[];
     components: {
         component: componentResponse;
-        sortOrder: number;
+        sortOrder: number ;
     }[];
     assets:{
         asset: assetResponse;
