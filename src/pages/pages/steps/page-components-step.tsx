@@ -143,8 +143,14 @@ export function PageComponentsStep({ pageId }: PageComponentsStepProps) {
 							Bileşen Tipi *
 						</Label>
 						<Select
-							value={selectedComponentTypeId && selectedComponentTypeId !== 0 ? selectedComponentTypeId.toString() : undefined}
-							onValueChange={(value) => setSelectedComponentTypeId(parseInt(value, 10))}
+							value={selectedComponentTypeId && selectedComponentTypeId !== 0 ? selectedComponentTypeId.toString() : ""}
+							onValueChange={(value) => {
+								if (value) {
+									setSelectedComponentTypeId(parseInt(value, 10));
+								} else {
+									setSelectedComponentTypeId(0);
+								}
+							}}
 						>
 							<SelectTrigger className="h-11">
 								<SelectValue placeholder="Bileşen tipi seçiniz" />

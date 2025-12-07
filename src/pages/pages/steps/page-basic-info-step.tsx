@@ -109,8 +109,14 @@ export function PageBasicInfoStep({
 					Sayfa Tipi *
 				</Label>
 				<Select
-					value={formData.typeId && formData.typeId !== 0 ? formData.typeId.toString() : undefined}
-					onValueChange={(value) => onFormDataChange({ typeId: parseInt(value, 10) })}
+					value={formData.typeId && formData.typeId !== 0 ? formData.typeId.toString() : ""}
+					onValueChange={(value) => {
+						if (value) {
+							onFormDataChange({ typeId: parseInt(value, 10) });
+						} else {
+							onFormDataChange({ typeId: 0 });
+						}
+					}}
 				>
 					<SelectTrigger
 						className={`h-11 ${
