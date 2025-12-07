@@ -63,6 +63,9 @@ import PagesListPage from "./pages/pages/pages-list-page";
 import PageCreatePage from "./pages/pages/page-create-page";
 import PageEditPage from "./pages/pages/page-edit-page";
 import PageDetailPage from "./pages/pages/page-detail-page";
+import SettingsListPage from "./pages/settings/settings-list-page";
+import SettingsEditPage from "./pages/settings/settings-edit-page";
+import SettingsDetailPage from "./pages/settings/settings-detail-page";
 
 
 function App() {
@@ -132,6 +135,9 @@ function App() {
 								<Route path="/pages/create" element={<PageCreatePage />} />
 								<Route path="/pages/edit/:id" element={<PageEditPage />} />
 								<Route path="/pages/detail/:id" element={<PageDetailPage />} />
+								<Route path="/settings" element={<SettingsListPage />} />
+								<Route path="/settings/edit/:id" element={<SettingsEditPage />} />
+								<Route path="/settings/detail/:id" element={<SettingsDetailPage />} />
 							</Route>
 						</Route>
 						{/* Public Routes */}
