@@ -59,6 +59,10 @@ import PageTypesListPage from "./pages/page-types/page-types-list-page";
 import PageTypeCreatePage from "./pages/page-types/page-type-create-page";
 import PageTypeEditPage from "./pages/page-types/page-type-edit-page";
 import PageTypeDetailPage from "./pages/page-types/page-type-detail-page";
+import PagesListPage from "./pages/pages/pages-list-page";
+import PageCreatePage from "./pages/pages/page-create-page";
+import PageEditPage from "./pages/pages/page-edit-page";
+import PageDetailPage from "./pages/pages/page-detail-page";
 
 
 function App() {
@@ -124,6 +128,10 @@ function App() {
 								<Route path="/page-types/create" element={<PageTypeCreatePage />} />
 								<Route path="/page-types/edit/:id" element={<PageTypeEditPage />} />
 								<Route path="/page-types/detail/:id" element={<PageTypeDetailPage />} />
+								<Route path="/pages" element={<PagesListPage />} />
+								<Route path="/pages/create" element={<PageCreatePage />} />
+								<Route path="/pages/edit/:id" element={<PageEditPage />} />
+								<Route path="/pages/detail/:id" element={<PageDetailPage />} />
 							</Route>
 						</Route>
 						{/* Public Routes */}
