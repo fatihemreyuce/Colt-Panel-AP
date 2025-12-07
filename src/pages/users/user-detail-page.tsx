@@ -1,7 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetUser } from "@/hooks/use-users";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Mail, User, Calendar, Clock, Loader2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, Edit, Mail, User, Calendar, Clock, Loader2, Users } from "lucide-react";
 
 export default function UserDetailPage() {
 	const { id } = useParams<{ id: string }>();
@@ -21,10 +24,10 @@ export default function UserDetailPage() {
 
 	if (isLoading) {
 		return (
-			<div className="w-full py-6 px-6">
-				<div className="flex flex-col items-center justify-center h-64 gap-4">
-					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-					<p className="text-p3 text-muted-foreground">Yükleniyor...</p>
+			<div className="flex-1 flex items-center justify-center min-h-[400px]">
+				<div className="flex flex-col items-center gap-4">
+					<Loader2 className="h-12 w-12 animate-spin text-primary" />
+					<p className="text-sm font-medium text-muted-foreground">Yükleniyor...</p>
 				</div>
 			</div>
 		);
@@ -32,137 +35,126 @@ export default function UserDetailPage() {
 
 	if (!user) {
 		return (
-			<div className="w-full py-6 px-6">
-				<div className="text-center py-12">
-					<p className="text-p3 text-muted-foreground mb-4">Kullanıcı bulunamadı</p>
-					<Button
-						onClick={() => navigate("/users")}
-						className="bg-primary text-primary-foreground hover:bg-primary/90"
-					>
-						Kullanıcılar Listesine Dön
-					</Button>
-				</div>
+			<div className="flex-1 flex items-center justify-center min-h-[400px]">
+				<Card className="max-w-md w-full border-2">
+					<CardHeader className="text-center">
+						<CardTitle className="text-xl">Kullanıcı Bulunamadı</CardTitle>
+						<CardDescription>
+							Aradığınız kullanıcı mevcut değil veya silinmiş olabilir.
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="flex justify-center">
+						<Button
+							onClick={() => navigate("/users")}
+							className="bg-primary text-primary-foreground hover:bg-primary/90"
+						>
+							<ArrowLeft className="h-4 w-4 mr-2" />
+							Kullanıcılar Listesine Dön
+						</Button>
+					</CardContent>
+				</Card>
 			</div>
 		);
 	}
 
 	return (
-		<div className="w-full py-6 px-6 space-y-6">
+		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
 			{/* Header */}
-			<div className="flex h-16 items-center justify-between border-b border-border px-6 -mx-6 mb-6">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<div className="flex items-center gap-4">
 					<Button
 						variant="ghost"
 						size="icon"
 						onClick={() => navigate("/users")}
+						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
 					>
-						<ArrowLeft className="h-4 w-4" />
+						<ArrowLeft className="h-5 w-5" />
 					</Button>
-					<div>
-						<h1 className="text-h2 font-semibold text-foreground">
-							Kullanıcı Detayları
+					<div className="space-y-1">
+						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+							{user.username}
 						</h1>
-						<p className="text-p3 text-muted-foreground mt-1">Kullanıcı bilgilerini görüntüleyin</p>
+						<p className="text-muted-foreground text-sm">Kullanıcı detay bilgileri</p>
 					</div>
 				</div>
 				<Button
 					onClick={() => navigate(`/users/edit/${user.id}`)}
-					className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+					size="lg"
 				>
-					<Edit className="h-4 w-4 mr-2" />
+					<Edit className="h-5 w-5 mr-2" />
 					Düzenle
 				</Button>
 			</div>
-			
-			{/* Info Container */}
-			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
-					{/* Info Header */}
-					<div className="bg-muted/50 border-b border-border px-6 py-4">
-						<h2 className="text-h5 font-semibold text-foreground flex items-center gap-2">
-							<User className="h-5 w-5 text-muted-foreground" />
-							Kullanıcı Bilgileri
-						</h2>
-						<p className="text-p3 text-muted-foreground mt-1">Kullanıcı detay bilgileri</p>
+
+			{/* Main Info Card */}
+			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
+				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
+					<div className="flex items-center gap-3">
+						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+							<Users className="h-6 w-6 text-primary" />
+						</div>
+						<div>
+							<CardTitle className="text-xl font-bold">Kullanıcı Bilgileri</CardTitle>
+							<CardDescription className="text-xs">Genel kullanıcı bilgileri ve özellikleri</CardDescription>
+						</div>
 					</div>
-
-					{/* Info Content */}
-					<div className="p-6">
-						<div className="grid gap-6 md:grid-cols-2">
-							{/* ID */}
-							<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border">
-								<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-									<User className="h-4 w-4" />
-									Kullanıcı ID
-								</div>
-								<div className="text-h5 font-bold text-foreground">
-									{user.id}
-								</div>
+				</CardHeader>
+				<CardContent className="space-y-6 pt-6 bg-gradient-to-b from-transparent to-muted/10">
+					{/* Basic Info Grid */}
+					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+								<User className="h-4 w-4 text-primary" />
+								Kullanıcı ID
 							</div>
+							<div className="text-3xl font-bold text-primary">{user.id}</div>
+						</div>
 
-							{/* Username */}
-							<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border">
-								<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-									<User className="h-4 w-4" />
-									Kullanıcı Adı
-								</div>
-								<div className="text-h5 font-bold text-foreground">
-									{user.username}
-								</div>
+						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+								<User className="h-4 w-4" />
+								Kullanıcı Adı
 							</div>
+							<div className="text-lg font-bold text-foreground">{user.username}</div>
+						</div>
 
-							{/* Email */}
-							<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border">
-								<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-									<Mail className="h-4 w-4" />
-									E-posta
-								</div>
-								<div className="text-h5 font-bold text-foreground break-all">
-									{user.email}
-								</div>
+						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+								<Mail className="h-4 w-4" />
+								E-posta
 							</div>
+							<a
+								href={`mailto:${user.email}`}
+								className="text-sm font-bold text-primary hover:underline break-all flex items-center gap-2"
+							>
+								<Mail className="h-4 w-4" />
+								{user.email}
+							</a>
+						</div>
 
-							{/* Created At */}
-							<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border">
-								<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-									<Calendar className="h-4 w-4" />
-									Oluşturulma Tarihi
-								</div>
-								<div className="text-p1 font-semibold text-foreground">
-									{formatDate(user.createdAt)}
-								</div>
+						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+								<Calendar className="h-4 w-4" />
+								Oluşturulma
 							</div>
-
-							{/* Updated At */}
-							<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border">
-								<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-									<Clock className="h-4 w-4" />
-									Güncellenme Tarihi
-								</div>
-								<div className="text-p1 font-semibold text-foreground">
-									{formatDate(user.updatedAt)}
-								</div>
+							<div className="text-sm font-bold text-foreground">
+								{formatDate(user.createdAt)}
 							</div>
 						</div>
 
-						{/* Action Buttons */}
-						<div className="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-border">
-							<Button
-								variant="outline"
-								onClick={() => navigate("/users")}
-								className="min-w-[100px]"
-							>
-								Geri Dön
-							</Button>
-							<Button
-								onClick={() => navigate(`/users/edit/${user.id}`)}
-								className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
-							>
-								<Edit className="h-4 w-4 mr-2" />
-								Düzenle
-							</Button>
+						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+								<Clock className="h-4 w-4" />
+								Güncellenme
+							</div>
+							<div className="text-sm font-bold text-foreground">
+								{formatDate(user.updatedAt)}
+							</div>
 						</div>
 					</div>
-				</div>
+				</CardContent>
+			</Card>
 		</div>
 	);
 }

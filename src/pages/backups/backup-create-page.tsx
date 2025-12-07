@@ -10,7 +10,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save, Database, RefreshCw } from "lucide-react";
+import { ArrowLeft, Save, Database, RefreshCw, Loader2 } from "lucide-react";
 import type { backupRequest } from "@/types/backups.types";
 
 const BACKUP_TYPES = [
@@ -49,33 +49,42 @@ export default function BackupCreatePage() {
 	};
 
 	return (
-		<div className="w-full py-6 px-6 space-y-6">
+		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
 			{/* Header */}
-			<div className="flex h-16 items-center gap-4 border-b border-border px-6 -mx-6 mb-6">
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={() => navigate("/backups")}
-				>
-					<ArrowLeft className="h-4 w-4" />
-				</Button>
-				<div>
-					<h1 className="text-h2 font-semibold text-foreground">
-						Yeni Yedekleme Oluştur
-					</h1>
-					<p className="text-p3 text-muted-foreground mt-1">Yeni bir yedekleme oluşturun</p>
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<div className="flex items-center gap-4">
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => navigate("/backups")}
+						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
+					>
+						<ArrowLeft className="h-5 w-5" />
+					</Button>
+					<div className="space-y-1">
+						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+							Yeni Yedekleme Oluştur
+						</h1>
+						<p className="text-muted-foreground text-sm ml-1">
+							Yeni bir yedekleme oluşturun
+						</p>
+					</div>
 				</div>
 			</div>
 
 			{/* Form Container */}
-			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
+			<div className="rounded-xl border-2 border-border overflow-hidden bg-card/50 backdrop-blur-sm shadow-xl">
 				{/* Form Header */}
-				<div className="bg-muted/50 border-b border-border px-6 py-4">
-					<h2 className="text-h5 font-semibold text-foreground flex items-center gap-2">
-						<Database className="h-5 w-5 text-muted-foreground" />
-						Yedekleme Bilgileri
-					</h2>
-					<p className="text-p3 text-muted-foreground mt-1">Yedekleme tipini seçiniz</p>
+				<div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2 border-border px-6 py-5">
+					<div className="flex items-center gap-3">
+						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+							<Database className="h-6 w-6 text-primary" />
+						</div>
+						<div>
+							<h2 className="text-xl font-bold text-foreground">Yedekleme Bilgileri</h2>
+							<p className="text-sm text-muted-foreground mt-0.5">Yedekleme tipini seçiniz</p>
+						</div>
+					</div>
 				</div>
 
 				{/* Form Content */}
@@ -120,18 +129,20 @@ export default function BackupCreatePage() {
 							type="button"
 							variant="outline"
 							onClick={() => navigate("/backups")}
-							className="border-border hover:bg-accent"
+							size="lg"
+							className="min-w-[120px]"
 						>
 							İptal
 						</Button>
 						<Button
 							type="submit"
 							disabled={createBackupMutation.isPending}
-							className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
+							size="lg"
+							className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[140px]"
 						>
 							{createBackupMutation.isPending ? (
 								<>
-									<RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+									<Loader2 className="h-4 w-4 mr-2 animate-spin" />
 									Oluşturuluyor...
 								</>
 							) : (

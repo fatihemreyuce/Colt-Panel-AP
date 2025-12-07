@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useNotificationSubscribers, useDeleteNotificationSubscriber } from "@/hooks/use-notification-subscribers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Table,
 	TableBody,
@@ -253,133 +254,172 @@ export default function NotificationSubscribersListPage() {
 	);
 
 	return (
-		<div className="w-full py-6 px-6 space-y-6">
-			{/* Header */}
-			<div className="flex h-16 items-center justify-between border-b border-border px-6 -mx-6 mb-6">
-				<h1 className="text-h2 font-semibold text-foreground">
-					Bildirim Aboneleri
-				</h1>
+		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+			{/* Header Section */}
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<div className="space-y-1">
+					<div className="flex items-center gap-3">
+						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+							<Mail className="h-6 w-6 text-primary" />
+						</div>
+						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+							Bildirim Aboneleri
+						</h1>
+					</div>
+					<p className="text-muted-foreground ml-[52px] text-sm">
+						Tüm aboneleri görüntüleyin ve yönetin
+					</p>
+				</div>
 				<Button
 					onClick={() => navigate("/notification-subscribers/create")}
-					className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+					size="lg"
 				>
-					<Plus className="h-4 w-4 mr-2" />
+					<Plus className="h-5 w-5 mr-2" />
 					Yeni Abone
 				</Button>
 			</div>
 
-			{/* Filters */}
-			<div className="flex items-center justify-between gap-4">
-				{/* Search */}
-				<div className="relative flex-1 max-w-md">
-					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-					<Input
-						placeholder="E-posta ara..."
-						value={searchInput}
-						onChange={(e) => setSearchInput(e.target.value)}
-						className="pl-10 pr-10"
-					/>
-					{searchInput && (
-						<button
-							onClick={handleClearSearch}
-							className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-							aria-label="Aramayı temizle"
-						>
-							<X className="h-4 w-4" />
-						</button>
-					)}
-				</div>
+			{/* Filters Section */}
+			<Card className="border-2 shadow-lg bg-card/50 backdrop-blur-sm">
+				<CardContent className="pt-6">
+					<div className="flex flex-col sm:flex-row gap-4">
+						{/* Search */}
+						<div className="relative flex-1">
+							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+							<Input
+								placeholder="E-posta ara..."
+								value={searchInput}
+								onChange={(e) => setSearchInput(e.target.value)}
+								className="pl-10 pr-10 h-11"
+							/>
+							{searchInput && (
+								<button
+									onClick={handleClearSearch}
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+									aria-label="Aramayı temizle"
+								>
+									<X className="h-4 w-4" />
+								</button>
+							)}
+						</div>
 
-				{/* Page Size */}
-				<Select value={size.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
-					<SelectTrigger className="w-[120px]">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{PAGE_SIZE_OPTIONS.map((option) => (
-							<SelectItem key={option} value={option.toString()}>
-								{option}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
+						{/* Page Size */}
+						<Select value={size.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
+							<SelectTrigger className="w-full sm:w-[140px] h-11">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{PAGE_SIZE_OPTIONS.map((option) => (
+									<SelectItem key={option} value={option.toString()}>
+										{option} / sayfa
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+				</CardContent>
+			</Card>
 
-			{/* Table */}
-			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
-				<Table>
-					<TableHeader>
-						<TableRow className="bg-muted/50">
-							<SortableHeader field="id">ID</SortableHeader>
-							<SortableHeader field="email">E-posta</SortableHeader>
-							<TableHead className="text-right">İşlemler</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
-							<TableRow>
-								<TableCell colSpan={3} className="text-center py-12">
-									<div className="flex flex-col items-center justify-center gap-3">
-										<Loader2 className="h-8 w-8 animate-spin text-primary" />
-										<p className="text-p3 text-muted-foreground">
-											Yükleniyor...
-										</p>
-									</div>
-								</TableCell>
-							</TableRow>
-						) : isError ? (
-							<TableRow>
-								<TableCell colSpan={3} className="text-center py-12">
-									<div className="flex flex-col items-center justify-center gap-3">
-										<p className="text-p3 font-semibold text-destructive">
-											Bir hata oluştu
-										</p>
-										<p className="text-p3 text-muted-foreground">
-											Lütfen sayfayı yenileyin
-										</p>
-									</div>
-								</TableCell>
-							</TableRow>
-						) : subscribers.length > 0 ? (
-							subscribers.map((subscriber) => (
-								<SubscriberTableRow
-									key={subscriber.id}
-									subscriber={subscriber}
-									onView={() => navigate(`/notification-subscribers/detail/${subscriber.id}`)}
-									onDelete={() => handleOpenDeleteModal(subscriber.id)}
-								/>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={3} className="p-0">
-									<Empty className="border-0 py-12">
-										<EmptyHeader>
-											<EmptyMedia variant="icon">
-												<Mail className="h-6 w-6" />
-											</EmptyMedia>
-											<EmptyTitle>Abone bulunamadı</EmptyTitle>
-											<EmptyDescription>
-												{search
-													? "Arama kriterlerinize uygun abone bulunamadı. Lütfen farklı bir arama terimi deneyin veya yeni bir abone ekleyin."
-													: "Henüz abone eklenmemiş. Yeni bir abone ekleyerek başlayabilirsiniz."}
-											</EmptyDescription>
-										</EmptyHeader>
-										<EmptyContent>
-											<Button
-												onClick={() => navigate("/notification-subscribers/create")}
-												className="bg-primary text-primary-foreground hover:bg-primary/90"
-											>
-												<Plus className="h-4 w-4 mr-2" />
-												Yeni Abone Ekle
-											</Button>
-										</EmptyContent>
-									</Empty>
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
+			{/* Table Section */}
+			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
+				<CardHeader className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border-b">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<div className="p-1.5 rounded-lg bg-primary/10">
+								<Mail className="h-4 w-4 text-primary" />
+							</div>
+							<div>
+								<CardTitle className="text-lg font-bold">Abone Listesi</CardTitle>
+								<CardDescription className="text-xs mt-0.5">
+									Toplam <span className="font-semibold text-foreground">{totalElements}</span> abone bulundu
+								</CardDescription>
+							</div>
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent className="p-0 bg-gradient-to-b from-transparent to-muted/10">
+					<div className="overflow-x-auto">
+						<Table>
+							<TableHeader>
+								<TableRow className="bg-gradient-to-r from-muted/80 via-muted/60 to-muted/40 hover:bg-muted/60 border-b-2">
+									<SortableHeader field="id">ID</SortableHeader>
+									<SortableHeader field="email">E-posta</SortableHeader>
+									<TableHead className="text-right">İşlemler</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									<TableRow>
+										<TableCell colSpan={3} className="h-[400px]">
+											<div className="flex flex-col items-center justify-center gap-4">
+												<Loader2 className="h-10 w-10 animate-spin text-primary" />
+												<p className="text-sm text-muted-foreground font-medium">
+													Yükleniyor...
+												</p>
+											</div>
+										</TableCell>
+									</TableRow>
+								) : isError ? (
+									<TableRow>
+										<TableCell colSpan={3} className="h-[400px]">
+											<div className="flex flex-col items-center justify-center gap-4">
+												<div className="rounded-full bg-destructive/10 p-3">
+													<Mail className="h-8 w-8 text-destructive" />
+												</div>
+												<div className="text-center">
+													<p className="text-sm font-semibold text-destructive">
+														Bir hata oluştu
+													</p>
+													<p className="text-sm text-muted-foreground mt-1">
+														Lütfen sayfayı yenileyin
+													</p>
+												</div>
+											</div>
+										</TableCell>
+									</TableRow>
+								) : subscribers.length > 0 ? (
+									subscribers.map((subscriber) => (
+										<SubscriberTableRow
+											key={subscriber.id}
+											subscriber={subscriber}
+											onView={() => navigate(`/notification-subscribers/detail/${subscriber.id}`)}
+											onDelete={() => handleOpenDeleteModal(subscriber.id)}
+										/>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={3} className="p-0">
+											<Empty className="border-0 py-12">
+												<EmptyHeader>
+													<EmptyMedia variant="icon">
+														<Mail className="h-12 w-12 text-muted-foreground" />
+													</EmptyMedia>
+													<EmptyTitle>Abone bulunamadı</EmptyTitle>
+													<EmptyDescription>
+														{search
+															? "Arama kriterlerinize uygun abone bulunamadı. Lütfen farklı bir arama terimi deneyin veya yeni bir abone ekleyin."
+															: "Henüz abone eklenmemiş. Yeni bir abone ekleyerek başlayabilirsiniz."}
+													</EmptyDescription>
+												</EmptyHeader>
+												<EmptyContent>
+													<Button
+														onClick={() => navigate("/notification-subscribers/create")}
+														className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+													>
+														<Plus className="h-4 w-4 mr-2" />
+														Yeni Abone Ekle
+													</Button>
+												</EmptyContent>
+											</Empty>
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
+				</CardContent>
+			</Card>
 
 			{/* Pagination */}
 			<div className="flex items-center justify-between">

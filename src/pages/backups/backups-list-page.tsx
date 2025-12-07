@@ -6,6 +6,7 @@ import { refreshTokens } from "@/utils/fetch-client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Table,
 	TableBody,
@@ -34,6 +35,7 @@ import {
 	CheckCircle2,
 	XCircle,
 	Clock,
+	MoreVertical,
 } from "lucide-react";
 import {
 	Empty,
@@ -43,6 +45,12 @@ import {
 	EmptyDescription,
 	EmptyContent,
 } from "@/components/ui/empty";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { backupResponse } from "@/types/backups.types";
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
@@ -264,133 +272,183 @@ export default function BackupsListPage() {
 	);
 
 	return (
-		<div className="w-full py-6 px-6 space-y-6">
-			{/* Header */}
-			<div className="flex h-16 items-center justify-between border-b border-border px-6 -mx-6 mb-6">
-				<div>
-					<h1 className="text-h2 font-semibold text-foreground">Yedeklemeler</h1>
-					<p className="text-p3 text-muted-foreground mt-1">Tüm yedeklemeleri görüntüleyin ve yönetin</p>
+		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+			{/* Header Section */}
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<div className="space-y-1">
+					<div className="flex items-center gap-3">
+						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+							<Database className="h-6 w-6 text-primary" />
+						</div>
+						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+							Yedeklemeler
+						</h1>
+					</div>
+					<p className="text-muted-foreground ml-[52px] text-sm">
+						Tüm yedeklemeleri görüntüleyin ve yönetin
+					</p>
 				</div>
 				<Button
 					onClick={() => navigate("/backups/create")}
-					className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+					size="lg"
 				>
-					<Plus className="h-4 w-4 mr-2" />
+					<Plus className="h-5 w-5 mr-2" />
 					Yeni Yedekleme
 				</Button>
 			</div>
 
-			{/* Filters */}
-			<div className="flex flex-col sm:flex-row gap-4">
-				<Select value={String(size)} onValueChange={(value) => handleSizeChange(Number(value))}>
-					<SelectTrigger className="w-[140px] h-11 border-border">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{PAGE_SIZE_OPTIONS.map((option) => (
-							<SelectItem key={option} value={String(option)}>
-								{option} / sayfa
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
+			{/* Filters Section */}
+			<Card className="border-2 shadow-lg bg-card/50 backdrop-blur-sm">
+				<CardContent className="pt-6">
+					<div className="flex flex-col sm:flex-row gap-4">
+						<Select value={String(size)} onValueChange={(value) => handleSizeChange(Number(value))}>
+							<SelectTrigger className="w-full sm:w-[140px] h-11 border-border">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{PAGE_SIZE_OPTIONS.map((option) => (
+									<SelectItem key={option} value={String(option)}>
+										{option} / sayfa
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+				</CardContent>
+			</Card>
 
-			{/* Table */}
-			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
-				<Table>
-					<TableHeader>
-						<TableRow className="bg-muted/50 hover:bg-muted/50">
-							<TableHead className="w-16">ID</TableHead>
-							<TableHead className="min-w-[200px]">Dosya Adı</TableHead>
-							<TableHead className="min-w-[120px]">Tip</TableHead>
-							<TableHead className="min-w-[120px]">Durum</TableHead>
-							<TableHead className="min-w-[100px]">Boyut</TableHead>
-							<TableHead className="min-w-[180px]">Oluşturulma</TableHead>
-							<TableHead className="min-w-[180px]">Son Geçerlilik</TableHead>
-							<TableHead className="w-32 text-right">İşlemler</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
-							<TableRow>
-								<TableCell colSpan={8} className="h-64">
-									<div className="flex flex-col items-center justify-center gap-4">
-										<Loader2 className="h-8 w-8 animate-spin text-primary" />
-										<p className="text-p3 text-muted-foreground">Yükleniyor...</p>
-									</div>
-								</TableCell>
-							</TableRow>
-						) : isError || backups.length === 0 ? (
-							<TableRow>
-								<TableCell colSpan={8} className="h-64">
-									<Empty>
-										<EmptyMedia>
-											<Database className="h-12 w-12 text-muted-foreground" />
-										</EmptyMedia>
-										<EmptyHeader>
-											<EmptyTitle>Yedekleme bulunamadı</EmptyTitle>
-											<EmptyDescription>
-												Henüz hiç yedekleme oluşturulmamış
-											</EmptyDescription>
-										</EmptyHeader>
-										<EmptyContent>
-											<Button
-												onClick={() => navigate("/backups/create")}
-												className="bg-primary text-primary-foreground hover:bg-primary/90"
-											>
-												<Plus className="h-4 w-4 mr-2" />
-												İlk Yedeklemeyi Oluştur
-											</Button>
-										</EmptyContent>
-									</Empty>
-								</TableCell>
-							</TableRow>
-						) : (
-							backups.map((backup) => (
-								<BackupTableRow
-									key={backup.id}
-									backup={backup}
-									onView={() => navigate(`/backups/detail/${backup.id}`)}
-									onDownload={() => handleDownload(backup)}
-									onDelete={() => handleOpenDeleteModal(backup.id)}
-								/>
-							))
-						)}
-					</TableBody>
-				</Table>
-			</div>
+			{/* Table Section */}
+			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
+				<CardHeader className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border-b">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<div className="p-1.5 rounded-lg bg-primary/10">
+								<Database className="h-4 w-4 text-primary" />
+							</div>
+							<div>
+								<CardTitle className="text-lg font-bold">Yedekleme Listesi</CardTitle>
+								<CardDescription className="text-xs mt-0.5">
+									Toplam <span className="font-semibold text-foreground">{totalElements}</span> yedekleme bulundu
+								</CardDescription>
+							</div>
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent className="p-0 bg-gradient-to-b from-transparent to-muted/10">
+					<div className="overflow-x-auto">
+						<Table>
+							<TableHeader>
+								<TableRow className="bg-gradient-to-r from-muted/80 via-muted/60 to-muted/40 hover:bg-muted/60 border-b-2">
+									<TableHead className="w-16">ID</TableHead>
+									<TableHead className="min-w-[200px]">Dosya Adı</TableHead>
+									<TableHead className="min-w-[120px]">Tip</TableHead>
+									<TableHead className="min-w-[120px]">Durum</TableHead>
+									<TableHead className="min-w-[100px]">Boyut</TableHead>
+									<TableHead className="min-w-[180px]">Oluşturulma</TableHead>
+									<TableHead className="min-w-[180px]">Son Geçerlilik</TableHead>
+									<TableHead className="w-32 text-right">İşlemler</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									<TableRow>
+										<TableCell colSpan={8} className="h-[400px]">
+											<div className="flex flex-col items-center justify-center gap-4">
+												<Loader2 className="h-10 w-10 animate-spin text-primary" />
+												<p className="text-sm text-muted-foreground font-medium">
+													Yükleniyor...
+												</p>
+											</div>
+										</TableCell>
+									</TableRow>
+								) : isError || backups.length === 0 ? (
+									<TableRow>
+										<TableCell colSpan={8} className="h-[400px]">
+											<Empty className="border-0">
+												<EmptyMedia>
+													<Database className="h-12 w-12 text-muted-foreground" />
+												</EmptyMedia>
+												<EmptyHeader>
+													<EmptyTitle>Yedekleme bulunamadı</EmptyTitle>
+													<EmptyDescription>
+														Henüz hiç yedekleme oluşturulmamış
+													</EmptyDescription>
+												</EmptyHeader>
+												<EmptyContent>
+													<Button
+														onClick={() => navigate("/backups/create")}
+														className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+													>
+														<Plus className="h-4 w-4 mr-2" />
+														İlk Yedeklemeyi Oluştur
+													</Button>
+												</EmptyContent>
+											</Empty>
+										</TableCell>
+									</TableRow>
+								) : (
+									backups.map((backup) => (
+										<BackupTableRow
+											key={backup.id}
+											backup={backup}
+											onView={() => navigate(`/backups/detail/${backup.id}`)}
+											onDownload={() => handleDownload(backup)}
+											onDelete={() => handleOpenDeleteModal(backup.id)}
+										/>
+									))
+								)}
+							</TableBody>
+						</Table>
+					</div>
+				</CardContent>
+			</Card>
 
 			{/* Pagination */}
-			{totalPages > 1 && (
-				<div className="flex items-center justify-between">
-					<div className="text-p3 text-muted-foreground">
-						Toplam <span className="font-semibold text-foreground">{totalElements}</span> yedekleme
-					</div>
-					<div className="flex items-center gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => handlePageChange(page - 1)}
-							disabled={currentPage === 0 || isLoading}
-							className="border-border hover:bg-accent"
-						>
-							<ChevronLeft className="h-4 w-4" />
-						</Button>
-						<span className="text-p3 font-semibold px-4 min-w-[120px] text-center text-foreground">
-							Sayfa {currentPage + 1} / {totalPages}
-						</span>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => handlePageChange(page + 1)}
-							disabled={currentPage >= totalPages - 1 || isLoading}
-							className="border-border hover:bg-accent"
-						>
-							<ChevronRight className="h-4 w-4" />
-						</Button>
-					</div>
-				</div>
+			{totalPages > 0 && (
+				<Card className="border-2 shadow-lg bg-gradient-to-r from-card to-card/50 backdrop-blur-sm">
+					<CardContent className="pt-6">
+						<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+							<div className="text-sm text-muted-foreground">
+								Toplam <span className="font-bold text-foreground bg-primary/10 px-2 py-0.5 rounded">{totalElements}</span> yedekleme
+								{totalPages > 1 && (
+									<>
+										{" • "}
+										Sayfa <span className="font-bold text-primary">{currentPage + 1}</span> /{" "}
+										<span className="font-bold text-foreground">{totalPages}</span>
+									</>
+								)}
+							</div>
+							{totalPages > 1 && (
+								<div className="flex items-center gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => handlePageChange(currentPage - 1)}
+										disabled={currentPage === 0 || isLoading}
+										className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
+									>
+										<ChevronLeft className="h-4 w-4 mr-1" />
+										Önceki
+									</Button>
+									<div className="flex items-center gap-1 px-4 py-2 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border-2 border-primary/20 text-sm font-bold text-primary shadow-sm">
+										{currentPage + 1} / {totalPages}
+									</div>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => handlePageChange(currentPage + 1)}
+										disabled={currentPage >= totalPages - 1 || isLoading}
+										className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
+									>
+										Sonraki
+										<ChevronRight className="h-4 w-4 ml-1" />
+									</Button>
+								</div>
+							)}
+						</div>
+					</CardContent>
+				</Card>
 			)}
 
 			{/* Delete Confirmation Modal */}
@@ -419,12 +477,12 @@ interface BackupTableRowProps {
 
 function BackupTableRow({ backup, onView, onDownload, onDelete }: BackupTableRowProps) {
 	return (
-		<TableRow className="hover:bg-muted/50 transition-colors">
+		<TableRow className="hover:bg-muted/30 transition-colors border-b">
 			<TableCell className="font-semibold text-foreground">{backup.id}</TableCell>
 			<TableCell>
 				<div className="flex items-center gap-2">
 					<Database className="h-4 w-4 text-muted-foreground" />
-					<span className="text-p3 font-medium text-foreground">{backup.filename}</span>
+					<span className="text-sm font-medium text-foreground">{backup.filename}</span>
 				</div>
 			</TableCell>
 			<TableCell>
@@ -435,7 +493,7 @@ function BackupTableRow({ backup, onView, onDownload, onDelete }: BackupTableRow
 							{getBackupTypeLabel(backupType)}
 						</Badge>
 					) : (
-						<span className="text-p3 text-muted-foreground">-</span>
+						<span className="text-sm text-muted-foreground">-</span>
 					);
 				})()}
 			</TableCell>
@@ -444,48 +502,49 @@ function BackupTableRow({ backup, onView, onDownload, onDelete }: BackupTableRow
 				{(() => {
 					const fileSize = (backup as any).file_size || (backup as any).fileSize;
 					return fileSize ? (
-						<span className="text-p3 text-muted-foreground">{formatFileSize(fileSize)}</span>
+						<span className="text-sm text-muted-foreground">{formatFileSize(fileSize)}</span>
 					) : (
-						<span className="text-p3 text-muted-foreground">-</span>
+						<span className="text-sm text-muted-foreground">-</span>
 					);
 				})()}
 			</TableCell>
 			<TableCell>
-				<span className="text-p3 text-foreground">{backup.createdAt ? formatDate(backup.createdAt) : "-"}</span>
+				<span className="text-sm text-foreground">{backup.createdAt ? formatDate(backup.createdAt) : "-"}</span>
 			</TableCell>
 			<TableCell>
-				<span className="text-p3 text-foreground">{backup.expiresAt ? formatDate(backup.expiresAt) : "-"}</span>
+				<span className="text-sm text-foreground">{backup.expiresAt ? formatDate(backup.expiresAt) : "-"}</span>
 			</TableCell>
-			<TableCell>
-				<div className="flex items-center justify-end gap-2">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={onView}
-						className="h-8 w-8 hover:bg-accent"
-					>
-						<Eye className="h-4 w-4 text-muted-foreground" />
-					</Button>
-					{backup.status === "COMPLETED" && (
+			<TableCell className="text-right">
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
 						<Button
 							variant="ghost"
 							size="icon"
-							onClick={onDownload}
-							className="h-8 w-8 hover:bg-accent"
-							title="İndir"
+							className="h-8 w-8 hover:bg-muted"
 						>
-							<Download className="h-4 w-4 text-muted-foreground" />
+							<MoreVertical className="h-4 w-4" />
 						</Button>
-					)}
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={onDelete}
-						className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-					>
-						<Trash2 className="h-4 w-4" />
-					</Button>
-				</div>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end" className="w-40">
+						<DropdownMenuItem onClick={onView} className="cursor-pointer">
+							<Eye className="h-4 w-4 mr-2" />
+							Detayları Gör
+						</DropdownMenuItem>
+						{backup.status === "COMPLETED" || backup.status === "SUCCESS" ? (
+							<DropdownMenuItem onClick={onDownload} className="cursor-pointer">
+								<Download className="h-4 w-4 mr-2" />
+								İndir
+							</DropdownMenuItem>
+						) : null}
+						<DropdownMenuItem
+							onClick={onDelete}
+							className="cursor-pointer text-destructive focus:text-destructive"
+						>
+							<Trash2 className="h-4 w-4 mr-2" />
+							Sil
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</TableCell>
 		</TableRow>
 	);

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useNotifications, useDeleteNotification } from "@/hooks/use-notifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Table,
 	TableBody,
@@ -31,6 +32,7 @@ import {
 	X,
 	Loader2,
 	Bell,
+	MoreVertical,
 } from "lucide-react";
 import {
 	Empty,
@@ -40,6 +42,12 @@ import {
 	EmptyDescription,
 	EmptyContent,
 } from "@/components/ui/empty";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { notificationResponse } from "@/types/notifications.types";
 
 type SortField = "id" | "title";
@@ -254,225 +262,221 @@ export default function NotificationsListPage() {
 	);
 
 	return (
-		<div className="w-full py-6 px-6 space-y-6">
-			{/* Header */}
-			<div className="flex h-16 items-center justify-between border-b border-border px-6 -mx-6 mb-6">
-				<h1 className="text-h2 font-semibold text-foreground">
-					Bildirimler
-				</h1>
+		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+			{/* Header Section */}
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<div className="space-y-1">
+					<div className="flex items-center gap-3">
+						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+							<Bell className="h-6 w-6 text-primary" />
+						</div>
+						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+							Bildirimler
+						</h1>
+					</div>
+					<p className="text-muted-foreground ml-[52px] text-sm">
+						Tüm bildirimleri görüntüleyin ve yönetin
+					</p>
+				</div>
 				<Button
 					onClick={() => navigate("/notifications/create")}
-					className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+					size="lg"
 				>
-					<Plus className="h-4 w-4 mr-2" />
+					<Plus className="h-5 w-5 mr-2" />
 					Yeni Bildirim
 				</Button>
 			</div>
 
-			{/* Filters */}
-			<div className="flex items-center justify-between gap-4">
-				{/* Search */}
-				<div className="relative flex-1 max-w-md">
-					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-					<Input
-						placeholder="Bildirim ara..."
-						value={searchInput}
-						onChange={(e) => setSearchInput(e.target.value)}
-						className="pl-10 pr-10"
-					/>
-					{searchInput && (
-						<button
-							onClick={handleClearSearch}
-							className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-							aria-label="Aramayı temizle"
-						>
-							<X className="h-4 w-4" />
-						</button>
-					)}
-				</div>
+			{/* Filters Section */}
+			<Card className="border-2 shadow-lg bg-card/50 backdrop-blur-sm">
+				<CardContent className="pt-6">
+					<div className="flex flex-col sm:flex-row gap-4">
+						{/* Search */}
+						<div className="relative flex-1">
+							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+							<Input
+								placeholder="Bildirim ara..."
+								value={searchInput}
+								onChange={(e) => setSearchInput(e.target.value)}
+								className="pl-10 pr-10 h-11"
+							/>
+							{searchInput && (
+								<button
+									onClick={handleClearSearch}
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+									aria-label="Aramayı temizle"
+								>
+									<X className="h-4 w-4" />
+								</button>
+							)}
+						</div>
 
-				{/* Page Size */}
-				<Select value={size.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
-					<SelectTrigger className="w-[120px]">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{PAGE_SIZE_OPTIONS.map((option) => (
-							<SelectItem key={option} value={option.toString()}>
-								{option}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
+						{/* Page Size */}
+						<Select value={size.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
+							<SelectTrigger className="w-full sm:w-[140px] h-11">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{PAGE_SIZE_OPTIONS.map((option) => (
+									<SelectItem key={option} value={option.toString()}>
+										{option} / sayfa
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+				</CardContent>
+			</Card>
 
-			{/* Table */}
-			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
-				<Table>
-					<TableHeader>
-						<TableRow className="bg-muted/50">
-							<SortableHeader field="id">ID</SortableHeader>
-							<SortableHeader field="title">Başlık</SortableHeader>
-							<TableHead>İçerik</TableHead>
-							<TableHead className="text-right">İşlemler</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
-							<TableRow>
-								<TableCell colSpan={4} className="text-center py-12">
-									<div className="flex flex-col items-center justify-center gap-3">
-										<Loader2 className="h-8 w-8 animate-spin text-primary" />
-										<p className="text-p3 text-muted-foreground">
-											Yükleniyor...
-										</p>
-									</div>
-								</TableCell>
-							</TableRow>
-						) : isError ? (
-							<TableRow>
-								<TableCell colSpan={4} className="text-center py-12">
-									<div className="flex flex-col items-center justify-center gap-3">
-										<p className="text-p3 font-semibold text-destructive">
-											Bir hata oluştu
-										</p>
-										<p className="text-p3 text-muted-foreground">
-											Lütfen sayfayı yenileyin
-										</p>
-									</div>
-								</TableCell>
-							</TableRow>
-						) : notifications.length > 0 ? (
-							notifications.map((notification) => (
-								<NotificationTableRow
-									key={notification.id}
-									notification={notification}
-									onView={() => navigate(`/notifications/detail/${notification.id}`)}
-									onEdit={() => navigate(`/notifications/edit/${notification.id}`)}
-									onDelete={() => handleOpenDeleteModal(notification.id)}
-								/>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={4} className="p-0">
-									<Empty className="border-0 py-12">
-										<EmptyHeader>
-											<EmptyMedia variant="icon">
-												<Bell className="h-6 w-6" />
-											</EmptyMedia>
-											<EmptyTitle>Bildirim bulunamadı</EmptyTitle>
-											<EmptyDescription>
-												{search
-													? "Arama kriterlerinize uygun bildirim bulunamadı. Lütfen farklı bir arama terimi deneyin veya yeni bir bildirim ekleyin."
-													: "Henüz bildirim eklenmemiş. Yeni bir bildirim ekleyerek başlayabilirsiniz."}
-											</EmptyDescription>
-										</EmptyHeader>
-										<EmptyContent>
-											<Button
-												onClick={() => navigate("/notifications/create")}
-												className="bg-primary text-primary-foreground hover:bg-primary/90"
-											>
-												<Plus className="h-4 w-4 mr-2" />
-												Yeni Bildirim Ekle
-											</Button>
-										</EmptyContent>
-									</Empty>
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
+			{/* Table Section */}
+			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
+				<CardHeader className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border-b">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<div className="p-1.5 rounded-lg bg-primary/10">
+								<Bell className="h-4 w-4 text-primary" />
+							</div>
+							<div>
+								<CardTitle className="text-lg font-bold">Bildirim Listesi</CardTitle>
+								<CardDescription className="text-xs mt-0.5">
+									Toplam <span className="font-semibold text-foreground">{totalElements}</span> bildirim bulundu
+								</CardDescription>
+							</div>
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent className="p-0 bg-gradient-to-b from-transparent to-muted/10">
+					<div className="overflow-x-auto">
+						<Table>
+							<TableHeader>
+								<TableRow className="bg-gradient-to-r from-muted/80 via-muted/60 to-muted/40 hover:bg-muted/60 border-b-2">
+									<SortableHeader field="id">ID</SortableHeader>
+									<SortableHeader field="title">Başlık</SortableHeader>
+									<TableHead>İçerik</TableHead>
+									<TableHead className="text-right">İşlemler</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									<TableRow>
+										<TableCell colSpan={4} className="h-[400px]">
+											<div className="flex flex-col items-center justify-center gap-4">
+												<Loader2 className="h-10 w-10 animate-spin text-primary" />
+												<p className="text-sm text-muted-foreground font-medium">
+													Yükleniyor...
+												</p>
+											</div>
+										</TableCell>
+									</TableRow>
+								) : isError ? (
+									<TableRow>
+										<TableCell colSpan={4} className="h-[400px]">
+											<div className="flex flex-col items-center justify-center gap-4">
+												<div className="rounded-full bg-destructive/10 p-3">
+													<Bell className="h-8 w-8 text-destructive" />
+												</div>
+												<div className="text-center">
+													<p className="text-sm font-semibold text-destructive">
+														Bir hata oluştu
+													</p>
+													<p className="text-sm text-muted-foreground mt-1">
+														Lütfen sayfayı yenileyin
+													</p>
+												</div>
+											</div>
+										</TableCell>
+									</TableRow>
+								) : notifications.length > 0 ? (
+									notifications.map((notification) => (
+										<NotificationTableRow
+											key={notification.id}
+											notification={notification}
+											onView={() => navigate(`/notifications/detail/${notification.id}`)}
+											onEdit={() => navigate(`/notifications/edit/${notification.id}`)}
+											onDelete={() => handleOpenDeleteModal(notification.id)}
+										/>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={4} className="p-0">
+											<Empty className="border-0 py-12">
+												<EmptyHeader>
+													<EmptyMedia variant="icon">
+														<Bell className="h-12 w-12 text-muted-foreground" />
+													</EmptyMedia>
+													<EmptyTitle>Bildirim bulunamadı</EmptyTitle>
+													<EmptyDescription>
+														{search
+															? "Arama kriterlerinize uygun bildirim bulunamadı. Lütfen farklı bir arama terimi deneyin veya yeni bir bildirim ekleyin."
+															: "Henüz bildirim eklenmemiş. Yeni bir bildirim ekleyerek başlayabilirsiniz."}
+													</EmptyDescription>
+												</EmptyHeader>
+												<EmptyContent>
+													<Button
+														onClick={() => navigate("/notifications/create")}
+														className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+													>
+														<Plus className="h-4 w-4 mr-2" />
+														Yeni Bildirim Ekle
+													</Button>
+												</EmptyContent>
+											</Empty>
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
+				</CardContent>
+			</Card>
 
 			{/* Pagination */}
-			<div className="flex items-center justify-between">
-				<div className="text-p3 text-muted-foreground">
-					Toplam <span className="font-semibold text-foreground">{totalElements}</span> bildirim
-				</div>
-				<div className="flex items-center gap-1">
-					{/* Önceki butonu */}
-					{currentPage > 0 && (
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={() => handlePageChange(currentPage - 1)}
-							disabled={isLoading}
-							className="h-9 text-foreground hover:bg-muted"
-						>
-							<ChevronLeft className="h-4 w-4 mr-1" />
-							Önceki
-						</Button>
-					)}
-					
-					{/* Sayfa 1 */}
-					<Button
-						variant={currentPage === 0 ? "default" : "ghost"}
-						size="sm"
-						onClick={() => handlePageChange(0)}
-						disabled={isLoading}
-						className={`h-9 min-w-[40px] ${
-							currentPage === 0 
-								? "bg-muted text-foreground hover:bg-muted/80" 
-								: "text-foreground hover:bg-muted"
-						}`}
-					>
-						1
-					</Button>
-					
-					{/* Sayfa 2 */}
-					{totalPages > 1 && (
-						<Button
-							variant={currentPage === 1 ? "default" : "ghost"}
-							size="sm"
-							onClick={() => handlePageChange(1)}
-							disabled={isLoading}
-							className={`h-9 min-w-[40px] ${
-								currentPage === 1 
-									? "bg-muted text-foreground hover:bg-muted/80" 
-									: "text-foreground hover:bg-muted"
-							}`}
-						>
-							2
-						</Button>
-					)}
-					
-					{/* Sayfa 3 (eğer sayfa 1 veya 2'deysek) */}
-					{(currentPage === 0 || currentPage === 1) && totalPages > 2 && (
-						<Button
-							variant={currentPage === 2 ? "default" : "ghost"}
-							size="sm"
-							onClick={() => handlePageChange(2)}
-							disabled={isLoading}
-							className={`h-9 min-w-[40px] ${
-								currentPage === 2 
-									? "bg-muted text-foreground hover:bg-muted/80" 
-									: "text-foreground hover:bg-muted"
-							}`}
-						>
-							3
-						</Button>
-					)}
-					
-					{/* Üç nokta (mevcut sayfa 2'den büyükse) */}
-					{currentPage > 2 && (
-						<span className="text-p3 text-muted-foreground px-1">...</span>
-					)}
-					
-					{/* Sonraki butonu */}
-					{currentPage < totalPages - 1 && (
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={() => handlePageChange(currentPage + 1)}
-							disabled={isLoading}
-							className="h-9 text-foreground hover:bg-muted"
-						>
-							Sonraki
-							<ChevronRight className="h-4 w-4 ml-1" />
-						</Button>
-					)}
-				</div>
-			</div>
+			{totalPages > 0 && (
+				<Card className="border-2 shadow-lg bg-gradient-to-r from-card to-card/50 backdrop-blur-sm">
+					<CardContent className="pt-6">
+						<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+							<div className="text-sm text-muted-foreground">
+								Toplam <span className="font-bold text-foreground bg-primary/10 px-2 py-0.5 rounded">{totalElements}</span> bildirim
+								{totalPages > 1 && (
+									<>
+										{" • "}
+										Sayfa <span className="font-bold text-primary">{currentPage + 1}</span> /{" "}
+										<span className="font-bold text-foreground">{totalPages}</span>
+									</>
+								)}
+							</div>
+							{totalPages > 1 && (
+								<div className="flex items-center gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => handlePageChange(currentPage - 1)}
+										disabled={currentPage === 0 || isLoading}
+										className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
+									>
+										<ChevronLeft className="h-4 w-4 mr-1" />
+										Önceki
+									</Button>
+									<div className="flex items-center gap-1 px-4 py-2 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border-2 border-primary/20 text-sm font-bold text-primary shadow-sm">
+										{currentPage + 1} / {totalPages}
+									</div>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => handlePageChange(currentPage + 1)}
+										disabled={currentPage >= totalPages - 1 || isLoading}
+										className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
+									>
+										Sonraki
+										<ChevronRight className="h-4 w-4 ml-1" />
+									</Button>
+								</div>
+							)}
+						</div>
+					</CardContent>
+				</Card>
+			)}
 
 			{/* Delete Confirmation Modal */}
 			<ConfirmModal
@@ -499,48 +503,58 @@ interface NotificationTableRowProps {
 }
 
 function NotificationTableRow({ notification, onView, onEdit, onDelete }: NotificationTableRowProps) {
-	const truncatedContent = notification.content.length > 100 
-		? `${notification.content.substring(0, 100)}...` 
-		: notification.content;
+	// HTML içeriğinden metin çıkar
+	const getTextContent = (html: string): string => {
+		const div = document.createElement("div");
+		div.innerHTML = html;
+		return div.textContent || div.innerText || "";
+	};
+
+	const textContent = getTextContent(notification.content);
+	const truncatedContent = textContent.length > 100 
+		? `${textContent.substring(0, 100)}...` 
+		: textContent;
 
 	return (
-		<TableRow className="hover:bg-muted/50 transition-colors">
-			<TableCell className="font-medium">{notification.id}</TableCell>
+		<TableRow className="hover:bg-muted/30 transition-colors border-b">
+			<TableCell className="font-semibold text-foreground">{notification.id}</TableCell>
 			<TableCell>
 				<div className="font-semibold text-foreground">{notification.title}</div>
 			</TableCell>
 			<TableCell>
-				<div className="text-p3 text-muted-foreground max-w-md truncate">
+				<div className="text-sm text-muted-foreground max-w-md truncate">
 					{truncatedContent}
 				</div>
 			</TableCell>
 			<TableCell className="text-right">
-				<div className="flex items-center justify-end gap-2">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={onView}
-						className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
-					>
-						<Eye className="h-4 w-4" />
-					</Button>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={onEdit}
-						className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
-					>
-						<Edit className="h-4 w-4" />
-					</Button>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={onDelete}
-						className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-					>
-						<Trash2 className="h-4 w-4" />
-					</Button>
-				</div>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-8 w-8 hover:bg-muted"
+						>
+							<MoreVertical className="h-4 w-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end" className="w-40">
+						<DropdownMenuItem onClick={onView} className="cursor-pointer">
+							<Eye className="h-4 w-4 mr-2" />
+							Detayları Gör
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={onEdit} className="cursor-pointer">
+							<Edit className="h-4 w-4 mr-2" />
+							Düzenle
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={onDelete}
+							className="cursor-pointer text-destructive focus:text-destructive"
+						>
+							<Trash2 className="h-4 w-4 mr-2" />
+							Sil
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</TableCell>
 		</TableRow>
 	);

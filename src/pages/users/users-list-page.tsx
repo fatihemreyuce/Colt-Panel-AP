@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUsers, useDeleteUser } from "@/hooks/use-users";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
 	Table,
 	TableBody,
@@ -31,6 +33,8 @@ import {
 	X,
 	Loader2,
 	Users,
+	MoreVertical,
+	Calendar,
 } from "lucide-react";
 import {
 	Empty,
@@ -41,6 +45,12 @@ import {
 	EmptyContent,
 } from "@/components/ui/empty";
 import type { UserResponse } from "@/types/user.types";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type SortField = "id" | "username" | "email" | "createdAt";
 type SortOrder = "ASC" | "DESC";
@@ -55,7 +65,6 @@ const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_SORT: SortConfig = { field: "createdAt", order: "DESC" };
 const DEBOUNCE_DELAY = 500;
 
-// Utility function to parse sort string
 const parseSort = (sortString: string): SortConfig => {
 	const [field, order] = sortString.split(",");
 	return {
@@ -64,12 +73,10 @@ const parseSort = (sortString: string): SortConfig => {
 	};
 };
 
-// Utility function to format sort string
 const formatSort = (config: SortConfig): string => {
 	return `${config.field},${config.order}`;
 };
 
-// Utility function to format date
 const formatDate = (dateString: string): string => {
 	return new Date(dateString).toLocaleDateString("tr-TR", {
 		year: "numeric",
@@ -84,28 +91,23 @@ export default function UsersListPage() {
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 
-	// URL'den parametreleri oku
 	const search = searchParams.get("search") || "";
 	const page = parseInt(searchParams.get("page") || "0", 10);
 	const size = parseInt(searchParams.get("size") || String(DEFAULT_PAGE_SIZE), 10);
 	const sortString = searchParams.get("sort") || formatSort(DEFAULT_SORT);
 	const sortConfig = useMemo(() => parseSort(sortString), [sortString]);
 
-	// Local state
 	const [searchInput, setSearchInput] = useState(search);
 	const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 	const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
-	// Data fetching
 	const { data, isLoading, isError } = useUsers(search, page, size, sortString);
 	const deleteUserMutation = useDeleteUser();
 
-	// URL'den gelen search değerini searchInput'a senkronize et
 	useEffect(() => {
 		setSearchInput(search);
 	}, [search]);
 
-	// Debounced search - URL parametresini güncelle
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			if (searchInput !== search) {
@@ -125,7 +127,6 @@ export default function UsersListPage() {
 		return () => clearTimeout(timer);
 	}, [searchInput, search, setSearchParams]);
 
-	// URL parametrelerini güncelleme helper fonksiyonu
 	const updateSearchParams = useCallback(
 		(updater: (params: URLSearchParams) => void) => {
 			setSearchParams((prev) => {
@@ -137,7 +138,6 @@ export default function UsersListPage() {
 		[setSearchParams]
 	);
 
-	// Search temizleme
 	const handleClearSearch = useCallback(() => {
 		setSearchInput("");
 		updateSearchParams((params) => {
@@ -146,7 +146,6 @@ export default function UsersListPage() {
 		});
 	}, [updateSearchParams]);
 
-	// Sort işlemi
 	const handleSort = useCallback(
 		(field: SortField) => {
 			const newOrder =
@@ -161,7 +160,6 @@ export default function UsersListPage() {
 		[sortConfig, updateSearchParams]
 	);
 
-	// Sayfa değiştirme
 	const handlePageChange = useCallback(
 		(newPage: number) => {
 			updateSearchParams((params) => {
@@ -171,7 +169,6 @@ export default function UsersListPage() {
 		[updateSearchParams]
 	);
 
-	// Sayfa boyutu değiştirme
 	const handleSizeChange = useCallback(
 		(newSize: number) => {
 			updateSearchParams((params) => {
@@ -182,7 +179,6 @@ export default function UsersListPage() {
 		[updateSearchParams]
 	);
 
-	// Silme işlemi
 	const handleDelete = useCallback(async () => {
 		if (selectedUserId) {
 			try {
@@ -190,24 +186,21 @@ export default function UsersListPage() {
 				setDeleteModalOpen(false);
 				setSelectedUserId(null);
 			} catch (error) {
-				// Error handling is done in the mutation hook
+				// Error handled by mutation
 			}
 		}
 	}, [selectedUserId, deleteUserMutation]);
 
-	// Modal açma
 	const handleOpenDeleteModal = useCallback((userId: number) => {
 		setSelectedUserId(userId);
 		setDeleteModalOpen(true);
 	}, []);
 
-	// Modal kapatma
 	const handleCloseDeleteModal = useCallback(() => {
 		setDeleteModalOpen(false);
 		setSelectedUserId(null);
 	}, []);
 
-	// Computed values
 	const totalPages = data?.totalPages ?? 0;
 	const currentPage = data?.number ?? 0;
 	const totalElements = data?.totalElements ?? 0;
@@ -218,19 +211,17 @@ export default function UsersListPage() {
 		[users, selectedUserId]
 	);
 
-	// Sort indicator component
 	const SortIndicator = ({ field }: { field: SortField }) => {
 		if (sortConfig.field !== field) {
-			return <ArrowUpDown className="h-4 w-4 opacity-50" />;
+			return <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />;
 		}
 		return (
-			<span className="text-primary text-xs font-semibold">
+			<span className="text-primary font-semibold">
 				{sortConfig.order === "ASC" ? "↑" : "↓"}
 			</span>
 		);
 	};
 
-	// Sortable table header component
 	const SortableHeader = ({
 		field,
 		children,
@@ -241,7 +232,7 @@ export default function UsersListPage() {
 		<TableHead>
 			<button
 				onClick={() => handleSort(field)}
-				className="flex items-center gap-2 hover:text-primary transition-colors w-full text-left font-semibold"
+				className="flex items-center gap-2 hover:text-primary transition-colors w-full text-left font-semibold group"
 			>
 				{children}
 				<SortIndicator field={field} />
@@ -250,162 +241,227 @@ export default function UsersListPage() {
 	);
 
 	return (
-		<div className="w-full py-6 px-6 space-y-6">
-			{/* Header */}
-			<div className="flex h-16 items-center justify-between border-b border-border px-6 -mx-6 mb-6">
-				<h1 className="text-h2 font-semibold text-foreground">
-					Kullanıcılar
-				</h1>
+		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+			{/* Header Section */}
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<div className="space-y-1">
+					<div className="flex items-center gap-3">
+						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+							<Users className="h-6 w-6 text-primary" />
+						</div>
+						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+							Kullanıcılar
+						</h1>
+					</div>
+					<p className="text-muted-foreground ml-[52px] text-sm">
+						Tüm kullanıcıları görüntüleyin ve yönetin
+					</p>
+				</div>
 				<Button
 					onClick={() => navigate("/users/create")}
-					className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+					size="lg"
 				>
-					<Plus className="h-4 w-4 mr-2" />
+					<Plus className="h-5 w-5 mr-2" />
 					Yeni Kullanıcı
 				</Button>
 			</div>
 
-			{/* Search and Filters */}
-			<div className="flex items-center gap-4">
-				<div className="relative flex-1 max-w-md">
-					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-					<Input
-						placeholder="Kullanıcı ara..."
-						value={searchInput}
-						onChange={(e) => setSearchInput(e.target.value)}
-						className="pl-10 pr-10"
-					/>
-					{searchInput && (
-						<button
-							onClick={handleClearSearch}
-							className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-							aria-label="Aramayı temizle"
-						>
-							<X className="h-4 w-4" />
-						</button>
-					)}
-				</div>
-				<Select value={size.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
-					<SelectTrigger className="w-[120px]">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{PAGE_SIZE_OPTIONS.map((option) => (
-							<SelectItem key={option} value={option.toString()}>
-								{option}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
+			{/* Filters Section */}
+			<Card className="border-2 shadow-lg bg-card/50 backdrop-blur-sm">
+				<CardHeader className="pb-4 bg-gradient-to-r from-muted/50 to-transparent border-b">
+					<div className="flex items-center gap-2">
+						<div className="p-1.5 rounded-lg bg-primary/10">
+							<Search className="h-4 w-4 text-primary" />
+						</div>
+						<div>
+							<CardTitle className="text-lg font-bold">Filtreler ve Arama</CardTitle>
+							<CardDescription className="text-xs">
+								Kullanıcıları arayın ve filtreleyin
+							</CardDescription>
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent className="pt-6">
+					<div className="flex flex-col sm:flex-row gap-4">
+						<div className="relative flex-1">
+							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+							<Input
+								placeholder="Kullanıcı ara..."
+								value={searchInput}
+								onChange={(e) => setSearchInput(e.target.value)}
+								className="pl-10 pr-10 h-11"
+							/>
+							{searchInput && (
+								<button
+									onClick={handleClearSearch}
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+									aria-label="Aramayı temizle"
+								>
+									<X className="h-4 w-4" />
+								</button>
+							)}
+						</div>
+						<Select value={size.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
+							<SelectTrigger className="w-full sm:w-[140px] h-11">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{PAGE_SIZE_OPTIONS.map((option) => (
+									<SelectItem key={option} value={option.toString()}>
+										{option} / sayfa
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+				</CardContent>
+			</Card>
 
-			{/* Table */}
-			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
-				<Table>
-					<TableHeader>
-						<TableRow className="bg-muted/50">
-							<SortableHeader field="id">ID</SortableHeader>
-							<SortableHeader field="username">Kullanıcı Adı</SortableHeader>
-							<SortableHeader field="email">E-posta</SortableHeader>
-							<SortableHeader field="createdAt">Oluşturulma Tarihi</SortableHeader>
-							<TableHead className="text-right">İşlemler</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{isLoading ? (
-							<TableRow>
-								<TableCell colSpan={5} className="text-center py-12">
-									<div className="flex flex-col items-center justify-center gap-3">
-										<Loader2 className="h-8 w-8 animate-spin text-primary" />
-										<p className="text-p3 text-muted-foreground">
-											Yükleniyor...
-										</p>
-									</div>
-								</TableCell>
-							</TableRow>
-						) : isError ? (
-							<TableRow>
-								<TableCell colSpan={5} className="text-center py-12">
-									<div className="flex flex-col items-center justify-center gap-3">
-										<p className="text-p3 font-semibold text-red-600 dark:text-red-400">
-											Bir hata oluştu
-										</p>
-										<p className="text-p3 text-gray-500 dark:text-gray-400">
-											Lütfen sayfayı yenileyin
-										</p>
-									</div>
-								</TableCell>
-							</TableRow>
-						) : users.length > 0 ? (
-							users.map((user) => (
-								<UserTableRow
-									key={user.id}
-									user={user}
-									onView={() => navigate(`/users/detail/${user.id}`)}
-									onEdit={() => navigate(`/users/edit/${user.id}`)}
-									onDelete={() => handleOpenDeleteModal(user.id)}
-								/>
-							))
-						) : (
-							<TableRow>
-								<TableCell colSpan={5} className="p-0">
-									<Empty className="border-0 py-12">
-										<EmptyHeader>
-											<EmptyMedia variant="icon">
-												<Users className="h-6 w-6" />
-											</EmptyMedia>
-											<EmptyTitle>Kullanıcı bulunamadı</EmptyTitle>
-											<EmptyDescription>
-												{search
-													? "Arama kriterlerinize uygun kullanıcı bulunamadı. Lütfen farklı bir arama terimi deneyin."
-													: "Henüz kullanıcı eklenmemiş. Yeni bir kullanıcı ekleyerek başlayabilirsiniz."}
-											</EmptyDescription>
-										</EmptyHeader>
-										<EmptyContent>
-											<Button
-												onClick={() => navigate("/users/create")}
-												className="bg-primary text-primary-foreground hover:bg-primary/90"
-											>
-												<Plus className="h-4 w-4 mr-2" />
-												Yeni Kullanıcı Ekle
-											</Button>
-										</EmptyContent>
-									</Empty>
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
-			</div>
+			{/* Table Section */}
+			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
+				<CardHeader className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border-b">
+					<div className="flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<div className="p-1.5 rounded-lg bg-primary/10">
+								<Users className="h-4 w-4 text-primary" />
+							</div>
+							<div>
+								<CardTitle className="text-lg font-bold">Kullanıcı Listesi</CardTitle>
+								<CardDescription className="text-xs mt-0.5">
+									Toplam <span className="font-semibold text-foreground">{totalElements}</span> kullanıcı bulundu
+								</CardDescription>
+							</div>
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent className="p-0 bg-gradient-to-b from-transparent to-muted/10">
+					<div className="overflow-x-auto">
+						<Table>
+							<TableHeader>
+								<TableRow className="bg-gradient-to-r from-muted/80 via-muted/60 to-muted/40 hover:bg-muted/60 border-b-2">
+									<SortableHeader field="id">ID</SortableHeader>
+									<SortableHeader field="username">Kullanıcı Adı</SortableHeader>
+									<SortableHeader field="email">E-posta</SortableHeader>
+									<SortableHeader field="createdAt">Oluşturulma Tarihi</SortableHeader>
+									<TableHead className="text-right">İşlemler</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{isLoading ? (
+									<TableRow>
+										<TableCell colSpan={5} className="h-[400px]">
+											<div className="flex flex-col items-center justify-center gap-4">
+												<Loader2 className="h-10 w-10 animate-spin text-primary" />
+												<p className="text-sm text-muted-foreground font-medium">
+													Yükleniyor...
+												</p>
+											</div>
+										</TableCell>
+									</TableRow>
+								) : isError ? (
+									<TableRow>
+										<TableCell colSpan={5} className="h-[400px]">
+											<div className="flex flex-col items-center justify-center gap-4">
+												<div className="rounded-full bg-destructive/10 p-3">
+													<Users className="h-8 w-8 text-destructive" />
+												</div>
+												<div className="text-center">
+													<p className="text-sm font-semibold text-destructive">
+														Bir hata oluştu
+													</p>
+													<p className="text-sm text-muted-foreground mt-1">
+														Lütfen sayfayı yenileyin
+													</p>
+												</div>
+											</div>
+										</TableCell>
+									</TableRow>
+								) : users.length > 0 ? (
+									users.map((user) => (
+										<UserTableRow
+											key={user.id}
+											user={user}
+											onView={() => navigate(`/users/detail/${user.id}`)}
+											onEdit={() => navigate(`/users/edit/${user.id}`)}
+											onDelete={() => handleOpenDeleteModal(user.id)}
+										/>
+									))
+								) : (
+									<TableRow>
+										<TableCell colSpan={5} className="h-[400px] p-0">
+											<Empty className="border-0 py-12">
+												<EmptyHeader>
+													<EmptyMedia variant="icon">
+														<div className="rounded-full bg-muted p-4">
+															<Users className="h-8 w-8 text-muted-foreground" />
+														</div>
+													</EmptyMedia>
+													<EmptyTitle>Kullanıcı bulunamadı</EmptyTitle>
+													<EmptyDescription>
+														{search
+															? "Arama kriterlerinize uygun kullanıcı bulunamadı. Lütfen farklı bir arama terimi deneyin."
+															: "Henüz kullanıcı eklenmemiş. Yeni bir kullanıcı ekleyerek başlayabilirsiniz."}
+													</EmptyDescription>
+												</EmptyHeader>
+												<EmptyContent>
+													<Button
+														onClick={() => navigate("/users/create")}
+														className="bg-primary text-primary-foreground hover:bg-primary/90"
+													>
+														<Plus className="h-4 w-4 mr-2" />
+														Yeni Kullanıcı Ekle
+													</Button>
+												</EmptyContent>
+											</Empty>
+										</TableCell>
+									</TableRow>
+								)}
+							</TableBody>
+						</Table>
+					</div>
+				</CardContent>
+			</Card>
 
 			{/* Pagination */}
 			{totalPages > 1 && (
-				<div className="flex items-center justify-between">
-					<div className="text-p3 text-muted-foreground">
-						Toplam <span className="font-semibold text-foreground">{totalElements}</span> kullanıcı
-					</div>
-					<div className="flex items-center gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => handlePageChange(page - 1)}
-							disabled={currentPage === 0 || isLoading}
-						>
-							<ChevronLeft className="h-4 w-4" />
-						</Button>
-						<span className="text-p3 font-semibold px-4 min-w-[120px] text-center text-foreground">
-							Sayfa {currentPage + 1} / {totalPages}
-						</span>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => handlePageChange(page + 1)}
-							disabled={currentPage >= totalPages - 1 || isLoading}
-						>
-							<ChevronRight className="h-4 w-4" />
-						</Button>
-					</div>
-				</div>
+				<Card className="border-2 shadow-lg bg-gradient-to-r from-card to-card/50 backdrop-blur-sm">
+					<CardContent className="pt-6">
+						<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+							<div className="text-sm text-muted-foreground">
+								Toplam <span className="font-bold text-foreground bg-primary/10 px-2 py-0.5 rounded">{totalElements}</span> kullanıcı
+								{" • "}
+								Sayfa <span className="font-bold text-primary">{currentPage + 1}</span> /{" "}
+								<span className="font-bold text-foreground">{totalPages}</span>
+							</div>
+							<div className="flex items-center gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => handlePageChange(page - 1)}
+									disabled={currentPage === 0 || isLoading}
+									className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
+								>
+									<ChevronLeft className="h-4 w-4 mr-1" />
+									Önceki
+								</Button>
+								<div className="flex items-center gap-1 px-4 py-2 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border-2 border-primary/20 text-sm font-bold text-primary shadow-sm">
+									{currentPage + 1} / {totalPages}
+								</div>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => handlePageChange(page + 1)}
+									disabled={currentPage >= totalPages - 1 || isLoading}
+									className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
+								>
+									Sonraki
+									<ChevronRight className="h-4 w-4 ml-1" />
+								</Button>
+							</div>
+						</div>
+					</CardContent>
+				</Card>
 			)}
 
 			{/* Delete Confirmation Modal */}
@@ -424,7 +480,6 @@ export default function UsersListPage() {
 	);
 }
 
-// User table row component
 interface UserTableRowProps {
 	user: UserResponse;
 	onView: () => void;
@@ -434,41 +489,51 @@ interface UserTableRowProps {
 
 function UserTableRow({ user, onView, onEdit, onDelete }: UserTableRowProps) {
 	return (
-		<TableRow className="hover:bg-muted/50 transition-colors">
-			<TableCell className="font-medium">{user.id}</TableCell>
-			<TableCell className="font-medium">{user.username}</TableCell>
-			<TableCell>{user.email}</TableCell>
-			<TableCell>{formatDate(user.createdAt)}</TableCell>
-			<TableCell className="text-right">
-				<div className="flex items-center justify-end gap-2">
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={onView}
-						className="h-8 w-8 p-0"
-						title="Detayları Görüntüle"
-					>
-						<Eye className="h-4 w-4" />
-					</Button>
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={onEdit}
-						className="h-8 w-8 p-0"
-						title="Düzenle"
-					>
-						<Edit className="h-4 w-4" />
-					</Button>
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={onDelete}
-						className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-						title="Sil"
-					>
-						<Trash2 className="h-4 w-4" />
-					</Button>
+		<TableRow className="hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group border-b border-border/50">
+			<TableCell className="font-bold text-primary/80">{user.id}</TableCell>
+			<TableCell>
+				<div className="font-semibold text-foreground group-hover:text-primary transition-colors">
+					{user.username}
 				</div>
+			</TableCell>
+			<TableCell>
+				<span className="text-sm text-muted-foreground">{user.email}</span>
+			</TableCell>
+			<TableCell>
+				<div className="flex items-center gap-2 text-sm text-muted-foreground">
+					<Calendar className="h-3.5 w-3.5" />
+					{formatDate(user.createdAt)}
+				</div>
+			</TableCell>
+			<TableCell className="text-right">
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							size="sm"
+							className="h-9 w-9 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary/10 hover:text-primary rounded-lg"
+						>
+							<MoreVertical className="h-4 w-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end" className="w-44 shadow-xl border-2">
+						<DropdownMenuItem onClick={onView} className="cursor-pointer hover:bg-primary/10 focus:bg-primary/10">
+							<Eye className="h-4 w-4 mr-2 text-primary" />
+							<span className="font-medium">Detaylar</span>
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={onEdit} className="cursor-pointer hover:bg-primary/10 focus:bg-primary/10">
+							<Edit className="h-4 w-4 mr-2 text-primary" />
+							<span className="font-medium">Düzenle</span>
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={onDelete}
+							className="cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+						>
+							<Trash2 className="h-4 w-4 mr-2" />
+							<span className="font-medium">Sil</span>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</TableCell>
 		</TableRow>
 	);
