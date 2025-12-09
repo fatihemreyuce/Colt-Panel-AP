@@ -33,7 +33,6 @@ import {
 	X,
 	Loader2,
 	Users,
-	MoreVertical,
 	Calendar,
 } from "lucide-react";
 import {
@@ -45,12 +44,6 @@ import {
 	EmptyContent,
 } from "@/components/ui/empty";
 import type { UserResponse } from "@/types/user.types";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 type SortField = "id" | "username" | "email" | "createdAt";
 type SortOrder = "ASC" | "DESC";
@@ -232,7 +225,7 @@ export default function UsersListPage() {
 		<TableHead>
 			<button
 				onClick={() => handleSort(field)}
-				className="flex items-center gap-2 hover:text-primary transition-colors w-full text-left font-semibold group"
+				className="flex items-center gap-2 hover:text-primary transition-colors w-full text-left font-bold group"
 			>
 				{children}
 				<SortIndicator field={field} />
@@ -243,92 +236,78 @@ export default function UsersListPage() {
 	return (
 		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
 			{/* Header Section */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div className="space-y-1">
-					<div className="flex items-center gap-3">
-						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+			<div className="flex flex-col gap-6">
+				{/* Title and Create Button */}
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
 							<Users className="h-6 w-6 text-primary" />
 						</div>
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-							Kullanıcılar
-						</h1>
+						<div className="space-y-1">
+							<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+								Kullanıcılar Listesi
+							</h1>
+							<p className="text-muted-foreground text-sm">
+								Tüm kullanıcıları görüntüleyin ve yönetin
+							</p>
+						</div>
 					</div>
-					<p className="text-muted-foreground ml-[52px] text-sm">
-						Tüm kullanıcıları görüntüleyin ve yönetin
-					</p>
+					<Button
+						onClick={() => navigate("/users/create")}
+						className="bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+						size="lg"
+					>
+						<Plus className="h-5 w-5 mr-2" />
+						Yeni Kullanıcı
+					</Button>
 				</div>
-				<Button
-					onClick={() => navigate("/users/create")}
-					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
-					size="lg"
-				>
-					<Plus className="h-5 w-5 mr-2" />
-					Yeni Kullanıcı
-				</Button>
+				
+				{/* Search */}
+				<div className="flex flex-col sm:flex-row items-center gap-3">
+					<div className="relative flex-1 w-full sm:w-auto">
+						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+						<Input
+							placeholder="Kullanıcı ara..."
+							value={searchInput}
+							onChange={(e) => setSearchInput(e.target.value)}
+							className="pl-10 pr-10 h-11 w-full sm:w-[300px]"
+						/>
+						{searchInput && (
+							<button
+								onClick={handleClearSearch}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+								aria-label="Aramayı temizle"
+							>
+								<X className="h-4 w-4" />
+							</button>
+						)}
+					</div>
+					<Select value={size.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
+						<SelectTrigger className="h-11 w-full sm:w-[140px]">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{PAGE_SIZE_OPTIONS.map((option) => (
+								<SelectItem key={option} value={option.toString()}>
+									{option} / sayfa
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
 			</div>
-
-			{/* Filters Section */}
-			<Card className="border-2 shadow-lg bg-card/50 backdrop-blur-sm">
-				<CardHeader className="pb-4 bg-gradient-to-r from-muted/50 to-transparent border-b">
-					<div className="flex items-center gap-2">
-						<div className="p-1.5 rounded-lg bg-primary/10">
-							<Search className="h-4 w-4 text-primary" />
-						</div>
-						<div>
-							<CardTitle className="text-lg font-bold">Filtreler ve Arama</CardTitle>
-							<CardDescription className="text-xs">
-								Kullanıcıları arayın ve filtreleyin
-							</CardDescription>
-						</div>
-					</div>
-				</CardHeader>
-				<CardContent className="pt-6">
-					<div className="flex flex-col sm:flex-row gap-4">
-						<div className="relative flex-1">
-							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-							<Input
-								placeholder="Kullanıcı ara..."
-								value={searchInput}
-								onChange={(e) => setSearchInput(e.target.value)}
-								className="pl-10 pr-10 h-11"
-							/>
-							{searchInput && (
-								<button
-									onClick={handleClearSearch}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-									aria-label="Aramayı temizle"
-								>
-									<X className="h-4 w-4" />
-								</button>
-							)}
-						</div>
-						<Select value={size.toString()} onValueChange={(value) => handleSizeChange(Number(value))}>
-							<SelectTrigger className="w-full sm:w-[140px] h-11">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{PAGE_SIZE_OPTIONS.map((option) => (
-									<SelectItem key={option} value={option.toString()}>
-										{option} / sayfa
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-				</CardContent>
-			</Card>
 
 			{/* Table Section */}
 			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
-				<CardHeader className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border-b">
+				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<div className="p-1.5 rounded-lg bg-primary/10">
-								<Users className="h-4 w-4 text-primary" />
+							<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+								<Users className="h-5 w-5 text-primary" />
 							</div>
 							<div>
-								<CardTitle className="text-lg font-bold">Kullanıcı Listesi</CardTitle>
-								<CardDescription className="text-xs mt-0.5">
+								<CardTitle className="text-xl font-bold">Kullanıcı Listesi</CardTitle>
+								<CardDescription className="text-xs">
 									Toplam <span className="font-semibold text-foreground">{totalElements}</span> kullanıcı bulundu
 								</CardDescription>
 							</div>
@@ -339,12 +318,22 @@ export default function UsersListPage() {
 					<div className="overflow-x-auto">
 						<Table>
 							<TableHeader>
-								<TableRow className="bg-gradient-to-r from-muted/80 via-muted/60 to-muted/40 hover:bg-muted/60 border-b-2">
-									<SortableHeader field="id">ID</SortableHeader>
-									<SortableHeader field="username">Kullanıcı Adı</SortableHeader>
-									<SortableHeader field="email">E-posta</SortableHeader>
-									<SortableHeader field="createdAt">Oluşturulma Tarihi</SortableHeader>
-									<TableHead className="text-right">İşlemler</TableHead>
+								<TableRow className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent hover:bg-muted/60 border-b-2 border-border/50">
+									<SortableHeader field="id">
+										<span className="text-sm font-bold text-foreground">ID</span>
+									</SortableHeader>
+									<SortableHeader field="username">
+										<span className="text-sm font-bold text-foreground">Kullanıcı Adı</span>
+									</SortableHeader>
+									<SortableHeader field="email">
+										<span className="text-sm font-bold text-foreground">E-posta</span>
+									</SortableHeader>
+									<SortableHeader field="createdAt">
+										<span className="text-sm font-bold text-foreground">Oluşturulma Tarihi</span>
+									</SortableHeader>
+									<TableHead className="text-right">
+										<span className="text-sm font-bold text-foreground">İşlemler</span>
+									</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -425,43 +414,34 @@ export default function UsersListPage() {
 
 			{/* Pagination */}
 			{totalPages > 1 && (
-				<Card className="border-2 shadow-lg bg-gradient-to-r from-card to-card/50 backdrop-blur-sm">
-					<CardContent className="pt-6">
-						<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-							<div className="text-sm text-muted-foreground">
-								Toplam <span className="font-bold text-foreground bg-primary/10 px-2 py-0.5 rounded">{totalElements}</span> kullanıcı
-								{" • "}
-								Sayfa <span className="font-bold text-primary">{currentPage + 1}</span> /{" "}
-								<span className="font-bold text-foreground">{totalPages}</span>
-							</div>
-							<div className="flex items-center gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => handlePageChange(page - 1)}
-									disabled={currentPage === 0 || isLoading}
-									className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
-								>
-									<ChevronLeft className="h-4 w-4 mr-1" />
-									Önceki
-								</Button>
-								<div className="flex items-center gap-1 px-4 py-2 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border-2 border-primary/20 text-sm font-bold text-primary shadow-sm">
-									{currentPage + 1} / {totalPages}
-								</div>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => handlePageChange(page + 1)}
-									disabled={currentPage >= totalPages - 1 || isLoading}
-									className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
-								>
-									Sonraki
-									<ChevronRight className="h-4 w-4 ml-1" />
-								</Button>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
+				<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+					<div className="text-sm text-muted-foreground">
+						Sayfa <span className="font-bold text-foreground">{currentPage + 1}</span> /{" "}
+						<span className="font-bold text-foreground">{totalPages}</span>
+					</div>
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handlePageChange(page - 1)}
+							disabled={currentPage === 0 || isLoading}
+							className="h-9 border-2 border-border/50 hover:bg-primary/10 hover:border-primary/30 hover:text-primary hover:scale-105 transition-all shadow-sm disabled:opacity-50"
+						>
+							<ChevronLeft className="h-4 w-4 mr-1" />
+							Önceki
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => handlePageChange(page + 1)}
+							disabled={currentPage >= totalPages - 1 || isLoading}
+							className="h-9 border-2 border-border/50 hover:bg-primary/10 hover:border-primary/30 hover:text-primary hover:scale-105 transition-all shadow-sm disabled:opacity-50"
+						>
+							Sonraki
+							<ChevronRight className="h-4 w-4 ml-1" />
+						</Button>
+					</div>
+				</div>
 			)}
 
 			{/* Delete Confirmation Modal */}
@@ -489,51 +469,52 @@ interface UserTableRowProps {
 
 function UserTableRow({ user, onView, onEdit, onDelete }: UserTableRowProps) {
 	return (
-		<TableRow className="hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group border-b border-border/50">
-			<TableCell className="font-bold text-primary/80">{user.id}</TableCell>
-			<TableCell>
+		<TableRow className="hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group border-b border-border/30">
+			<TableCell className="font-bold text-green-500 py-4">{user.id}</TableCell>
+			<TableCell className="py-4">
 				<div className="font-semibold text-foreground group-hover:text-primary transition-colors">
 					{user.username}
 				</div>
 			</TableCell>
-			<TableCell>
-				<span className="text-sm text-muted-foreground">{user.email}</span>
+			<TableCell className="py-4">
+				<span className="text-sm text-foreground">{user.email}</span>
 			</TableCell>
-			<TableCell>
+			<TableCell className="py-4">
 				<div className="flex items-center gap-2 text-sm text-muted-foreground">
 					<Calendar className="h-3.5 w-3.5" />
 					{formatDate(user.createdAt)}
 				</div>
 			</TableCell>
-			<TableCell className="text-right">
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							size="sm"
-							className="h-9 w-9 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary/10 hover:text-primary rounded-lg"
-						>
-							<MoreVertical className="h-4 w-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-44 shadow-xl border-2">
-						<DropdownMenuItem onClick={onView} className="cursor-pointer hover:bg-primary/10 focus:bg-primary/10">
-							<Eye className="h-4 w-4 mr-2 text-primary" />
-							<span className="font-medium">Detaylar</span>
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={onEdit} className="cursor-pointer hover:bg-primary/10 focus:bg-primary/10">
-							<Edit className="h-4 w-4 mr-2 text-primary" />
-							<span className="font-medium">Düzenle</span>
-						</DropdownMenuItem>
-						<DropdownMenuItem
-							onClick={onDelete}
-							className="cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
-						>
-							<Trash2 className="h-4 w-4 mr-2" />
-							<span className="font-medium">Sil</span>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+			<TableCell className="text-right py-4">
+				<div className="flex items-center justify-end gap-1.5">
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={onView}
+						className="h-8 w-8 p-0 hover:bg-green-500/10 hover:text-green-500 transition-all duration-200 rounded-lg"
+						title="Görüntüle"
+					>
+						<Eye className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={onEdit}
+						className="h-8 w-8 p-0 hover:bg-blue-500/10 hover:text-blue-500 transition-all duration-200 rounded-lg"
+						title="Düzenle"
+					>
+						<Edit className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={onDelete}
+						className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500 transition-all duration-200 rounded-lg"
+						title="Sil"
+					>
+						<Trash2 className="h-4 w-4" />
+					</Button>
+				</div>
 			</TableCell>
 		</TableRow>
 	);

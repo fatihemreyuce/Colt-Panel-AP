@@ -417,26 +417,32 @@ export default function PageEditPage() {
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<div className="flex items-center gap-4">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => navigate("/pages")}
-						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
-					>
-						<ArrowLeft className="h-5 w-5" />
-					</Button>
+					<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+						<FileText className="h-6 w-6 text-primary" />
+					</div>
 					<div className="space-y-1">
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
 							Sayfa Düzenle
 						</h1>
-						<p className="text-muted-foreground text-sm ml-1">{page.name}</p>
+						<p className="text-muted-foreground text-sm">{page.name}</p>
 					</div>
 				</div>
 			</div>
 
 			{/* Stepper */}
 			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
-				<CardContent className="pt-6 bg-gradient-to-br from-primary/5 to-transparent">
+				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
+					<div className="flex items-center gap-3">
+						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+							<FileText className="h-5 w-5 text-primary" />
+						</div>
+						<div>
+							<CardTitle className="text-xl font-bold">Adımlar</CardTitle>
+							<CardDescription className="text-xs">Sayfa düzenleme adımları</CardDescription>
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent className="pt-6 bg-gradient-to-b from-transparent to-muted/10">
 					<Stepper
 						steps={STEPS}
 						currentStep={currentStep}
@@ -458,18 +464,18 @@ export default function PageEditPage() {
 						</div>
 					</div>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="bg-gradient-to-b from-transparent to-muted/10">
 					<form onSubmit={handleSubmit} className="space-y-6">
 						{renderStepContent()}
 
 						{/* Form Actions */}
-						<div className="flex items-center justify-between pt-6 border-t">
+						<div className="flex items-center justify-between pt-6 border-t border-border/50">
 							<Button
 								type="button"
 								variant="outline"
 								onClick={() => navigate("/pages")}
 								size="lg"
-								className="min-w-[120px]"
+								className="min-w-[120px] border-2 hover:bg-muted/50 hover:border-border transition-all"
 							>
 								İptal
 							</Button>
@@ -480,7 +486,7 @@ export default function PageEditPage() {
 										variant="outline"
 										onClick={handlePrevious}
 										size="lg"
-										className="min-w-[120px]"
+										className="min-w-[120px] border-2 hover:bg-muted/50 hover:border-border transition-all"
 									>
 										<ChevronLeft className="h-4 w-4 mr-2" />
 										Önceki
@@ -491,7 +497,7 @@ export default function PageEditPage() {
 										type="button"
 										onClick={handleNext}
 										size="lg"
-										className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[120px]"
+										className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[120px]"
 									>
 										Sonraki
 										<ChevronRight className="h-4 w-4 ml-2" />
@@ -501,7 +507,7 @@ export default function PageEditPage() {
 										type="submit"
 										disabled={updatePageMutation.isPending}
 										size="lg"
-										className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[140px]"
+										className="bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[140px]"
 									>
 										{updatePageMutation.isPending ? (
 											<>

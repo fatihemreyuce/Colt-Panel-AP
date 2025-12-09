@@ -20,7 +20,6 @@ import {
 	Eye,
 	Loader2,
 	Handshake,
-	MoreVertical,
 } from "lucide-react";
 import {
 	Empty,
@@ -30,12 +29,6 @@ import {
 	EmptyDescription,
 	EmptyContent,
 } from "@/components/ui/empty";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import type { PartnerResponse } from "@/types/partners.types";
 
 export default function PartnersListPage() {
@@ -87,41 +80,44 @@ export default function PartnersListPage() {
 	return (
 		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
 			{/* Header Section */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div className="space-y-1">
-					<div className="flex items-center gap-3">
-						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+			<div className="flex flex-col gap-6">
+				{/* Title and Create Button */}
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
 							<Handshake className="h-6 w-6 text-primary" />
 						</div>
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-							Partnerler
-						</h1>
+						<div className="space-y-1">
+							<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+								Partnerler Listesi
+							</h1>
+							<p className="text-muted-foreground text-sm">
+								Tüm partnerleri görüntüleyin ve yönetin
+							</p>
+						</div>
 					</div>
-					<p className="text-muted-foreground ml-[52px] text-sm">
-						Tüm partnerleri görüntüleyin ve yönetin
-					</p>
+					<Button
+						onClick={() => navigate("/partners/create")}
+						className="bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+						size="lg"
+					>
+						<Plus className="h-5 w-5 mr-2" />
+						Yeni Partner
+					</Button>
 				</div>
-				<Button
-					onClick={() => navigate("/partners/create")}
-					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
-					size="lg"
-				>
-					<Plus className="h-5 w-5 mr-2" />
-					Yeni Partner
-				</Button>
 			</div>
 
 			{/* Table Section */}
 			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
-				<CardHeader className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border-b">
+				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<div className="p-1.5 rounded-lg bg-primary/10">
-								<Handshake className="h-4 w-4 text-primary" />
+							<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+								<Handshake className="h-5 w-5 text-primary" />
 							</div>
 							<div>
-								<CardTitle className="text-lg font-bold">Partner Listesi</CardTitle>
-								<CardDescription className="text-xs mt-0.5">
+								<CardTitle className="text-xl font-bold">Partner Listesi</CardTitle>
+								<CardDescription className="text-xs">
 									Toplam <span className="font-semibold text-foreground">{partners.length}</span> partner bulundu
 								</CardDescription>
 							</div>
@@ -132,11 +128,19 @@ export default function PartnersListPage() {
 					<div className="overflow-x-auto">
 						<Table>
 							<TableHeader>
-								<TableRow className="bg-gradient-to-r from-muted/80 via-muted/60 to-muted/40 hover:bg-muted/60 border-b-2">
-									<TableHead className="w-16">Sıra</TableHead>
-									<TableHead>Logo</TableHead>
-									<TableHead>ID</TableHead>
-									<TableHead className="text-right">İşlemler</TableHead>
+								<TableRow className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent hover:bg-muted/60 border-b-2 border-border/50">
+									<TableHead className="w-16">
+										<span className="text-sm font-bold text-foreground">Sıra</span>
+									</TableHead>
+									<TableHead>
+										<span className="text-sm font-bold text-foreground">Logo</span>
+									</TableHead>
+									<TableHead>
+										<span className="text-sm font-bold text-foreground">ID</span>
+									</TableHead>
+									<TableHead className="text-right">
+										<span className="text-sm font-bold text-foreground">İşlemler</span>
+									</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -237,13 +241,13 @@ interface PartnerTableRowProps {
 
 function PartnerTableRow({ partner, onView, onEdit, onDelete }: PartnerTableRowProps) {
 	return (
-		<TableRow className="hover:bg-muted/30 transition-colors border-b">
-			<TableCell className="font-semibold">
-				<Badge variant="outline" className="font-bold">
+		<TableRow className="hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group border-b border-border/30">
+			<TableCell className="py-4">
+				<Badge variant="outline" className="font-bold px-3 py-1">
 					{partner.orderIndex}
 				</Badge>
 			</TableCell>
-			<TableCell>
+			<TableCell className="py-4">
 				{partner.logo ? (
 					<div className="relative group">
 						<img
@@ -258,36 +262,37 @@ function PartnerTableRow({ partner, onView, onEdit, onDelete }: PartnerTableRowP
 					</div>
 				)}
 			</TableCell>
-			<TableCell className="font-semibold text-foreground">{partner.id}</TableCell>
-			<TableCell className="text-right">
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-8 w-8 hover:bg-muted"
-						>
-							<MoreVertical className="h-4 w-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-40">
-						<DropdownMenuItem onClick={onView} className="cursor-pointer">
-							<Eye className="h-4 w-4 mr-2" />
-							Detayları Gör
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={onEdit} className="cursor-pointer">
-							<Edit className="h-4 w-4 mr-2" />
-							Düzenle
-						</DropdownMenuItem>
-						<DropdownMenuItem
-							onClick={onDelete}
-							className="cursor-pointer text-destructive focus:text-destructive"
-						>
-							<Trash2 className="h-4 w-4 mr-2" />
-							Sil
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+			<TableCell className="font-bold text-green-500 py-4">{partner.id}</TableCell>
+			<TableCell className="text-right py-4">
+				<div className="flex items-center justify-end gap-1.5">
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={onView}
+						className="h-8 w-8 p-0 hover:bg-green-500/10 hover:text-green-500 transition-all duration-200 rounded-lg"
+						title="Görüntüle"
+					>
+						<Eye className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={onEdit}
+						className="h-8 w-8 p-0 hover:bg-blue-500/10 hover:text-blue-500 transition-all duration-200 rounded-lg"
+						title="Düzenle"
+					>
+						<Edit className="h-4 w-4" />
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={onDelete}
+						className="h-8 w-8 p-0 hover:bg-red-500/10 hover:text-red-500 transition-all duration-200 rounded-lg"
+						title="Sil"
+					>
+						<Trash2 className="h-4 w-4" />
+					</Button>
+				</div>
 			</TableCell>
 		</TableRow>
 	);

@@ -12,10 +12,38 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Languages, RefreshCw, Upload, X, Image as ImageIcon, File, Link as LinkIcon } from "lucide-react";
+import { Languages, RefreshCw, Upload, X, Image as ImageIcon, File, Link as LinkIcon, FileText } from "lucide-react";
 import type { PageRequest, localizations } from "@/types/page.types";
 import { translateText } from "@/services/translate-service";
 import { toast } from "sonner";
+
+// Slug oluşturma fonksiyonu (Türkçe karakter desteği ile)
+const generateSlug = (text: string): string => {
+	if (!text) return "";
+	
+	// Türkçe karakterleri İngilizce karşılıklarına çevir
+	const turkishMap: Record<string, string> = {
+		'ç': 'c', 'Ç': 'C',
+		'ğ': 'g', 'Ğ': 'G',
+		'ı': 'i', 'İ': 'I',
+		'ö': 'o', 'Ö': 'O',
+		'ş': 's', 'Ş': 'S',
+		'ü': 'u', 'Ü': 'U'
+	};
+	
+	let slug = text
+		.split('')
+		.map(char => turkishMap[char] || char)
+		.join('')
+		.toLowerCase()
+		.trim()
+		.replace(/[^a-z0-9\s-]/g, '') // Özel karakterleri kaldır
+		.replace(/\s+/g, '-') // Boşlukları tire ile değiştir
+		.replace(/-+/g, '-') // Birden fazla tireyi tek tireye çevir
+		.replace(/^-+|-+$/g, ''); // Başta ve sonda tireleri kaldır
+	
+	return slug;
+};
 
 interface PageBasicInfoStepProps {
 	formData: PageRequest;
@@ -57,16 +85,22 @@ export function PageBasicInfoStep({
 	return (
 		<div className="space-y-6">
 			{/* Basic Fields */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+			<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
 				{/* Name */}
 				<div className="space-y-2">
-					<Label htmlFor="name" className="text-p3 font-semibold">
+					<Label htmlFor="name" className="text-p3 font-semibold flex items-center gap-2">
+						<FileText className="h-4 w-4 text-muted-foreground" />
 						Ad *
 					</Label>
 					<Input
 						id="name"
 						value={formData.name}
-						onChange={(e) => onFormDataChange({ name: e.target.value })}
+						onChange={(e) => {
+							const nameValue = e.target.value;
+							// Ad değiştiğinde slug'ı otomatik oluştur
+							const autoSlug = generateSlug(nameValue);
+							onFormDataChange({ name: nameValue, slug: autoSlug });
+						}}
 						className={`h-11 ${
 							errors.name ? "border-destructive focus-visible:ring-destructive" : ""
 						}`}

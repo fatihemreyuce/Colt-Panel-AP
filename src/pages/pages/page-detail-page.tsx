@@ -77,14 +77,9 @@ export default function PageDetailPage() {
 			{/* Header */}
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<div className="flex items-center gap-4">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => navigate("/pages")}
-						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
-					>
-						<ArrowLeft className="h-5 w-5" />
-					</Button>
+					<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
+						<FileText className="h-6 w-6 text-primary" />
+					</div>
 					<div className="space-y-1">
 						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
 							{page.name}
@@ -94,7 +89,7 @@ export default function PageDetailPage() {
 				</div>
 				<Button
 					onClick={() => navigate(`/pages/edit/${page.id}`)}
-					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
+					className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
 					size="lg"
 				>
 					<Edit className="h-5 w-5 mr-2" />
@@ -118,12 +113,12 @@ export default function PageDetailPage() {
 				<CardContent className="space-y-6 pt-6 bg-gradient-to-b from-transparent to-muted/10">
 					{/* Basic Info Grid */}
 					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent border-2 border-green-500/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
 							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<FileText className="h-4 w-4 text-primary" />
+								<FileText className="h-4 w-4 text-green-500" />
 								Sayfa ID
 							</div>
-							<div className="text-3xl font-bold text-primary">{page.id}</div>
+							<div className="text-3xl font-bold text-green-500">{page.id}</div>
 						</div>
 
 						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
@@ -144,12 +139,12 @@ export default function PageDetailPage() {
 							</div>
 						</div>
 
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
+						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border-2 border-blue-500/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
 							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<FileText className="h-4 w-4" />
+								<FileText className="h-4 w-4 text-blue-500" />
 								Tip
 							</div>
-							<Badge variant="secondary" className="text-sm font-bold bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30 text-primary shadow-sm">
+							<Badge variant="secondary" className="text-sm font-bold bg-blue-500/20 border-blue-500/30 text-blue-500 shadow-sm px-3 py-1">
 								{page.type}
 							</Badge>
 						</div>
@@ -181,7 +176,7 @@ export default function PageDetailPage() {
 					<div className="grid gap-4 md:grid-cols-2">
 						{page.file && (
 							<Card className="border-2 shadow-lg bg-gradient-to-br from-card to-card/50 hover:shadow-xl transition-all duration-200">
-								<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b">
+								<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
 									<CardTitle className="text-base flex items-center gap-2 font-bold">
 										<div className="p-1.5 rounded-lg bg-primary/20">
 											<File className="h-4 w-4 text-primary" />
@@ -195,7 +190,7 @@ export default function PageDetailPage() {
 											href={page.file.url}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 font-semibold bg-primary/10 px-4 py-2 rounded-lg hover:bg-primary/20 transition-all duration-200 hover:scale-105 shadow-sm"
+											className="inline-flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600 font-semibold bg-blue-500/10 px-4 py-2 rounded-lg hover:bg-blue-500/20 transition-all duration-200 hover:scale-105 shadow-sm"
 										>
 											<ExternalLink className="h-4 w-4" />
 											Dosyayı Görüntüle
@@ -207,7 +202,7 @@ export default function PageDetailPage() {
 
 						{page.image && (
 							<Card className="border-2 shadow-lg bg-gradient-to-br from-card to-card/50 hover:shadow-xl transition-all duration-200">
-								<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b">
+								<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
 									<CardTitle className="text-base flex items-center gap-2 font-bold">
 										<div className="p-1.5 rounded-lg bg-primary/20">
 											<ImageIcon className="h-4 w-4 text-primary" />
@@ -250,34 +245,40 @@ export default function PageDetailPage() {
 				</CardHeader>
 				<CardContent className="pt-6 bg-gradient-to-b from-transparent to-muted/10">
 					<Tabs defaultValue="localizations" className="w-full">
-						<TabsList className="grid w-full grid-cols-3 mb-6 bg-gradient-to-r from-muted/80 via-muted/60 to-muted/80 p-1.5 rounded-xl border-2 shadow-inner">
+						<TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 p-1.5 rounded-xl border border-border/50 shadow-sm gap-1.5">
 							<TabsTrigger 
 								value="localizations" 
-								className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-200 rounded-lg font-semibold"
+								className="flex items-center justify-between gap-2.5 px-4 py-3 data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-md transition-all duration-300 rounded-lg font-semibold text-sm hover:bg-muted/80 data-[state=inactive]:text-muted-foreground"
 							>
-								<Languages className="h-4 w-4" />
-								Çeviriler
-								<Badge variant="secondary" className="ml-2 bg-background/80 border border-border/50 font-bold">
+								<div className="flex items-center gap-2.5">
+									<Languages className="h-4 w-4" />
+									<span>Çeviriler</span>
+								</div>
+								<Badge variant="secondary" className="bg-background/90 text-foreground border border-border/50 font-bold text-xs px-2 py-0.5 data-[state=active]:bg-background/70 data-[state=active]:text-foreground">
 									{page.localizations?.length || 0}
 								</Badge>
 							</TabsTrigger>
 							<TabsTrigger 
 								value="components" 
-								className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-200 rounded-lg font-semibold"
+								className="flex items-center justify-between gap-2.5 px-4 py-3 data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-md transition-all duration-300 rounded-lg font-semibold text-sm hover:bg-muted/80 data-[state=inactive]:text-muted-foreground"
 							>
-								<Box className="h-4 w-4" />
-								Bileşenler
-								<Badge variant="secondary" className="ml-2 bg-background/80 border border-border/50 font-bold">
+								<div className="flex items-center gap-2.5">
+									<Box className="h-4 w-4" />
+									<span>Bileşenler</span>
+								</div>
+								<Badge variant="secondary" className="bg-background/90 text-foreground border border-border/50 font-bold text-xs px-2 py-0.5 data-[state=active]:bg-background/70 data-[state=active]:text-foreground">
 									{page.components && Array.isArray(page.components) ? page.components.length : 0}
 								</Badge>
 							</TabsTrigger>
 							<TabsTrigger 
 								value="teamMembers" 
-								className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/90 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-200 rounded-lg font-semibold"
+								className="flex items-center justify-between gap-2.5 px-4 py-3 data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-md transition-all duration-300 rounded-lg font-semibold text-sm hover:bg-muted/80 data-[state=inactive]:text-muted-foreground"
 							>
-								<Users className="h-4 w-4" />
-								Takım Üyeleri
-								<Badge variant="secondary" className="ml-2 bg-background/80 border border-border/50 font-bold">
+								<div className="flex items-center gap-2.5">
+									<Users className="h-4 w-4" />
+									<span>Takım Üyeleri</span>
+								</div>
+								<Badge variant="secondary" className="bg-background/90 text-foreground border border-border/50 font-bold text-xs px-2 py-0.5 data-[state=active]:bg-background/70 data-[state=active]:text-foreground">
 									{page.teamMembers && Array.isArray(page.teamMembers) ? page.teamMembers.length : 0}
 								</Badge>
 							</TabsTrigger>
@@ -289,12 +290,12 @@ export default function PageDetailPage() {
 								<div className="grid gap-4 md:grid-cols-2">
 									{page.localizations.map((loc, index) => (
 										<Card key={index} className="border-2 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-											<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b">
+											<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
 												<div className="flex items-center gap-2">
 													<div className="p-1.5 rounded-lg bg-primary/20">
 														<Languages className="h-4 w-4 text-primary" />
 													</div>
-													<CardTitle className="text-base uppercase font-bold">
+													<CardTitle className="text-base uppercase font-bold text-green-500">
 														{loc.languageCode}
 													</CardTitle>
 												</div>
@@ -385,7 +386,7 @@ export default function PageDetailPage() {
 											const component = item.component;
 											return (
 												<Card key={component.id} className="border-2 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-													<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b">
+													<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
 														<div className="flex items-center justify-between">
 															<div className="flex items-center gap-2">
 																<div className="p-1.5 rounded-lg bg-primary/20">
@@ -394,7 +395,7 @@ export default function PageDetailPage() {
 																<CardTitle className="text-base font-bold">{component.name}</CardTitle>
 															</div>
 															{item.sortOrder !== null && (
-																<Badge variant="outline" className="text-xs font-bold bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30 text-primary shadow-sm">
+																<Badge variant="outline" className="text-xs font-bold bg-green-500/20 border-green-500/30 text-green-500 shadow-sm">
 																	#{item.sortOrder}
 																</Badge>
 															)}
@@ -405,7 +406,7 @@ export default function PageDetailPage() {
 															<div className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wide">
 																Tip
 															</div>
-															<Badge variant="secondary" className="text-xs font-bold bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30 text-primary shadow-sm">
+															<Badge variant="secondary" className="text-xs font-bold bg-blue-500/20 border-blue-500/30 text-blue-500 shadow-sm">
 																{component.type}
 															</Badge>
 														</div>
@@ -445,7 +446,7 @@ export default function PageDetailPage() {
 											const member = item.teamMember;
 											return (
 												<Card key={member.id} className="border-2 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-													<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b">
+													<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
 														<div className="flex items-center justify-between">
 															<div className="flex items-center gap-2">
 																<div className="p-1.5 rounded-lg bg-primary/20">
@@ -454,7 +455,7 @@ export default function PageDetailPage() {
 																<CardTitle className="text-base font-bold">{member.name}</CardTitle>
 															</div>
 															{item.sortOrder !== null && (
-																<Badge variant="outline" className="text-xs font-bold bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30 text-primary shadow-sm">
+																<Badge variant="outline" className="text-xs font-bold bg-green-500/20 border-green-500/30 text-green-500 shadow-sm">
 																	#{item.sortOrder}
 																</Badge>
 															)}
@@ -480,7 +481,7 @@ export default function PageDetailPage() {
 																	href={member.linkedinUrl}
 																	target="_blank"
 																	rel="noopener noreferrer"
-																	className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 font-semibold bg-primary/10 px-4 py-2 rounded-lg hover:bg-primary/20 transition-all duration-200 hover:scale-105 shadow-sm"
+																	className="inline-flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600 font-semibold bg-blue-500/10 px-4 py-2 rounded-lg hover:bg-blue-500/20 transition-all duration-200 hover:scale-105 shadow-sm"
 																>
 																	<ExternalLink className="h-4 w-4" />
 																	Profil
@@ -504,19 +505,19 @@ export default function PageDetailPage() {
 			</Card>
 
 			{/* Action Buttons */}
-			<div className="flex items-center justify-end gap-4">
+			<div className="flex items-center justify-end gap-4 pt-4">
 				<Button
 					variant="outline"
 					onClick={() => navigate("/pages")}
 					size="lg"
-					className="min-w-[120px] border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
+					className="min-w-[120px] border-2 hover:bg-muted/50 hover:border-border transition-all"
 				>
 					<ArrowLeft className="h-4 w-4 mr-2" />
 					Geri Dön
 				</Button>
 				<Button
 					onClick={() => navigate(`/pages/edit/${page.id}`)}
-					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[120px]"
+					className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[120px]"
 					size="lg"
 				>
 					<Edit className="h-4 w-4 mr-2" />
