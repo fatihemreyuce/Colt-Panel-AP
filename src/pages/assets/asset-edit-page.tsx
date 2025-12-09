@@ -286,7 +286,7 @@ export default function AssetEditPage() {
 		return (
 			<div className="w-full py-6 px-6">
 				<div className="text-center py-12">
-					<p className="text-p3 text-muted-foreground mb-4">Set bulunamadı</p>
+					<p className="text-p3 text-muted-foreground mb-4">Medya bulunamadı</p>
 					<Button onClick={() => navigate("/assets")} className="bg-primary text-primary-foreground hover:bg-primary/90">
 						Geri Dön
 					</Button>
@@ -310,10 +310,10 @@ export default function AssetEditPage() {
 					</Button>
 					<div className="space-y-1">
 						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-							Seti Düzenle
+							Medyayı Düzenle
 						</h1>
 						<p className="text-muted-foreground text-sm ml-1">
-							Set bilgilerini güncelleyin
+							Medya bilgilerini güncelleyin
 						</p>
 					</div>
 				</div>
@@ -328,8 +328,8 @@ export default function AssetEditPage() {
 							<FileImage className="h-6 w-6 text-primary" />
 						</div>
 						<div>
-							<h2 className="text-xl font-bold text-foreground">Set Bilgileri</h2>
-							<p className="text-sm text-muted-foreground mt-0.5">Set bilgilerini güncelleyin</p>
+							<h2 className="text-xl font-bold text-foreground">Medya Bilgileri</h2>
+							<p className="text-sm text-muted-foreground mt-0.5">Medya bilgilerini güncelleyin</p>
 						</div>
 					</div>
 				</div>

@@ -139,9 +139,9 @@ export default function PageDetailPage() {
 								<LinkIcon className="h-4 w-4" />
 								Slug
 							</div>
-							<code className="text-sm font-mono font-bold text-foreground bg-gradient-to-r from-background to-muted/30 px-3 py-1.5 rounded-lg border border-border/50 shadow-sm">
+							<div className="text-sm font-mono font-bold text-foreground bg-gradient-to-r from-background to-muted/30 px-3 py-2 rounded-lg border border-border/50 shadow-sm">
 								{page.slug}
-							</code>
+							</div>
 						</div>
 
 						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">

@@ -251,11 +251,11 @@ export default function AssetsListPage() {
 							<ImageIcon className="h-6 w-6 text-primary" />
 						</div>
 						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-							Setler
+							Medya
 						</h1>
 					</div>
 					<p className="text-muted-foreground ml-[52px] text-sm">
-						Tüm setleri görüntüleyin ve yönetin
+						Tüm medyaları görüntüleyin ve yönetin
 					</p>
 				</div>
 				<Button
@@ -264,7 +264,7 @@ export default function AssetsListPage() {
 					size="lg"
 				>
 					<Plus className="h-5 w-5 mr-2" />
-					Yeni Set
+					Yeni Medya
 				</Button>
 			</div>
 
@@ -278,7 +278,7 @@ export default function AssetsListPage() {
 						<div>
 							<CardTitle className="text-lg font-bold">Filtreler ve Arama</CardTitle>
 							<CardDescription className="text-xs">
-								Setleri arayın ve filtreleyin
+								Medyaları arayın ve filtreleyin
 							</CardDescription>
 						</div>
 					</div>
@@ -288,7 +288,7 @@ export default function AssetsListPage() {
 						<div className="relative flex-1">
 							<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 							<Input
-								placeholder="Set ara..."
+								placeholder="Medya ara..."
 								value={searchInput}
 								onChange={(e) => setSearchInput(e.target.value)}
 								className="pl-10 pr-10 h-11"
@@ -328,9 +328,9 @@ export default function AssetsListPage() {
 								<ImageIcon className="h-4 w-4 text-primary" />
 							</div>
 							<div>
-								<CardTitle className="text-lg font-bold">Set Listesi</CardTitle>
+								<CardTitle className="text-lg font-bold">Medya Listesi</CardTitle>
 								<CardDescription className="text-xs mt-0.5">
-									Toplam <span className="font-semibold text-foreground">{totalElements}</span> set bulundu
+									Toplam <span className="font-semibold text-foreground">{totalElements}</span> medya bulundu
 								</CardDescription>
 							</div>
 						</div>
@@ -399,11 +399,11 @@ export default function AssetsListPage() {
 															<ImageIcon className="h-8 w-8 text-muted-foreground" />
 														</div>
 													</EmptyMedia>
-													<EmptyTitle>Set bulunamadı</EmptyTitle>
+													<EmptyTitle>Medya bulunamadı</EmptyTitle>
 													<EmptyDescription>
 														{search
-															? "Arama kriterlerinize uygun set bulunamadı. Lütfen farklı bir arama terimi deneyin."
-															: "Henüz set eklenmemiş. Yeni bir set ekleyerek başlayabilirsiniz."}
+															? "Arama kriterlerinize uygun medya bulunamadı. Lütfen farklı bir arama terimi deneyin."
+															: "Henüz medya eklenmemiş. Yeni bir medya ekleyerek başlayabilirsiniz."}
 													</EmptyDescription>
 												</EmptyHeader>
 												<EmptyContent>
@@ -412,7 +412,7 @@ export default function AssetsListPage() {
 														className="bg-primary text-primary-foreground hover:bg-primary/90"
 													>
 														<Plus className="h-4 w-4 mr-2" />
-														Yeni Set Ekle
+														Yeni Medya Ekle
 													</Button>
 												</EmptyContent>
 											</Empty>
@@ -431,7 +431,7 @@ export default function AssetsListPage() {
 					<CardContent className="pt-6">
 						<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
 							<div className="text-sm text-muted-foreground">
-								Toplam <span className="font-bold text-foreground bg-primary/10 px-2 py-0.5 rounded">{totalElements}</span> set
+								Toplam <span className="font-bold text-foreground bg-primary/10 px-2 py-0.5 rounded">{totalElements}</span> medya
 								{" • "}
 								Sayfa <span className="font-bold text-primary">{currentPage + 1}</span> /{" "}
 								<span className="font-bold text-foreground">{totalPages}</span>
@@ -471,9 +471,9 @@ export default function AssetsListPage() {
 				open={deleteModalOpen}
 				onConfirm={handleDelete}
 				onCancel={handleCloseDeleteModal}
-				title="Seti Sil"
-				description={`Bu seti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
-				confirmationText={selectedAsset ? (getPreferredLocalization(selectedAsset.localizations)?.title || "Set") : "Set"}
+				title="Medyayı Sil"
+				description={`Bu medyayı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
+				confirmationText={selectedAsset ? (getPreferredLocalization(selectedAsset.localizations)?.title || "Medya") : "Medya"}
 				confirmText="Sil"
 				cancelText="İptal"
 				loading={deleteAssetMutation.isPending}

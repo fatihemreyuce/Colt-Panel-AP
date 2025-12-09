@@ -50,7 +50,7 @@ const navigationItems: NavItem[] = [
 	},
 	{
 		to: "/assets",
-		label: "Setler",
+		label: "Medya",
 		icon: FileImage,
 		end: false,
 	},

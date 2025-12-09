@@ -5,14 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import {
 	Select,
@@ -28,13 +20,9 @@ import {
 	Trash2,
 	ChevronLeft,
 	ChevronRight,
-	ArrowUpDown,
-	Eye,
 	X,
 	Loader2,
 	Layers,
-	MoreVertical,
-	Image as ImageIcon,
 } from "lucide-react";
 import {
 	Empty,
@@ -45,12 +33,6 @@ import {
 	EmptyContent,
 } from "@/components/ui/empty";
 import type { componentTypeResponse } from "@/types/component-type.types";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 type SortField = "id" | "type";
 type SortOrder = "ASC" | "DESC";
@@ -201,34 +183,6 @@ export default function ComponentTypesListPage() {
 		[componentTypes, selectedComponentTypeId]
 	);
 
-	const SortIndicator = ({ field }: { field: SortField }) => {
-		if (sortConfig.field !== field) {
-			return <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />;
-		}
-		return (
-			<span className="text-primary font-semibold">
-				{sortConfig.order === "ASC" ? "↑" : "↓"}
-			</span>
-		);
-	};
-
-	const SortableHeader = ({
-		field,
-		children,
-	}: {
-		field: SortField;
-		children: React.ReactNode;
-	}) => (
-		<TableHead>
-			<button
-				onClick={() => handleSort(field)}
-				className="flex items-center gap-2 hover:text-primary transition-colors w-full text-left font-semibold group"
-			>
-				{children}
-				<SortIndicator field={field} />
-			</button>
-		</TableHead>
-	);
 
 	return (
 		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
@@ -308,7 +262,7 @@ export default function ComponentTypesListPage() {
 				</CardContent>
 			</Card>
 
-			{/* Table Section */}
+			{/* Cards Grid Section */}
 			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
 				<CardHeader className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border-b">
 					<div className="flex items-center justify-between">
@@ -325,91 +279,68 @@ export default function ComponentTypesListPage() {
 						</div>
 					</div>
 				</CardHeader>
-				<CardContent className="p-0 bg-gradient-to-b from-transparent to-muted/10">
-					<div className="overflow-x-auto">
-						<Table>
-							<TableHeader>
-								<TableRow className="bg-gradient-to-r from-muted/80 via-muted/60 to-muted/40 hover:bg-muted/60 border-b-2">
-									<SortableHeader field="id">ID</SortableHeader>
-									<SortableHeader field="type">Tip</SortableHeader>
-									<TableHead>Özellikler</TableHead>
-									<TableHead>Fotoğraf</TableHead>
-									<TableHead className="text-right">İşlemler</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{isLoading ? (
-									<TableRow>
-										<TableCell colSpan={5} className="h-[400px]">
-											<div className="flex flex-col items-center justify-center gap-4">
-												<Loader2 className="h-10 w-10 animate-spin text-primary" />
-												<p className="text-sm text-muted-foreground font-medium">
-													Yükleniyor...
-												</p>
-											</div>
-										</TableCell>
-									</TableRow>
-								) : isError ? (
-									<TableRow>
-										<TableCell colSpan={5} className="h-[400px]">
-											<div className="flex flex-col items-center justify-center gap-4">
-												<div className="rounded-full bg-destructive/10 p-3">
-													<Layers className="h-8 w-8 text-destructive" />
-												</div>
-												<div className="text-center">
-													<p className="text-sm font-semibold text-destructive">
-														Bir hata oluştu
-													</p>
-													<p className="text-sm text-muted-foreground mt-1">
-														Lütfen sayfayı yenileyin
-													</p>
-												</div>
-											</div>
-										</TableCell>
-									</TableRow>
-								) : componentTypes.length > 0 ? (
-									componentTypes.map((componentType) => (
-										<ComponentTypeTableRow
-											key={componentType.id}
-											componentType={componentType}
-											onView={() => navigate(`/component-types/detail/${componentType.id}`)}
-											onEdit={() => navigate(`/component-types/edit/${componentType.id}`)}
-											onDelete={() => handleOpenDeleteModal(componentType.id)}
-										/>
-									))
-								) : (
-									<TableRow>
-										<TableCell colSpan={5} className="h-[400px] p-0">
-											<Empty className="border-0 py-12">
-												<EmptyHeader>
-													<EmptyMedia variant="icon">
-														<div className="rounded-full bg-muted p-4">
-															<Layers className="h-8 w-8 text-muted-foreground" />
-														</div>
-													</EmptyMedia>
-													<EmptyTitle>Bileşen tipi bulunamadı</EmptyTitle>
-													<EmptyDescription>
-														{search
-															? "Arama kriterlerinize uygun bileşen tipi bulunamadı. Lütfen farklı bir arama terimi deneyin."
-															: "Henüz bileşen tipi eklenmemiş. Yeni bir bileşen tipi ekleyerek başlayabilirsiniz."}
-													</EmptyDescription>
-												</EmptyHeader>
-												<EmptyContent>
-													<Button
-														onClick={() => navigate("/component-types/create")}
-														className="bg-primary text-primary-foreground hover:bg-primary/90"
-													>
-														<Plus className="h-4 w-4 mr-2" />
-														Yeni Bileşen Tipi Ekle
-													</Button>
-												</EmptyContent>
-											</Empty>
-										</TableCell>
-									</TableRow>
-								)}
-							</TableBody>
-						</Table>
-					</div>
+				<CardContent className="p-6 bg-gradient-to-b from-transparent to-muted/10">
+					{isLoading ? (
+						<div className="flex flex-col items-center justify-center gap-4 min-h-[400px]">
+							<Loader2 className="h-10 w-10 animate-spin text-primary" />
+							<p className="text-sm text-muted-foreground font-medium">
+								Yükleniyor...
+							</p>
+						</div>
+					) : isError ? (
+						<div className="flex flex-col items-center justify-center gap-4 min-h-[400px]">
+							<div className="rounded-full bg-destructive/10 p-3">
+								<Layers className="h-8 w-8 text-destructive" />
+							</div>
+							<div className="text-center">
+								<p className="text-sm font-semibold text-destructive">
+									Bir hata oluştu
+								</p>
+								<p className="text-sm text-muted-foreground mt-1">
+									Lütfen sayfayı yenileyin
+								</p>
+							</div>
+						</div>
+					) : componentTypes.length > 0 ? (
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							{componentTypes.map((componentType) => (
+								<ComponentTypeCard
+									key={componentType.id}
+									componentType={componentType}
+									onView={() => navigate(`/component-types/detail/${componentType.id}`)}
+									onEdit={() => navigate(`/component-types/edit/${componentType.id}`)}
+									onDelete={() => handleOpenDeleteModal(componentType.id)}
+								/>
+							))}
+						</div>
+					) : (
+						<div className="min-h-[400px] flex items-center justify-center">
+							<Empty className="border-0 py-12">
+								<EmptyHeader>
+									<EmptyMedia variant="icon">
+										<div className="rounded-full bg-muted p-4">
+											<Layers className="h-8 w-8 text-muted-foreground" />
+										</div>
+									</EmptyMedia>
+									<EmptyTitle>Bileşen tipi bulunamadı</EmptyTitle>
+									<EmptyDescription>
+										{search
+											? "Arama kriterlerinize uygun bileşen tipi bulunamadı. Lütfen farklı bir arama terimi deneyin."
+											: "Henüz bileşen tipi eklenmemiş. Yeni bir bileşen tipi ekleyerek başlayabilirsiniz."}
+									</EmptyDescription>
+								</EmptyHeader>
+								<EmptyContent>
+									<Button
+										onClick={() => navigate("/component-types/create")}
+										className="bg-primary text-primary-foreground hover:bg-primary/90"
+									>
+										<Plus className="h-4 w-4 mr-2" />
+										Yeni Bileşen Tipi Ekle
+									</Button>
+								</EmptyContent>
+							</Empty>
+						</div>
+					)}
 				</CardContent>
 			</Card>
 
@@ -470,95 +401,95 @@ export default function ComponentTypesListPage() {
 	);
 }
 
-interface ComponentTypeTableRowProps {
+interface ComponentTypeCardProps {
 	componentType: componentTypeResponse;
 	onView: () => void;
 	onEdit: () => void;
 	onDelete: () => void;
 }
 
-function ComponentTypeTableRow({ componentType, onView, onEdit, onDelete }: ComponentTypeTableRowProps) {
+function ComponentTypeCard({ componentType, onView, onEdit, onDelete }: ComponentTypeCardProps) {
 	const features = [
-		componentType.hasTitle && "Başlık",
-		componentType.hasExcerpt && "Özet",
-		componentType.hasDescription && "Açıklama",
-		componentType.hasImage && "Resim",
-		componentType.hasValue && "Değer",
-		componentType.hasAssets && "Varlıklar",
-		componentType.hasLink && "Link",
-	].filter(Boolean);
+		{ label: "Başlık", enabled: componentType.hasTitle, color: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20" },
+		{ label: "Özet", enabled: componentType.hasExcerpt, color: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20" },
+		{ label: "Açıklama", enabled: componentType.hasDescription, color: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20" },
+		{ label: "Medya", enabled: componentType.hasAssets, color: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20" },
+		{ label: "Resim", enabled: componentType.hasImage, color: "bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20" },
+		{ label: "Bağlantı", enabled: componentType.hasLink, color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20" },
+		{ label: "Değer", enabled: componentType.hasValue, color: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20" },
+	].filter(f => f.enabled);
 
 	return (
-		<TableRow className="hover:bg-gradient-to-r hover:from-primary/5 hover:to-transparent transition-all duration-200 group border-b border-border/50">
-			<TableCell className="font-bold text-primary/80">{componentType.id}</TableCell>
-			<TableCell>
-				<Badge variant="secondary" className="font-medium bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 text-primary shadow-sm">
-					{componentType.type}
-				</Badge>
-			</TableCell>
-			<TableCell>
-				<div className="flex flex-wrap gap-1">
-					{features.length > 0 ? (
-						features.map((feature, index) => (
-							<Badge
-								key={index}
-								variant="outline"
-								className="text-xs font-medium"
-							>
-								{feature}
-							</Badge>
-						))
-					) : (
-						<span className="text-sm text-muted-foreground">Özellik yok</span>
-					)}
-				</div>
-			</TableCell>
-			<TableCell>
-				{componentType.photo ? (
-					<div className="relative w-14 h-14 rounded-xl overflow-hidden border-2 border-border shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
-						<img
-							src={componentType.photo}
-							alt={componentType.type}
-							className="w-full h-full object-cover"
-						/>
-						<div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+		<Card className="group relative border-2 shadow-lg bg-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden">
+			<CardContent className="p-5">
+				<div className="flex items-start gap-4">
+					{/* Preview Thumbnail */}
+					<div className="relative flex-shrink-0">
+						<div className="w-20 h-20 rounded-lg bg-white border-2 border-border shadow-md overflow-hidden">
+							{componentType.photo ? (
+								<img
+									src={componentType.photo}
+									alt={componentType.type}
+									className="w-full h-full object-cover"
+								/>
+							) : (
+								<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+									<Layers className="h-8 w-8 text-muted-foreground/50" />
+								</div>
+							)}
+						</div>
+						{/* ID Badge */}
+						<div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-md shadow-lg">
+							#{componentType.id}
+						</div>
 					</div>
-				) : (
-					<div className="w-14 h-14 rounded-xl bg-gradient-to-br from-muted to-muted/50 border-2 border-dashed border-muted-foreground/20 flex items-center justify-center shadow-sm">
-						<ImageIcon className="h-5 w-5 text-muted-foreground/50" />
+
+					{/* Content */}
+					<div className="flex-1 min-w-0">
+						{/* Title */}
+						<h3 className="text-lg font-bold text-foreground mb-3 truncate">
+							{componentType.type}
+						</h3>
+
+						{/* Features Badges */}
+						<div className="flex flex-wrap gap-2 mb-4">
+							{features.length > 0 ? (
+								features.map((feature, index) => (
+									<Badge
+										key={index}
+										variant="outline"
+										className={`text-xs font-medium border ${feature.color}`}
+									>
+										{feature.label}
+									</Badge>
+								))
+							) : (
+								<span className="text-xs text-muted-foreground">Özellik yok</span>
+							)}
+						</div>
 					</div>
-				)}
-			</TableCell>
-			<TableCell className="text-right">
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
+
+					{/* Action Buttons */}
+					<div className="flex flex-col gap-2 flex-shrink-0">
 						<Button
-							variant="ghost"
-							size="sm"
-							className="h-9 w-9 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary/10 hover:text-primary rounded-lg"
+							variant="outline"
+							size="icon"
+							onClick={onEdit}
+							className="h-9 w-9 border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/50 transition-all"
 						>
-							<MoreVertical className="h-4 w-4" />
+							<Edit className="h-4 w-4" />
 						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-44 shadow-xl border-2">
-						<DropdownMenuItem onClick={onView} className="cursor-pointer hover:bg-primary/10 focus:bg-primary/10">
-							<Eye className="h-4 w-4 mr-2 text-primary" />
-							<span className="font-medium">Detaylar</span>
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={onEdit} className="cursor-pointer hover:bg-primary/10 focus:bg-primary/10">
-							<Edit className="h-4 w-4 mr-2 text-primary" />
-							<span className="font-medium">Düzenle</span>
-						</DropdownMenuItem>
-						<DropdownMenuItem
+						<Button
+							variant="outline"
+							size="icon"
 							onClick={onDelete}
-							className="cursor-pointer text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10"
+							className="h-9 w-9 border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-500/10 hover:border-red-500/50 transition-all"
 						>
-							<Trash2 className="h-4 w-4 mr-2" />
-							<span className="font-medium">Sil</span>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</TableCell>
-		</TableRow>
+							<Trash2 className="h-4 w-4" />
+						</Button>
+					</div>
+				</div>
+			</CardContent>
+		</Card>
 	);
 }

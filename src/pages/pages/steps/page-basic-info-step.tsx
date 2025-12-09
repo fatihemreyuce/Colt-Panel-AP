@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Languages, RefreshCw, Upload, X, Image as ImageIcon, File } from "lucide-react";
+import { Languages, RefreshCw, Upload, X, Image as ImageIcon, File, Link as LinkIcon } from "lucide-react";
 import type { PageRequest, localizations } from "@/types/page.types";
 import { translateText } from "@/services/translate-service";
 import { toast } from "sonner";
@@ -82,14 +82,15 @@ export function PageBasicInfoStep({
 
 				{/* Slug */}
 				<div className="space-y-2">
-					<Label htmlFor="slug" className="text-p3 font-semibold">
+					<Label htmlFor="slug" className="text-p3 font-semibold flex items-center gap-2">
+						<LinkIcon className="h-4 w-4 text-muted-foreground" />
 						Slug *
 					</Label>
 					<Input
 						id="slug"
 						value={formData.slug}
 						onChange={(e) => onFormDataChange({ slug: e.target.value })}
-						className={`h-11 ${
+						className={`h-11 font-mono ${
 							errors.slug ? "border-destructive focus-visible:ring-destructive" : ""
 						}`}
 						placeholder="sayfa-slug"

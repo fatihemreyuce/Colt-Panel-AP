@@ -35,6 +35,7 @@ import {
 	Users,
 	MoreVertical,
 	ExternalLink,
+	Mail,
 } from "lucide-react";
 import {
 	Empty,
@@ -517,7 +518,17 @@ function TeamMemberTableRow({ member, onView, onEdit, onDelete }: TeamMemberTabl
 				</div>
 			</TableCell>
 			<TableCell>
-				<span className="text-sm text-muted-foreground">{member.email}</span>
+				{member.email ? (
+					<a
+						href={`mailto:${member.email}`}
+						className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary font-medium hover:underline transition-colors"
+					>
+						<Mail className="h-3.5 w-3.5" />
+						{member.email}
+					</a>
+				) : (
+					<span className="text-sm text-muted-foreground">-</span>
+				)}
 			</TableCell>
 			<TableCell>
 				{member.linkedinUrl ? (

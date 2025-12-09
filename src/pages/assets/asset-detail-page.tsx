@@ -41,9 +41,9 @@ export default function AssetDetailPage() {
 			<div className="flex-1 flex items-center justify-center min-h-[400px]">
 				<Card className="max-w-md w-full border-2">
 					<CardHeader className="text-center">
-						<CardTitle className="text-xl">Set Bulunamadı</CardTitle>
+						<CardTitle className="text-xl">Medya Bulunamadı</CardTitle>
 						<CardDescription>
-							Aradığınız set mevcut değil veya silinmiş olabilir.
+							Aradığınız medya mevcut değil veya silinmiş olabilir.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="flex justify-center">
@@ -52,7 +52,7 @@ export default function AssetDetailPage() {
 							className="bg-primary text-primary-foreground hover:bg-primary/90"
 						>
 							<ArrowLeft className="h-4 w-4 mr-2" />
-							Setler Listesine Dön
+							Medya Listesine Dön
 						</Button>
 					</CardContent>
 				</Card>
@@ -80,7 +80,7 @@ export default function AssetDetailPage() {
 						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
 							{defaultTitle}
 						</h1>
-						<p className="text-muted-foreground text-sm">Set detay bilgileri</p>
+						<p className="text-muted-foreground text-sm">Medya detay bilgileri</p>
 					</div>
 				</div>
 				<Button
@@ -101,8 +101,8 @@ export default function AssetDetailPage() {
 							<FileImage className="h-6 w-6 text-primary" />
 						</div>
 						<div>
-							<CardTitle className="text-xl font-bold">Set Bilgileri</CardTitle>
-							<CardDescription className="text-xs">Genel set bilgileri ve özellikleri</CardDescription>
+							<CardTitle className="text-xl font-bold">Medya Bilgileri</CardTitle>
+							<CardDescription className="text-xs">Genel medya bilgileri ve özellikleri</CardDescription>
 						</div>
 					</div>
 				</CardHeader>
@@ -112,7 +112,7 @@ export default function AssetDetailPage() {
 						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
 							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
 								<FileImage className="h-4 w-4 text-primary" />
-								Set ID
+								Medya ID
 							</div>
 							<div className="text-3xl font-bold text-primary">{asset.id}</div>
 						</div>

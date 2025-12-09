@@ -258,10 +258,10 @@ export default function AssetCreatePage() {
 					</Button>
 					<div className="space-y-1">
 						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-							Yeni Set Oluştur
+							Yeni Medya Oluştur
 						</h1>
 						<p className="text-muted-foreground text-sm ml-1">
-							Yeni bir set ekleyin
+							Yeni bir medya ekleyin
 						</p>
 					</div>
 				</div>
@@ -276,8 +276,8 @@ export default function AssetCreatePage() {
 							<FileImage className="h-6 w-6 text-primary" />
 						</div>
 						<div>
-							<h2 className="text-xl font-bold text-foreground">Set Bilgileri</h2>
-							<p className="text-sm text-muted-foreground mt-0.5">Yeni set için gerekli bilgileri giriniz</p>
+							<h2 className="text-xl font-bold text-foreground">Medya Bilgileri</h2>
+							<p className="text-sm text-muted-foreground mt-0.5">Yeni medya için gerekli bilgileri giriniz</p>
 						</div>
 					</div>
 				</div>

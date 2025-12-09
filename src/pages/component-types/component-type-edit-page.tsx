@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Save, Layers, Image as ImageIcon, Upload, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Layers, Image as ImageIcon, Upload, X, Loader2, Type, FileText, Hash, Link2, Image as ImageIcon2, FolderOpen, CheckCircle2 } from "lucide-react";
 import type { componentTypeRequest } from "@/types/component-type.types";
 
 export default function ComponentTypeEditPage() {
@@ -238,109 +238,81 @@ export default function ComponentTypeEditPage() {
 						<h3 className="text-h5 font-semibold text-foreground">Özellikler</h3>
 						<div className="grid gap-4 md:grid-cols-2">
 							{/* Has Title */}
-							<div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30">
-								<div className="space-y-0.5">
-									<Label htmlFor="hasTitle" className="text-p3 font-semibold cursor-pointer">
-										Başlık
-									</Label>
-									<p className="text-xs text-muted-foreground">Bileşen tipi başlık içerebilir</p>
-								</div>
-								<Switch
-									id="hasTitle"
-									checked={formData.hasTitle}
-									onCheckedChange={(checked) => setFormData({ ...formData, hasTitle: checked })}
-								/>
-							</div>
+							<FeatureCard
+								id="hasTitle"
+								label="Başlık"
+								description="Bileşen tipi başlık içerebilir"
+								icon={Type}
+								checked={formData.hasTitle}
+								onCheckedChange={(checked) => setFormData({ ...formData, hasTitle: checked })}
+								color="blue"
+							/>
 
 							{/* Has Excerpt */}
-							<div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30">
-								<div className="space-y-0.5">
-									<Label htmlFor="hasExcerpt" className="text-p3 font-semibold cursor-pointer">
-										Özet
-									</Label>
-									<p className="text-xs text-muted-foreground">Bileşen tipi özet içerebilir</p>
-								</div>
-								<Switch
-									id="hasExcerpt"
-									checked={formData.hasExcerpt}
-									onCheckedChange={(checked) => setFormData({ ...formData, hasExcerpt: checked })}
-								/>
-							</div>
+							<FeatureCard
+								id="hasExcerpt"
+								label="Özet"
+								description="Bileşen tipi özet içerebilir"
+								icon={FileText}
+								checked={formData.hasExcerpt}
+								onCheckedChange={(checked) => setFormData({ ...formData, hasExcerpt: checked })}
+								color="orange"
+							/>
 
 							{/* Has Description */}
-							<div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30">
-								<div className="space-y-0.5">
-									<Label htmlFor="hasDescription" className="text-p3 font-semibold cursor-pointer">
-										Açıklama
-									</Label>
-									<p className="text-xs text-muted-foreground">Bileşen tipi açıklama içerebilir</p>
-								</div>
-								<Switch
-									id="hasDescription"
-									checked={formData.hasDescription}
-									onCheckedChange={(checked) => setFormData({ ...formData, hasDescription: checked })}
-								/>
-							</div>
+							<FeatureCard
+								id="hasDescription"
+								label="Açıklama"
+								description="Bileşen tipi açıklama içerebilir"
+								icon={FileText}
+								checked={formData.hasDescription}
+								onCheckedChange={(checked) => setFormData({ ...formData, hasDescription: checked })}
+								color="purple"
+							/>
 
 							{/* Has Image */}
-							<div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30">
-								<div className="space-y-0.5">
-									<Label htmlFor="hasImage" className="text-p3 font-semibold cursor-pointer">
-										Resim
-									</Label>
-									<p className="text-xs text-muted-foreground">Bileşen tipi resim içerebilir</p>
-								</div>
-								<Switch
-									id="hasImage"
-									checked={formData.hasImage}
-									onCheckedChange={(checked) => setFormData({ ...formData, hasImage: checked })}
-								/>
-							</div>
+							<FeatureCard
+								id="hasImage"
+								label="Resim"
+								description="Bileşen tipi resim içerebilir"
+								icon={ImageIcon2}
+								checked={formData.hasImage}
+								onCheckedChange={(checked) => setFormData({ ...formData, hasImage: checked })}
+								color="pink"
+							/>
 
 							{/* Has Value */}
-							<div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30">
-								<div className="space-y-0.5">
-									<Label htmlFor="hasValue" className="text-p3 font-semibold cursor-pointer">
-										Değer
-									</Label>
-									<p className="text-xs text-muted-foreground">Bileşen tipi değer içerebilir</p>
-								</div>
-								<Switch
-									id="hasValue"
-									checked={formData.hasValue}
-									onCheckedChange={(checked) => setFormData({ ...formData, hasValue: checked })}
-								/>
-							</div>
+							<FeatureCard
+								id="hasValue"
+								label="Değer"
+								description="Bileşen tipi değer içerebilir"
+								icon={Hash}
+								checked={formData.hasValue}
+								onCheckedChange={(checked) => setFormData({ ...formData, hasValue: checked })}
+								color="indigo"
+							/>
 
 							{/* Has Assets */}
-							<div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30">
-								<div className="space-y-0.5">
-									<Label htmlFor="hasAssets" className="text-p3 font-semibold cursor-pointer">
-										Varlıklar
-									</Label>
-									<p className="text-xs text-muted-foreground">Bileşen tipi varlık içerebilir</p>
-								</div>
-								<Switch
-									id="hasAssets"
-									checked={formData.hasAssets}
-									onCheckedChange={(checked) => setFormData({ ...formData, hasAssets: checked })}
-								/>
-							</div>
+							<FeatureCard
+								id="hasAssets"
+								label="Varlıklar"
+								description="Bileşen tipi varlık içerebilir"
+								icon={FolderOpen}
+								checked={formData.hasAssets}
+								onCheckedChange={(checked) => setFormData({ ...formData, hasAssets: checked })}
+								color="green"
+							/>
 
 							{/* Has Link */}
-							<div className="flex items-center justify-between p-4 rounded-lg border border-border bg-muted/30">
-								<div className="space-y-0.5">
-									<Label htmlFor="hasLink" className="text-p3 font-semibold cursor-pointer">
-										Link
-									</Label>
-									<p className="text-xs text-muted-foreground">Bileşen tipi link içerebilir</p>
-								</div>
-								<Switch
-									id="hasLink"
-									checked={formData.hasLink}
-									onCheckedChange={(checked) => setFormData({ ...formData, hasLink: checked })}
-								/>
-							</div>
+							<FeatureCard
+								id="hasLink"
+								label="Link"
+								description="Bileşen tipi link içerebilir"
+								icon={Link2}
+								checked={formData.hasLink}
+								onCheckedChange={(checked) => setFormData({ ...formData, hasLink: checked })}
+								color="cyan"
+							/>
 						</div>
 					</div>
 
@@ -373,6 +345,83 @@ export default function ComponentTypeEditPage() {
 						</Button>
 					</div>
 				</form>
+			</div>
+		</div>
+	);
+}
+
+interface FeatureCardProps {
+	id: string;
+	label: string;
+	description: string;
+	icon: React.ComponentType<{ className?: string }>;
+	checked: boolean;
+	onCheckedChange: (checked: boolean) => void;
+	color: "blue" | "orange" | "purple" | "pink" | "indigo" | "green" | "cyan";
+}
+
+function FeatureCard({ id, label, description, icon: Icon, checked, onCheckedChange, color }: FeatureCardProps) {
+	const colorClasses = {
+		blue: checked
+			? "bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/15"
+			: "bg-muted/30 border-border hover:bg-muted/50",
+		orange: checked
+			? "bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/15"
+			: "bg-muted/30 border-border hover:bg-muted/50",
+		purple: checked
+			? "bg-purple-500/10 border-purple-500/30 hover:bg-purple-500/15"
+			: "bg-muted/30 border-border hover:bg-muted/50",
+		pink: checked
+			? "bg-pink-500/10 border-pink-500/30 hover:bg-pink-500/15"
+			: "bg-muted/30 border-border hover:bg-muted/50",
+		indigo: checked
+			? "bg-indigo-500/10 border-indigo-500/30 hover:bg-indigo-500/15"
+			: "bg-muted/30 border-border hover:bg-muted/50",
+		green: checked
+			? "bg-green-500/10 border-green-500/30 hover:bg-green-500/15"
+			: "bg-muted/30 border-border hover:bg-muted/50",
+		cyan: checked
+			? "bg-cyan-500/10 border-cyan-500/30 hover:bg-cyan-500/15"
+			: "bg-muted/30 border-border hover:bg-muted/50",
+	};
+
+	const iconColorClasses = {
+		blue: checked ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground",
+		orange: checked ? "text-orange-600 dark:text-orange-400" : "text-muted-foreground",
+		purple: checked ? "text-purple-600 dark:text-purple-400" : "text-muted-foreground",
+		pink: checked ? "text-pink-600 dark:text-pink-400" : "text-muted-foreground",
+		indigo: checked ? "text-indigo-600 dark:text-indigo-400" : "text-muted-foreground",
+		green: checked ? "text-green-600 dark:text-green-400" : "text-muted-foreground",
+		cyan: checked ? "text-cyan-600 dark:text-cyan-400" : "text-muted-foreground",
+	};
+
+	return (
+		<div
+			className={`group relative flex items-center justify-between p-5 rounded-xl border-2 transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-[1.02] ${colorClasses[color]}`}
+			onClick={() => onCheckedChange(!checked)}
+		>
+			<div className="flex items-center gap-4 flex-1 min-w-0">
+				<div className={`flex-shrink-0 p-2.5 rounded-lg bg-background/50 border border-border/50 transition-colors ${checked ? "shadow-md" : ""}`}>
+					<Icon className={`h-5 w-5 transition-colors ${iconColorClasses[color]}`} />
+				</div>
+				<div className="flex-1 min-w-0">
+					<div className="flex items-center gap-2 mb-1">
+						<Label htmlFor={id} className="text-base font-bold text-foreground cursor-pointer">
+							{label}
+						</Label>
+						{checked && (
+							<CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+						)}
+					</div>
+					<p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
+				</div>
+			</div>
+			<div className="flex-shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
+				<Switch
+					id={id}
+					checked={checked}
+					onCheckedChange={onCheckedChange}
+				/>
 			</div>
 		</div>
 	);
