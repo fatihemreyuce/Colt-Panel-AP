@@ -435,6 +435,17 @@ export default function ComponentCreatePage() {
 					return;
 				}
 				
+				const newAssetIndex = formData.assets.length;
+				const newLocalizations = selectedAsset.localizations.length > 0 
+					? selectedAsset.localizations 
+					: languages.map(lang => ({
+						languageCode: lang.code,
+						title: "",
+						description: "",
+						subdescription: "",
+					}));
+				const firstLanguageCode = newLocalizations[0]?.languageCode || languages[0]?.code || "";
+				
 				setFormData(prev => ({
 					...prev,
 					assets: [
@@ -442,21 +453,32 @@ export default function ComponentCreatePage() {
 						{
 							type: selectedAsset.type,
 							assetId: selectedAsset.id,
-							localizations: selectedAsset.localizations.length > 0 
-								? selectedAsset.localizations 
-								: languages.map(lang => ({
-									languageCode: lang.code,
-									title: "",
-									description: "",
-									subdescription: "",
-								}))
+							localizations: newLocalizations
 						}
 					]
 				}));
+				
+				// İlk dil tab'ını aktif yap
+				if (firstLanguageCode) {
+					setAssetActiveTabs(prev => ({
+						...prev,
+						[newAssetIndex]: firstLanguageCode
+					}));
+				}
+				
 				toast.success("Medya başarıyla eklendi");
 			}
 		} else {
 			// Yeni boş asset ekle
+			const newAssetIndex = formData.assets.length;
+			const newLocalizations = languages.map(lang => ({
+				languageCode: lang.code,
+				title: "",
+				description: "",
+				subdescription: "",
+			}));
+			const firstLanguageCode = newLocalizations[0]?.languageCode || languages[0]?.code || "";
+			
 			setFormData(prev => ({
 				...prev,
 				assets: [
@@ -464,15 +486,18 @@ export default function ComponentCreatePage() {
 					{
 						type: undefined,
 						file: undefined,
-						localizations: languages.map(lang => ({
-							languageCode: lang.code,
-							title: "",
-							description: "",
-							subdescription: "",
-						}))
+						localizations: newLocalizations
 					}
 				]
 			}));
+			
+			// İlk dil tab'ını aktif yap
+			if (firstLanguageCode) {
+				setAssetActiveTabs(prev => ({
+					...prev,
+					[newAssetIndex]: firstLanguageCode
+				}));
+			}
 		}
 	};
 

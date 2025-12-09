@@ -201,9 +201,10 @@ export function AssetForm({
 											</Label>
 											<Input
 												id={`asset-title-${assetIndex}-${locIndex}`}
-												value={loc.title}
+												value={loc.title || ""}
 												onChange={(e) => onLocalizationChange(locIndex, "title", e.target.value)}
 												className="h-11"
+												placeholder="Başlık giriniz"
 											/>
 										</div>
 										<div className="space-y-2">
@@ -211,7 +212,7 @@ export function AssetForm({
 												Açıklama
 											</Label>
 											<RichTextEditor
-												value={loc.description}
+												value={loc.description || ""}
 												onChange={(content) => onLocalizationChange(locIndex, "description", content)}
 												height={250}
 											/>
@@ -221,7 +222,7 @@ export function AssetForm({
 												Alt Açıklama
 											</Label>
 											<RichTextEditor
-												value={loc.subdescription}
+												value={loc.subdescription || ""}
 												onChange={(content) => onLocalizationChange(locIndex, "subdescription", content)}
 												height={250}
 											/>
