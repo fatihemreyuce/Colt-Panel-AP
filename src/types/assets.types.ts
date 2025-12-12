@@ -9,7 +9,7 @@ export interface assetRequest{
     file?: File|string;
     localizations: localization[];
     type?: string;
-    
+    componentTypeId?: number;
 }
 
 export interface assetResponse{
@@ -20,4 +20,5 @@ export interface assetResponse{
     width: number;
     height: number;
     localizations: localization[];
+    componentTypeId?: number;
 }

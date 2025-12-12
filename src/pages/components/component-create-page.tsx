@@ -90,6 +90,13 @@ export default function ComponentCreatePage() {
 					return { ...prev, ...updates };
 				});
 			}
+		} else if (formData.typeId === 0) {
+			// Tip seçilmediğinde alanları temizle
+			setFormData(prev => ({
+				...prev,
+				value: "",
+				link: "",
+			}));
 		}
 	}, [formData.typeId, componentTypes]);
 
@@ -230,9 +237,6 @@ export default function ComponentCreatePage() {
 		const newErrors: Record<string, string> = {};
 		if (!formData.name.trim()) {
 			newErrors.name = "Ad gereklidir";
-		}
-		if (!formData.typeId || formData.typeId === 0) {
-			newErrors.typeId = "Tip seçimi gereklidir";
 		}
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
@@ -592,6 +596,8 @@ export default function ComponentCreatePage() {
 						errors={errors}
 						onNameChange={(value) => setFormData({ ...formData, name: value })}
 						onTypeChange={(value) => setFormData({ ...formData, typeId: value })}
+						onValueChange={(value) => setFormData({ ...formData, value })}
+						onLinkChange={(value) => setFormData({ ...formData, link: value })}
 					/>
 
 					<ComponentLocalizations
@@ -611,6 +617,7 @@ export default function ComponentCreatePage() {
 						selectedMediaId={selectedMediaId}
 						assetActiveTabs={assetActiveTabs}
 						isTranslatingAsset={isTranslatingAsset}
+						componentTypeId={formData.typeId !== 0 ? formData.typeId : undefined}
 						onSelectMedia={setSelectedMediaId}
 						onAddAsset={addAsset}
 						onRemoveAsset={removeAsset}

@@ -1,4 +1,4 @@
-import { Box } from "lucide-react";
+import { Box, Component } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -8,17 +8,18 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { componentType } from "@/types/component-type.types";
 
 interface ComponentBasicFieldsProps {
 	name: string;
 	typeId: number;
 	value: string;
 	link: string;
-	componentTypes: componentType[];
+	componentTypes: any[];
 	errors: Record<string, string>;
 	onNameChange: (value: string) => void;
 	onTypeChange: (value: number) => void;
+	onValueChange?: (value: string) => void;
+	onLinkChange?: (value: string) => void;
 }
 
 export function ComponentBasicFields({
@@ -30,9 +31,34 @@ export function ComponentBasicFields({
 	errors,
 	onNameChange,
 	onTypeChange,
+	onValueChange,
+	onLinkChange,
 }: ComponentBasicFieldsProps) {
 	return (
 		<>
+			{/* Component Type Field */}
+			<div className="space-y-2">
+				<Label htmlFor="typeId" className="text-p3 font-semibold flex items-center gap-2">
+					<Component className="h-4 w-4 text-muted-foreground" />
+					Bileşen Tipi
+				</Label>
+				<Select
+					value={typeId !== 0 ? typeId.toString() : undefined}
+					onValueChange={(value) => onTypeChange(value ? parseInt(value, 10) : 0)}
+				>
+					<SelectTrigger className="h-11">
+						<SelectValue placeholder="Bileşen tipi seçiniz (opsiyonel)" />
+					</SelectTrigger>
+					<SelectContent>
+						{componentTypes.map((componentType) => (
+							<SelectItem key={componentType.id} value={componentType.id.toString()}>
+								{componentType.type}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
+
 			{/* Basic Fields */}
 			<div className="grid gap-6 md:grid-cols-2">
 				{/* Name Field */}
@@ -57,37 +83,6 @@ export function ComponentBasicFields({
 						</p>
 					)}
 				</div>
-
-				{/* Type Field */}
-				<div className="space-y-2">
-					<Label htmlFor="typeId" className="text-p3 font-semibold flex items-center gap-2">
-						<Box className="h-4 w-4 text-muted-foreground" />
-						Tip
-					</Label>
-					<Select
-						value={typeId && typeId !== 0 ? typeId.toString() : ""}
-						onValueChange={(value) => onTypeChange(value ? parseInt(value) : 0)}
-					>
-						<SelectTrigger className={`h-11 ${
-							errors.typeId ? "border-destructive focus-visible:ring-destructive" : ""
-						}`}>
-							<SelectValue placeholder="Tip seçiniz" />
-						</SelectTrigger>
-						<SelectContent>
-							{componentTypes.map((type) => (
-								<SelectItem key={type.id} value={type.id.toString()}>
-									{type.type}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-					{errors.typeId && (
-						<p className="text-p3 text-destructive flex items-center gap-1">
-							<span>•</span>
-							{errors.typeId}
-						</p>
-					)}
-				</div>
 			</div>
 
 			{/* Value Field */}
@@ -98,8 +93,8 @@ export function ComponentBasicFields({
 				<Input
 					id="value"
 					value={value}
-					readOnly
-					className="h-11 bg-muted/50 cursor-not-allowed"
+					onChange={(e) => onValueChange?.(e.target.value)}
+					className="h-11"
 					placeholder="Değer giriniz (opsiyonel)"
 				/>
 			</div>
@@ -112,8 +107,8 @@ export function ComponentBasicFields({
 				<Input
 					id="link"
 					value={link}
-					readOnly
-					className="h-11 bg-muted/50 cursor-not-allowed"
+					onChange={(e) => onLinkChange?.(e.target.value)}
+					className="h-11"
 					placeholder="Link giriniz (opsiyonel)"
 				/>
 			</div>

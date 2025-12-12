@@ -54,6 +54,11 @@ export function PageComponentsStep({ pageId }: PageComponentsStepProps) {
 		const component = components.find((c) => c.id === selectedComponentId);
 		if (!component) return;
 
+		// Check if already added
+		if (pageComponents.some((pc) => pc.id === selectedComponentId)) {
+			return;
+		}
+
 		// Calculate sortOrder: find max sortOrder and add 1, or start from 1 if no components
 		const existingSortOrders = page?.components
 			?.map((item) => item.sortOrder)
@@ -115,11 +120,20 @@ export function PageComponentsStep({ pageId }: PageComponentsStepProps) {
 								<SelectValue placeholder="Bileşen seçiniz" />
 							</SelectTrigger>
 							<SelectContent>
-								{components.map((component) => (
-									<SelectItem key={component.id} value={component.id.toString()}>
-										{component.name} ({component.type})
-									</SelectItem>
-								))}
+								{components.map((component) => {
+									const isAlreadySelected = pageComponents.some(
+										(pc) => pc.id === component.id
+									);
+									return (
+										<SelectItem
+											key={component.id}
+											value={component.id.toString()}
+											disabled={isAlreadySelected}
+										>
+											{component.name} ({component.type})
+										</SelectItem>
+									);
+								})}
 							</SelectContent>
 						</Select>
 					</div>

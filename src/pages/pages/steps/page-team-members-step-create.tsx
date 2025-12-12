@@ -76,11 +76,20 @@ export function PageTeamMembersStepCreate({
 								<SelectValue placeholder="Takım üyesi seçiniz" />
 							</SelectTrigger>
 							<SelectContent>
-								{teamMembers.map((member) => (
-									<SelectItem key={member.id} value={member.id.toString()}>
-										{member.name} ({member.email})
-									</SelectItem>
-								))}
+								{teamMembers.map((member) => {
+									const isAlreadySelected = selectedTeamMembers.some(
+										(stm) => stm.id === member.id
+									);
+									return (
+										<SelectItem
+											key={member.id}
+											value={member.id.toString()}
+											disabled={isAlreadySelected}
+										>
+											{member.name} ({member.email})
+										</SelectItem>
+									);
+								})}
 							</SelectContent>
 						</Select>
 					</div>

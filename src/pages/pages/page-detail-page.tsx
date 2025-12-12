@@ -1,31 +1,41 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetPage } from "@/hooks/use-page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	ArrowLeft,
-	Edit,
 	FileText,
 	Calendar,
 	Clock,
 	Loader2,
 	Image as ImageIcon,
 	File,
-	Languages,
 	Box,
 	Users,
 	ExternalLink,
-	Link as LinkIcon,
+	Edit,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 
 export default function PageDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const pageId = id ? parseInt(id, 10) : 0;
 	const navigate = useNavigate();
 	const { data: page, isLoading } = useGetPage(pageId);
+
+	// Language selection state - MUST be before conditional returns (Rules of Hooks)
+	const [selectedLanguageCode, setSelectedLanguageCode] = useState<string>("");
+
+	// Set initial selected language - MUST be before conditional returns (Rules of Hooks)
+	useEffect(() => {
+		if (page && page.localizations && page.localizations.length > 0 && selectedLanguageCode === "") {
+			const turkish = page.localizations.find((loc: any) => loc.languageCode.toLowerCase() === "tr");
+			setSelectedLanguageCode(turkish ? turkish.languageCode : page.localizations[0].languageCode);
+		}
+	}, [page]);
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("tr-TR", {
@@ -72,309 +82,191 @@ export default function PageDetailPage() {
 		);
 	}
 
+	// Helper function to get Turkish localization first
+	const getPreferredLocalization = (localizations: any[]) => {
+		if (!localizations || localizations.length === 0) return null;
+		const turkish = localizations.find((loc) => loc.languageCode.toLowerCase() === "tr");
+		return turkish || localizations[0];
+	};
+
+	const preferredLoc = getPreferredLocalization(page.localizations || []);
+	const displayLoc = selectedLanguageCode
+		? page.localizations?.find((loc: any) => loc.languageCode === selectedLanguageCode)
+		: null;
+	const currentLoc = displayLoc || preferredLoc || (page.localizations && page.localizations.length > 0 ? page.localizations[0] : null);
+
+	// Sort localizations: Turkish first, then others
+	const sortedLocalizations = page.localizations
+		? [...page.localizations].sort((a: any, b: any) => {
+				const aIsTurkish = a.languageCode.toLowerCase() === "tr";
+				const bIsTurkish = b.languageCode.toLowerCase() === "tr";
+				if (aIsTurkish && !bIsTurkish) return -1;
+				if (!aIsTurkish && bIsTurkish) return 1;
+				return 0;
+			})
+		: [];
+
+	// Helper function to strip HTML tags from text
+	const stripHtml = (html: string): string => {
+		if (!html) return "";
+		const tmp = document.createElement("DIV");
+		tmp.innerHTML = html;
+		return tmp.textContent || tmp.innerText || "";
+	};
+
 	return (
-		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+		<div className="flex-1 p-6 bg-muted/30">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div className="flex items-center gap-4">
-					<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
-						<FileText className="h-6 w-6 text-primary" />
-					</div>
-					<div className="space-y-1">
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-							{page.name}
-						</h1>
-						<p className="text-muted-foreground text-sm">Sayfa detay bilgileri</p>
-					</div>
-				</div>
+			<div className="mb-6">
 				<Button
-					onClick={() => navigate(`/pages/edit/${page.id}`)}
-					className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
-					size="lg"
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate("/pages")}
+					className="mb-4 h-10 w-10"
 				>
-					<Edit className="h-5 w-5 mr-2" />
-					Düzenle
+					<ArrowLeft className="h-5 w-5" />
 				</Button>
+				<div>
+					<h1 className="text-3xl font-bold mb-1">{page.name}</h1>
+					<p className="text-muted-foreground text-sm">Sayfa detay bilgileri</p>
+				</div>
 			</div>
 
-			{/* Main Info Card */}
-			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
-				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
-					<div className="flex items-center gap-3">
-						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
-							<FileText className="h-6 w-6 text-primary" />
-						</div>
-						<div>
-							<CardTitle className="text-xl font-bold">Sayfa Bilgileri</CardTitle>
-							<CardDescription className="text-xs">Genel sayfa bilgileri ve özellikleri</CardDescription>
-						</div>
-					</div>
-				</CardHeader>
-				<CardContent className="space-y-6 pt-6 bg-gradient-to-b from-transparent to-muted/10">
-					{/* Basic Info Grid */}
-					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent border-2 border-green-500/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<FileText className="h-4 w-4 text-green-500" />
-								Sayfa ID
-							</div>
-							<div className="text-3xl font-bold text-green-500">{page.id}</div>
-						</div>
+			{/* Two Column Layout */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Left Column */}
+				<div className="lg:col-span-2 space-y-6">
+					{/* Image Preview Card */}
+					{page.image && page.image.url && (
+						<Card>
+							<CardHeader>
+								<div className="flex items-center gap-2">
+									<ImageIcon className="h-5 w-5" />
+									<CardTitle>Görsel</CardTitle>
+								</div>
+							</CardHeader>
+							<CardContent>
+								<div className="w-full rounded-lg overflow-hidden border">
+									<img
+										src={page.image.url}
+										alt={page.name}
+										className="w-full h-auto object-contain"
+										onError={(e) => {
+											const target = e.target as HTMLImageElement;
+											target.style.display = "none";
+										}}
+									/>
+								</div>
+							</CardContent>
+						</Card>
+					)}
 
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<FileText className="h-4 w-4" />
-								Ad
-							</div>
-							<div className="text-lg font-bold text-foreground">{page.name}</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<LinkIcon className="h-4 w-4" />
-								Slug
-							</div>
-							<div className="text-sm font-mono font-bold text-foreground bg-gradient-to-r from-background to-muted/30 px-3 py-2 rounded-lg border border-border/50 shadow-sm">
-								{page.slug}
-							</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border-2 border-blue-500/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<FileText className="h-4 w-4 text-blue-500" />
-								Tip
-							</div>
-							<Badge variant="secondary" className="text-sm font-bold bg-blue-500/20 border-blue-500/30 text-blue-500 shadow-sm px-3 py-1">
-								{page.type}
-							</Badge>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Calendar className="h-4 w-4" />
-								Oluşturulma
-							</div>
-							<div className="text-sm font-bold text-foreground">
-								{formatDate(page.createdAt)}
-							</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Clock className="h-4 w-4" />
-								Güncellenme
-							</div>
-							<div className="text-sm font-bold text-foreground">
-								{formatDate(page.updatedAt)}
-							</div>
-						</div>
-					</div>
-
-					<Separator />
-
-					{/* File and Image */}
-					<div className="grid gap-4 md:grid-cols-2">
-						{page.file && (
-							<Card className="border-2 shadow-lg bg-gradient-to-br from-card to-card/50 hover:shadow-xl transition-all duration-200">
-								<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
-									<CardTitle className="text-base flex items-center gap-2 font-bold">
-										<div className="p-1.5 rounded-lg bg-primary/20">
-											<File className="h-4 w-4 text-primary" />
-										</div>
-										Dosya
-									</CardTitle>
-								</CardHeader>
-								<CardContent className="pt-4">
-									{page.file.url && (
-										<a
-											href={page.file.url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="inline-flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600 font-semibold bg-blue-500/10 px-4 py-2 rounded-lg hover:bg-blue-500/20 transition-all duration-200 hover:scale-105 shadow-sm"
+					{/* Translations Card */}
+					{page.localizations && page.localizations.length > 0 && (
+						<Card>
+							<CardHeader>
+								<CardTitle>Çeviriler</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								{/* Language Selection Badges */}
+								<div className="flex flex-wrap gap-2 mb-4">
+									{sortedLocalizations.map((loc: any) => (
+										<Badge
+											key={loc.languageCode}
+											className={`cursor-pointer transition-all ${
+												selectedLanguageCode === loc.languageCode
+													? "bg-green-500 text-white"
+													: "bg-gray-200 text-gray-700 hover:bg-gray-300"
+											}`}
+											onClick={() => setSelectedLanguageCode(loc.languageCode)}
 										>
-											<ExternalLink className="h-4 w-4" />
-											Dosyayı Görüntüle
-										</a>
-									)}
-								</CardContent>
-							</Card>
-						)}
-
-						{page.image && (
-							<Card className="border-2 shadow-lg bg-gradient-to-br from-card to-card/50 hover:shadow-xl transition-all duration-200">
-								<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
-									<CardTitle className="text-base flex items-center gap-2 font-bold">
-										<div className="p-1.5 rounded-lg bg-primary/20">
-											<ImageIcon className="h-4 w-4 text-primary" />
-										</div>
-										Görsel
-									</CardTitle>
-								</CardHeader>
-								<CardContent className="pt-4">
-									{page.image.url && (
-										<div className="relative w-full h-56 rounded-xl overflow-hidden border-2 border-border shadow-lg group hover:shadow-xl transition-all duration-200">
-											<img
-												src={page.image.url}
-												alt={page.name}
-												className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-											/>
-											<div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-										</div>
-									)}
-								</CardContent>
-							</Card>
-						)}
-					</div>
-				</CardContent>
-			</Card>
-
-			{/* Tabs Section */}
-			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
-				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
-					<div className="flex items-center gap-3">
-						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
-							<FileText className="h-5 w-5 text-primary" />
-						</div>
-						<div>
-							<CardTitle className="text-xl font-bold">İçerik Detayları</CardTitle>
-							<CardDescription className="text-xs">
-								Çeviriler, bileşenler ve takım üyeleri bilgileri
-							</CardDescription>
-						</div>
-					</div>
-				</CardHeader>
-				<CardContent className="pt-6 bg-gradient-to-b from-transparent to-muted/10">
-					<Tabs defaultValue="localizations" className="w-full">
-						<TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 p-1.5 rounded-xl border border-border/50 shadow-sm gap-1.5">
-							<TabsTrigger 
-								value="localizations" 
-								className="flex items-center justify-between gap-2.5 px-4 py-3 data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-md transition-all duration-300 rounded-lg font-semibold text-sm hover:bg-muted/80 data-[state=inactive]:text-muted-foreground"
-							>
-								<div className="flex items-center gap-2.5">
-									<Languages className="h-4 w-4" />
-									<span>Çeviriler</span>
+											{loc.languageCode.toUpperCase()}
+										</Badge>
+									))}
 								</div>
-								<Badge variant="secondary" className="bg-background/90 text-foreground border border-border/50 font-bold text-xs px-2 py-0.5 data-[state=active]:bg-background/70 data-[state=active]:text-foreground">
-									{page.localizations?.length || 0}
-								</Badge>
-							</TabsTrigger>
-							<TabsTrigger 
-								value="components" 
-								className="flex items-center justify-between gap-2.5 px-4 py-3 data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-md transition-all duration-300 rounded-lg font-semibold text-sm hover:bg-muted/80 data-[state=inactive]:text-muted-foreground"
-							>
-								<div className="flex items-center gap-2.5">
-									<Box className="h-4 w-4" />
-									<span>Bileşenler</span>
-								</div>
-								<Badge variant="secondary" className="bg-background/90 text-foreground border border-border/50 font-bold text-xs px-2 py-0.5 data-[state=active]:bg-background/70 data-[state=active]:text-foreground">
-									{page.components && Array.isArray(page.components) ? page.components.length : 0}
-								</Badge>
-							</TabsTrigger>
-							<TabsTrigger 
-								value="teamMembers" 
-								className="flex items-center justify-between gap-2.5 px-4 py-3 data-[state=active]:bg-foreground data-[state=active]:text-background data-[state=active]:shadow-md transition-all duration-300 rounded-lg font-semibold text-sm hover:bg-muted/80 data-[state=inactive]:text-muted-foreground"
-							>
-								<div className="flex items-center gap-2.5">
-									<Users className="h-4 w-4" />
-									<span>Takım Üyeleri</span>
-								</div>
-								<Badge variant="secondary" className="bg-background/90 text-foreground border border-border/50 font-bold text-xs px-2 py-0.5 data-[state=active]:bg-background/70 data-[state=active]:text-foreground">
-									{page.teamMembers && Array.isArray(page.teamMembers) ? page.teamMembers.length : 0}
-								</Badge>
-							</TabsTrigger>
-						</TabsList>
 
-						{/* Localizations */}
-						<TabsContent value="localizations" className="space-y-4 mt-0">
-							{page.localizations && page.localizations.length > 0 ? (
-								<div className="grid gap-4 md:grid-cols-2">
-									{page.localizations.map((loc, index) => (
-										<Card key={index} className="border-2 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-											<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
-												<div className="flex items-center gap-2">
-													<div className="p-1.5 rounded-lg bg-primary/20">
-														<Languages className="h-4 w-4 text-primary" />
-													</div>
-													<CardTitle className="text-base uppercase font-bold text-green-500">
-														{loc.languageCode}
-													</CardTitle>
-												</div>
-											</CardHeader>
-											<CardContent className="space-y-3">
-												{loc.title && (
-													<div>
-														<div className="text-xs font-semibold text-muted-foreground mb-1">
-															Başlık
-														</div>
-														<div className="text-sm font-medium text-foreground">{loc.title}</div>
-													</div>
-												)}
-												{loc.excerpt && (
-													<div>
-														<div className="text-xs font-semibold text-muted-foreground mb-1">
-															Özet
-														</div>
-														<div className="text-sm text-foreground">{loc.excerpt}</div>
-													</div>
-												)}
-												{loc.content && (
-													<div>
-														<div className="text-xs font-semibold text-muted-foreground mb-1">
-															İçerik
-														</div>
-														<div
-															className="text-sm text-foreground prose prose-sm max-w-none"
-															dangerouslySetInnerHTML={{ __html: loc.content }}
+								{/* Selected Language Content */}
+								{currentLoc && (
+									<div className="space-y-4">
+										{currentLoc.title && (
+											<div className="space-y-2">
+												<label className="text-sm font-medium">Başlık</label>
+												<Input
+													value={currentLoc.title}
+													readOnly
+													className="bg-background"
+												/>
+											</div>
+										)}
+										{currentLoc.excerpt && (
+											<div className="space-y-2">
+												<label className="text-sm font-medium">Özet</label>
+												<Input
+													value={currentLoc.excerpt}
+													readOnly
+													className="bg-background"
+												/>
+											</div>
+										)}
+										{currentLoc.content && (
+											<div className="space-y-2">
+												<label className="text-sm font-medium">İçerik</label>
+												<Textarea
+													value={stripHtml(currentLoc.content)}
+													readOnly
+													className="bg-background min-h-[150px]"
+												/>
+											</div>
+										)}
+										{(currentLoc.metaTitle || currentLoc.metaDescription || currentLoc.metaKeywords) && (
+											<div className="pt-4 border-t space-y-4">
+												<h4 className="text-sm font-semibold">SEO Bilgileri</h4>
+												{currentLoc.metaTitle && (
+													<div className="space-y-2">
+														<label className="text-sm font-medium">Meta Başlık</label>
+														<Input
+															value={currentLoc.metaTitle}
+															readOnly
+															className="bg-background"
 														/>
 													</div>
 												)}
-												{(loc.metaTitle || loc.metaDescription || loc.metaKeywords) && (
-													<div className="pt-3 border-t space-y-2">
-														<div className="text-xs font-semibold text-muted-foreground mb-2">
-															SEO Bilgileri
-														</div>
-														{loc.metaTitle && (
-															<div>
-																<div className="text-xs text-muted-foreground mb-0.5">
-																	Meta Başlık
-																</div>
-																<div className="text-xs font-medium text-foreground">{loc.metaTitle}</div>
-															</div>
-														)}
-														{loc.metaDescription && (
-															<div>
-																<div className="text-xs text-muted-foreground mb-0.5">
-																	Meta Açıklama
-																</div>
-																<div className="text-xs text-foreground">{loc.metaDescription}</div>
-															</div>
-														)}
-														{loc.metaKeywords && (
-															<div>
-																<div className="text-xs text-muted-foreground mb-0.5">
-																	Meta Anahtar Kelimeler
-																</div>
-																<div className="text-xs text-foreground">{loc.metaKeywords}</div>
-															</div>
-														)}
+												{currentLoc.metaDescription && (
+													<div className="space-y-2">
+														<label className="text-sm font-medium">Meta Açıklama</label>
+														<Textarea
+															value={currentLoc.metaDescription}
+															readOnly
+															className="bg-background min-h-[80px]"
+														/>
 													</div>
 												)}
-											</CardContent>
-										</Card>
-									))}
-								</div>
-							) : (
-								<div className="text-center py-12">
-									<Languages className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-									<p className="text-sm font-medium text-muted-foreground">Çeviri bulunamadı</p>
-								</div>
-							)}
-						</TabsContent>
+												{currentLoc.metaKeywords && (
+													<div className="space-y-2">
+														<label className="text-sm font-medium">Meta Anahtar Kelimeler</label>
+														<Input
+															value={currentLoc.metaKeywords}
+															readOnly
+															className="bg-background"
+														/>
+													</div>
+												)}
+											</div>
+										)}
+									</div>
+								)}
+							</CardContent>
+						</Card>
+					)}
 
-						{/* Components */}
-						<TabsContent value="components" className="space-y-4 mt-0">
-							{page.components && Array.isArray(page.components) && page.components.length > 0 ? (
-								<div className="grid gap-4 md:grid-cols-2">
+					{/* Components Card */}
+					{page.components && Array.isArray(page.components) && page.components.length > 0 && (
+						<Card>
+							<CardHeader>
+								<CardTitle>Bileşenler</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-3">
 									{[...page.components]
 										.sort((a, b) => {
 											if (a.sortOrder === null && b.sortOrder === null) return 0;
@@ -385,56 +277,35 @@ export default function PageDetailPage() {
 										.map((item) => {
 											const component = item.component;
 											return (
-												<Card key={component.id} className="border-2 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-													<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
-														<div className="flex items-center justify-between">
-															<div className="flex items-center gap-2">
-																<div className="p-1.5 rounded-lg bg-primary/20">
-																	<Box className="h-4 w-4 text-primary" />
-																</div>
-																<CardTitle className="text-base font-bold">{component.name}</CardTitle>
-															</div>
-															{item.sortOrder !== null && (
-																<Badge variant="outline" className="text-xs font-bold bg-green-500/20 border-green-500/30 text-green-500 shadow-sm">
-																	#{item.sortOrder}
-																</Badge>
-															)}
-														</div>
-													</CardHeader>
-													<CardContent className="space-y-3 pt-4">
-														<div>
-															<div className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wide">
-																Tip
-															</div>
-															<Badge variant="secondary" className="text-xs font-bold bg-blue-500/20 border-blue-500/30 text-blue-500 shadow-sm">
-																{component.type}
-															</Badge>
-														</div>
-														{component.value && (
-															<div>
-																<div className="text-xs font-semibold text-muted-foreground mb-1">
-																	Değer
-																</div>
-																<div className="text-sm text-foreground">{component.value}</div>
-															</div>
-														)}
-													</CardContent>
-												</Card>
+												<div key={component.id} className="p-3 rounded-lg border bg-muted/30 flex items-center justify-between">
+													<div className="flex items-center gap-3">
+														<Box className="h-4 w-4 text-primary" />
+														<span className="font-medium">{component.name}</span>
+														<Badge variant="secondary" className="bg-blue-100 text-blue-800">
+															{component.type}
+														</Badge>
+													</div>
+													{item.sortOrder !== null && (
+														<Badge className="bg-green-500 text-white">
+															#{item.sortOrder}
+														</Badge>
+													)}
+												</div>
 											);
 										})}
 								</div>
-							) : (
-								<div className="text-center py-12">
-									<Box className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-									<p className="text-sm font-medium text-muted-foreground">Bileşen bulunamadı</p>
-								</div>
-							)}
-						</TabsContent>
+							</CardContent>
+						</Card>
+					)}
 
-						{/* Team Members */}
-						<TabsContent value="teamMembers" className="space-y-4 mt-0">
-							{page.teamMembers && Array.isArray(page.teamMembers) && page.teamMembers.length > 0 ? (
-								<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+					{/* Team Members Card */}
+					{page.teamMembers && Array.isArray(page.teamMembers) && page.teamMembers.length > 0 && (
+						<Card>
+							<CardHeader>
+								<CardTitle>Takım Üyeleri</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-3">
 									{[...page.teamMembers]
 										.sort((a, b) => {
 											if (a.sortOrder === null && b.sortOrder === null) return 0;
@@ -445,84 +316,113 @@ export default function PageDetailPage() {
 										.map((item) => {
 											const member = item.teamMember;
 											return (
-												<Card key={member.id} className="border-2 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-													<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b border-border/50">
-														<div className="flex items-center justify-between">
-															<div className="flex items-center gap-2">
-																<div className="p-1.5 rounded-lg bg-primary/20">
-																	<Users className="h-4 w-4 text-primary" />
-																</div>
-																<CardTitle className="text-base font-bold">{member.name}</CardTitle>
-															</div>
-															{item.sortOrder !== null && (
-																<Badge variant="outline" className="text-xs font-bold bg-green-500/20 border-green-500/30 text-green-500 shadow-sm">
-																	#{item.sortOrder}
-																</Badge>
-															)}
-														</div>
-													</CardHeader>
-													<CardContent className="space-y-3 pt-4">
+												<div key={member.id} className="p-3 rounded-lg border bg-muted/30 flex items-center justify-between">
+													<div className="flex items-center gap-3">
+														<Users className="h-4 w-4 text-primary" />
+														<span className="font-medium">{member.name}</span>
 														{member.email && (
-															<div>
-																<div className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wide">
-																	E-posta
-																</div>
-																<div className="text-sm font-semibold text-foreground bg-muted/50 px-3 py-1.5 rounded-lg border border-border/50">
-																	{member.email}
-																</div>
-															</div>
+															<span className="text-sm text-muted-foreground">{member.email}</span>
 														)}
-														{member.linkedinUrl && (
-															<div>
-																<div className="text-xs font-bold text-muted-foreground mb-2 uppercase tracking-wide">
-																	LinkedIn
-																</div>
-																<a
-																	href={member.linkedinUrl}
-																	target="_blank"
-																	rel="noopener noreferrer"
-																	className="inline-flex items-center gap-2 text-sm text-blue-500 hover:text-blue-600 font-semibold bg-blue-500/10 px-4 py-2 rounded-lg hover:bg-blue-500/20 transition-all duration-200 hover:scale-105 shadow-sm"
-																>
-																	<ExternalLink className="h-4 w-4" />
-																	Profil
-																</a>
-															</div>
-														)}
-													</CardContent>
-												</Card>
+													</div>
+													{item.sortOrder !== null && (
+														<Badge className="bg-green-500 text-white">
+															#{item.sortOrder}
+														</Badge>
+													)}
+												</div>
 											);
 										})}
 								</div>
-							) : (
-								<div className="text-center py-12">
-									<Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-									<p className="text-sm font-medium text-muted-foreground">Takım üyesi bulunamadı</p>
+							</CardContent>
+						</Card>
+					)}
+				</div>
+
+				{/* Right Column */}
+				<div className="space-y-6">
+					{/* Quick Information Card */}
+					<Card>
+						<CardHeader>
+							<CardTitle>Hızlı Bilgiler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div>
+								<label className="text-sm text-muted-foreground">ID:</label>
+								<div className="mt-1">
+									<Badge className="bg-green-500 text-white">#{page.id}</Badge>
+								</div>
+							</div>
+							<div>
+								<label className="text-sm text-muted-foreground">Ad:</label>
+								<p className="mt-1 text-sm font-medium">{page.name}</p>
+							</div>
+							<div>
+								<label className="text-sm text-muted-foreground">Slug:</label>
+								<p className="mt-1 text-sm font-medium font-mono">{page.slug}</p>
+							</div>
+							<div>
+								<label className="text-sm text-muted-foreground">Tip:</label>
+								<div className="mt-1">
+									<Badge variant="secondary" className="bg-blue-100 text-blue-800">
+										{page.type}
+									</Badge>
+								</div>
+							</div>
+							<div>
+								<label className="text-sm text-muted-foreground">Oluşturulma:</label>
+								<p className="mt-1 text-sm font-medium">{formatDate(page.createdAt)}</p>
+							</div>
+							<div>
+								<label className="text-sm text-muted-foreground">Güncellenme:</label>
+								<p className="mt-1 text-sm font-medium">{formatDate(page.updatedAt)}</p>
+							</div>
+							{page.localizations && page.localizations.length > 0 && (
+								<div>
+									<label className="text-sm text-muted-foreground">Diller:</label>
+									<div className="mt-1 flex flex-wrap gap-2">
+										{sortedLocalizations.map((loc: any) => (
+											<Badge key={loc.languageCode} className="bg-green-500 text-white">
+												{loc.languageCode.toUpperCase()}
+											</Badge>
+										))}
+									</div>
 								</div>
 							)}
-						</TabsContent>
-					</Tabs>
-				</CardContent>
-			</Card>
+							{page.file && page.file.url && (
+								<div>
+									<label className="text-sm text-muted-foreground">Dosya:</label>
+									<div className="mt-1">
+										<a
+											href={page.file.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-sm text-primary hover:underline flex items-center gap-1"
+										>
+											<ExternalLink className="h-3 w-3" />
+											<span className="truncate">Dosyayı Görüntüle</span>
+										</a>
+									</div>
+								</div>
+							)}
+						</CardContent>
+					</Card>
 
-			{/* Action Buttons */}
-			<div className="flex items-center justify-end gap-4 pt-4">
-				<Button
-					variant="outline"
-					onClick={() => navigate("/pages")}
-					size="lg"
-					className="min-w-[120px] border-2 hover:bg-muted/50 hover:border-border transition-all"
-				>
-					<ArrowLeft className="h-4 w-4 mr-2" />
-					Geri Dön
-				</Button>
-				<Button
-					onClick={() => navigate(`/pages/edit/${page.id}`)}
-					className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0 min-w-[120px]"
-					size="lg"
-				>
-					<Edit className="h-4 w-4 mr-2" />
-					Düzenle
-				</Button>
+					{/* Actions Card */}
+					<Card>
+						<CardHeader>
+							<CardTitle>İşlemler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-3">
+							<Button
+								onClick={() => navigate(`/pages/edit/${page.id}`)}
+								className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+							>
+								<FileText className="h-4 w-4 mr-2" />
+								Düzenle
+							</Button>
+						</CardContent>
+					</Card>
+				</div>
 			</div>
 		</div>
 	);

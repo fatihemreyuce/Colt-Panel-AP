@@ -91,11 +91,20 @@ export function PageComponentsStepCreate({
 								<SelectValue placeholder="Bileşen seçiniz" />
 							</SelectTrigger>
 							<SelectContent>
-								{components.map((component) => (
-									<SelectItem key={component.id} value={component.id.toString()}>
-										{component.name} ({component.type})
-									</SelectItem>
-								))}
+								{components.map((component) => {
+									const isAlreadySelected = selectedComponents.some(
+										(sc) => sc.componentId === component.id
+									);
+									return (
+										<SelectItem
+											key={component.id}
+											value={component.id.toString()}
+											disabled={isAlreadySelected}
+										>
+											{component.name} ({component.type})
+										</SelectItem>
+									);
+								})}
 							</SelectContent>
 						</Select>
 					</div>

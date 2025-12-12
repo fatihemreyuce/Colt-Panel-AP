@@ -1,16 +1,29 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetTeamMemberById } from "@/hooks/use-team-members";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Edit, User, Mail, Linkedin, Image as ImageIcon, Loader2, Users, ExternalLink, Globe } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, User, Mail, Linkedin, Loader2, Users, ExternalLink } from "lucide-react";
 
 export default function TeamMemberDetailPage() {
 	const { id } = useParams<{ id: string }>();
 	const teamMemberId = id ? parseInt(id) : 0;
 	const navigate = useNavigate();
 	const { data: teamMember, isLoading } = useGetTeamMemberById(teamMemberId);
+
+	// Language selection state - MUST be before conditional returns (Rules of Hooks)
+	const [selectedLanguageCode, setSelectedLanguageCode] = useState<string>("");
+
+	// Set initial selected language - MUST be before conditional returns (Rules of Hooks)
+	useEffect(() => {
+		if (teamMember && teamMember.localizations && teamMember.localizations.length > 0 && selectedLanguageCode === "") {
+			const turkish = teamMember.localizations.find((loc: any) => loc.languageCode.toLowerCase() === "tr");
+			setSelectedLanguageCode(turkish ? turkish.languageCode : teamMember.localizations[0].languageCode);
+		}
+	}, [teamMember]);
 
 	if (isLoading) {
 		return (
@@ -55,191 +68,211 @@ export default function TeamMemberDetailPage() {
 	};
 
 	const preferredLoc = getPreferredLocalization(teamMember.localizations || []);
+	const displayLoc = selectedLanguageCode
+		? teamMember.localizations?.find((loc: any) => loc.languageCode === selectedLanguageCode)
+		: null;
+	const currentLoc = displayLoc || preferredLoc || (teamMember.localizations && teamMember.localizations.length > 0 ? teamMember.localizations[0] : null);
+
+	// Sort localizations: Turkish first, then others
+	const sortedLocalizations = teamMember.localizations
+		? [...teamMember.localizations].sort((a: any, b: any) => {
+				const aIsTurkish = a.languageCode.toLowerCase() === "tr";
+				const bIsTurkish = b.languageCode.toLowerCase() === "tr";
+				if (aIsTurkish && !bIsTurkish) return -1;
+				if (!aIsTurkish && bIsTurkish) return 1;
+				return 0;
+			})
+		: [];
+
+	// Helper function to strip HTML tags from text
+	const stripHtml = (html: string): string => {
+		if (!html) return "";
+		const tmp = document.createElement("DIV");
+		tmp.innerHTML = html;
+		return tmp.textContent || tmp.innerText || "";
+	};
 
 	return (
-		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+		<div className="flex-1 p-6 bg-muted/30">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div className="flex items-center gap-4">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => navigate("/team-members")}
-						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
-					>
-						<ArrowLeft className="h-5 w-5" />
-					</Button>
-					<div className="space-y-1">
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-							{teamMember.name}
-						</h1>
-						<p className="text-muted-foreground text-sm">Takım üyesi detay bilgileri</p>
-					</div>
-				</div>
+			<div className="mb-6">
 				<Button
-					onClick={() => navigate(`/team-members/edit/${teamMember.id}`)}
-					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
-					size="lg"
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate("/team-members")}
+					className="mb-4 h-10 w-10"
 				>
-					<Edit className="h-5 w-5 mr-2" />
-					Düzenle
+					<ArrowLeft className="h-5 w-5" />
 				</Button>
+				<div>
+					<h1 className="text-3xl font-bold mb-1">{teamMember.name}</h1>
+					<p className="text-muted-foreground text-sm">Takım üyesi detay bilgileri</p>
+				</div>
 			</div>
 
-			{/* Main Info Card */}
-			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
-				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
-					<div className="flex items-center gap-3">
-						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
-							<Users className="h-6 w-6 text-primary" />
-						</div>
-						<div>
-							<CardTitle className="text-xl font-bold">Takım Üyesi Bilgileri</CardTitle>
-							<CardDescription className="text-xs">Genel takım üyesi bilgileri ve özellikleri</CardDescription>
-						</div>
-					</div>
-				</CardHeader>
-				<CardContent className="space-y-6 pt-6 bg-gradient-to-b from-transparent to-muted/10">
-					{/* Photo and Basic Info */}
-					<div className="flex items-start gap-6 pb-6 border-b">
-						{teamMember.photo ? (
-							<div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-primary/20 shadow-xl group hover:shadow-2xl transition-all duration-300 hover:scale-105">
-								<img
-									src={teamMember.photo}
-									alt={teamMember.name}
-									className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-								/>
-								<div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+			{/* Two Column Layout */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Left Column */}
+				<div className="lg:col-span-2 space-y-6">
+					{/* Photo Preview Card */}
+					{teamMember.photo && (
+						<Card>
+							<CardHeader>
+								<div className="flex items-center gap-2">
+									<Users className="h-5 w-5" />
+									<CardTitle>Fotoğraf</CardTitle>
+								</div>
+							</CardHeader>
+							<CardContent>
+								<div className="w-full rounded-lg overflow-hidden border">
+									<img
+										src={teamMember.photo}
+										alt={teamMember.name}
+										className="w-full h-auto object-contain"
+										onError={(e) => {
+											const target = e.target as HTMLImageElement;
+											target.style.display = "none";
+										}}
+									/>
+								</div>
+							</CardContent>
+						</Card>
+					)}
+
+					{/* Translations Card */}
+					{teamMember.localizations && teamMember.localizations.length > 0 && (
+						<Card>
+							<CardHeader>
+								<CardTitle>Çeviriler</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								{/* Language Selection Badges */}
+								<div className="flex flex-wrap gap-2 mb-4">
+									{sortedLocalizations.map((loc: any) => (
+										<Badge
+											key={loc.languageCode}
+											className={`cursor-pointer transition-all ${
+												selectedLanguageCode === loc.languageCode
+													? "bg-green-500 text-white"
+													: "bg-gray-200 text-gray-700 hover:bg-gray-300"
+											}`}
+											onClick={() => setSelectedLanguageCode(loc.languageCode)}
+										>
+											{loc.languageCode.toUpperCase()}
+										</Badge>
+									))}
+								</div>
+
+								{/* Selected Language Content */}
+								{currentLoc && (
+									<div className="space-y-4">
+										{currentLoc.title && (
+											<div className="space-y-2">
+												<label className="text-sm font-medium">Başlık</label>
+												<Input
+													value={currentLoc.title}
+													readOnly
+													className="bg-background"
+												/>
+											</div>
+										)}
+										{currentLoc.description && (
+											<div className="space-y-2">
+												<label className="text-sm font-medium">Açıklama</label>
+												<Textarea
+													value={stripHtml(currentLoc.description)}
+													readOnly
+													className="bg-background min-h-[100px]"
+												/>
+											</div>
+										)}
+									</div>
+								)}
+							</CardContent>
+						</Card>
+					)}
+				</div>
+
+				{/* Right Column */}
+				<div className="space-y-6">
+					{/* Quick Information Card */}
+					<Card>
+						<CardHeader>
+							<CardTitle>Hızlı Bilgiler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div>
+								<label className="text-sm text-muted-foreground">ID:</label>
+								<div className="mt-1">
+									<Badge className="bg-green-500 text-white">#{teamMember.id}</Badge>
+								</div>
 							</div>
-						) : (
-							<div className="w-32 h-32 rounded-full bg-gradient-to-br from-muted to-muted/50 border-4 border-primary/20 flex items-center justify-center shadow-xl">
-								<Users className="h-16 w-16 text-muted-foreground/50" />
+							<div>
+								<label className="text-sm text-muted-foreground">Ad:</label>
+								<p className="mt-1 text-sm font-medium">{teamMember.name}</p>
 							</div>
-						)}
-						<div className="flex-1 space-y-2">
-							<h3 className="text-2xl font-bold text-foreground">
-								{teamMember.name}
-							</h3>
-							{preferredLoc && (
-								<div className="space-y-1">
-									{preferredLoc.title && (
-										<p className="text-sm font-medium text-foreground">{preferredLoc.title}</p>
-									)}
-									{preferredLoc.description && (
-										<div
-											className="text-sm text-muted-foreground prose prose-sm max-w-none"
-											dangerouslySetInnerHTML={{ __html: preferredLoc.description }}
-										/>
-									)}
+							{teamMember.email && (
+								<div>
+									<label className="text-sm text-muted-foreground">E-posta:</label>
+									<div className="mt-1">
+										<a
+											href={`mailto:${teamMember.email}`}
+											className="text-sm text-primary hover:underline flex items-center gap-1"
+										>
+											<Mail className="h-3 w-3" />
+											<span className="truncate">{teamMember.email}</span>
+										</a>
+									</div>
 								</div>
 							)}
-						</div>
-					</div>
+							{teamMember.linkedinUrl && (
+								<div>
+									<label className="text-sm text-muted-foreground">LinkedIn:</label>
+									<div className="mt-1">
+										<a
+											href={teamMember.linkedinUrl}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-sm text-primary hover:underline flex items-center gap-1"
+										>
+											<ExternalLink className="h-3 w-3" />
+											<span className="truncate">LinkedIn Profili</span>
+										</a>
+									</div>
+								</div>
+							)}
+							{teamMember.localizations && teamMember.localizations.length > 0 && (
+								<div>
+									<label className="text-sm text-muted-foreground">Diller:</label>
+									<div className="mt-1 flex flex-wrap gap-2">
+										{sortedLocalizations.map((loc: any) => (
+											<Badge key={loc.languageCode} className="bg-green-500 text-white">
+												{loc.languageCode.toUpperCase()}
+											</Badge>
+										))}
+									</div>
+								</div>
+							)}
+						</CardContent>
+					</Card>
 
-					{/* Basic Info Grid */}
-					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<User className="h-4 w-4 text-primary" />
-								Takım Üyesi ID
-							</div>
-							<div className="text-3xl font-bold text-primary">{teamMember.id}</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Mail className="h-4 w-4" />
-								E-posta
-							</div>
-							<a
-								href={`mailto:${teamMember.email}`}
-								className="text-sm font-bold text-primary hover:underline break-all flex items-center gap-2"
+					{/* Actions Card */}
+					<Card>
+						<CardHeader>
+							<CardTitle>İşlemler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-3">
+							<Button
+								onClick={() => navigate(`/team-members/edit/${teamMember.id}`)}
+								className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
 							>
-								<Mail className="h-4 w-4" />
-								{teamMember.email}
-							</a>
-						</div>
-
-						{teamMember.linkedinUrl && (
-							<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-								<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-									<Linkedin className="h-4 w-4" />
-									LinkedIn
-								</div>
-								<a
-									href={teamMember.linkedinUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="text-sm font-bold text-primary hover:underline break-all flex items-center gap-2"
-								>
-									<ExternalLink className="h-4 w-4" />
-									LinkedIn Profili
-								</a>
-							</div>
-						)}
-					</div>
-
-					<Separator />
-
-					{/* Localizations */}
-					{teamMember.localizations && teamMember.localizations.length > 0 && (
-						<div className="space-y-4">
-							<div className="flex items-center gap-2">
-								<div className="p-1.5 rounded-lg bg-primary/10">
-									<Globe className="h-4 w-4 text-primary" />
-								</div>
-								<h3 className="text-lg font-bold">Çeviriler</h3>
-								<Badge variant="secondary" className="bg-background/80 border border-border/50 font-bold">
-									{teamMember.localizations.length}
-								</Badge>
-							</div>
-							<div className="grid gap-4 md:grid-cols-2">
-								{[...teamMember.localizations].sort((a, b) => {
-									const aIsTurkish = a.languageCode.toLowerCase() === "tr";
-									const bIsTurkish = b.languageCode.toLowerCase() === "tr";
-									if (aIsTurkish && !bIsTurkish) return -1;
-									if (!aIsTurkish && bIsTurkish) return 1;
-									return 0;
-								}).map((localization, index) => (
-									<Card key={index} className="border-2 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-										<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b">
-											<div className="flex items-center gap-2">
-												<div className="p-1.5 rounded-lg bg-primary/20">
-													<Globe className="h-4 w-4 text-primary" />
-												</div>
-												<CardTitle className="text-base uppercase font-bold">
-													{localization.languageCode}
-												</CardTitle>
-											</div>
-										</CardHeader>
-										<CardContent className="space-y-3">
-											{localization.title && (
-												<div>
-													<div className="text-xs font-semibold text-muted-foreground mb-1">
-														Başlık
-													</div>
-													<div className="text-sm font-medium text-foreground">{localization.title}</div>
-												</div>
-											)}
-											{localization.description && (
-												<div>
-													<div className="text-xs font-semibold text-muted-foreground mb-1">
-														Açıklama
-													</div>
-													<div
-														className="text-sm text-foreground prose prose-sm max-w-none"
-														dangerouslySetInnerHTML={{ __html: localization.description }}
-													/>
-												</div>
-											)}
-										</CardContent>
-									</Card>
-								))}
-							</div>
-						</div>
-					)}
-				</CardContent>
-			</Card>
+								<Users className="h-4 w-4 mr-2" />
+								Düzenle
+							</Button>
+						</CardContent>
+					</Card>
+				</div>
+			</div>
 		</div>
 	);
 }

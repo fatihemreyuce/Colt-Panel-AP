@@ -1,22 +1,18 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetComponentById } from "@/hooks/use-components";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	ArrowLeft,
-	Edit,
 	Box,
 	Loader2,
-	Link as LinkIcon,
-	Languages as LanguagesIcon,
 	FileImage,
-	File,
 	Video,
 	Image as ImageIcon,
-	Calendar,
-	Clock,
 	ExternalLink,
 } from "lucide-react";
 
@@ -25,6 +21,17 @@ export default function ComponentDetailPage() {
 	const componentId = id ? parseInt(id) : 0;
 	const navigate = useNavigate();
 	const { data: component, isLoading } = useGetComponentById(componentId);
+
+	// Language selection state - MUST be before conditional returns (Rules of Hooks)
+	const [selectedLanguageCode, setSelectedLanguageCode] = useState<string>("");
+
+	// Set initial selected language - MUST be before conditional returns (Rules of Hooks)
+	useEffect(() => {
+		if (component && component.localizations && component.localizations.length > 0 && selectedLanguageCode === "") {
+			const turkish = component.localizations.find((loc: any) => loc.languageCode.toLowerCase() === "tr");
+			setSelectedLanguageCode(turkish ? turkish.languageCode : component.localizations[0].languageCode);
+		}
+	}, [component]);
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("tr-TR", {
@@ -78,317 +85,258 @@ export default function ComponentDetailPage() {
 		return turkish || localizations[0];
 	};
 
+	const preferredLoc = getPreferredLocalization(component.localizations || []);
+	const displayLoc = selectedLanguageCode
+		? component.localizations?.find((loc: any) => loc.languageCode === selectedLanguageCode)
+		: null;
+	const currentLoc = displayLoc || preferredLoc || (component.localizations && component.localizations.length > 0 ? component.localizations[0] : null);
+
+	// Helper function to strip HTML tags from text
+	const stripHtml = (html: string): string => {
+		if (!html) return "";
+		const tmp = document.createElement("DIV");
+		tmp.innerHTML = html;
+		return tmp.textContent || tmp.innerText || "";
+	};
+
+	// Sort localizations: Turkish first, then others
+	const sortedLocalizations = component.localizations
+		? [...component.localizations].sort((a: any, b: any) => {
+				const aIsTurkish = a.languageCode.toLowerCase() === "tr";
+				const bIsTurkish = b.languageCode.toLowerCase() === "tr";
+				if (aIsTurkish && !bIsTurkish) return -1;
+				if (!aIsTurkish && bIsTurkish) return 1;
+				return 0;
+			})
+		: [];
+
 	return (
-		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+		<div className="flex-1 p-6 bg-muted/30">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div className="flex items-center gap-4">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => navigate("/components")}
-						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
-					>
-						<ArrowLeft className="h-5 w-5" />
-					</Button>
-					<div className="space-y-1">
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-							{component.name}
-						</h1>
-						<p className="text-muted-foreground text-sm">Bileşen detay bilgileri</p>
-					</div>
-				</div>
+			<div className="mb-6">
 				<Button
-					onClick={() => navigate(`/components/edit/${component.id}`)}
-					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
-					size="lg"
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate("/components")}
+					className="mb-4 h-10 w-10"
 				>
-					<Edit className="h-5 w-5 mr-2" />
-					Düzenle
+					<ArrowLeft className="h-5 w-5" />
 				</Button>
+				<div>
+					<h1 className="text-3xl font-bold mb-1">{component.name}</h1>
+					<p className="text-muted-foreground text-sm">Bileşen detay bilgileri</p>
+				</div>
 			</div>
 
-			{/* Main Info Card */}
-			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
-				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
-					<div className="flex items-center gap-3">
-						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
-							<Box className="h-6 w-6 text-primary" />
-						</div>
-						<div>
-							<CardTitle className="text-xl font-bold">Bileşen Bilgileri</CardTitle>
-							<CardDescription className="text-xs">Genel bileşen bilgileri ve özellikleri</CardDescription>
-						</div>
-					</div>
-				</CardHeader>
-				<CardContent className="space-y-6 pt-6 bg-gradient-to-b from-transparent to-muted/10">
-					{/* Basic Info Grid */}
-					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Box className="h-4 w-4 text-primary" />
-								Bileşen ID
-							</div>
-							<div className="text-3xl font-bold text-primary">{component.id}</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Box className="h-4 w-4" />
-								Ad
-							</div>
-							<div className="text-lg font-bold text-foreground">{component.name}</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Box className="h-4 w-4" />
-								Tip
-							</div>
-							<Badge variant="secondary" className="text-sm font-bold bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30 text-primary shadow-sm">
-								{component.type}
-							</Badge>
-						</div>
-
-						{component.value && (
-							<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-								<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-									<Box className="h-4 w-4" />
-									Değer
-								</div>
-								<code className="text-sm font-mono font-bold text-foreground bg-gradient-to-r from-background to-muted/30 px-3 py-1.5 rounded-lg border border-border/50 shadow-sm">
-									{component.value}
-								</code>
-							</div>
-						)}
-
-						{component.link && (
-							<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-								<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-									<LinkIcon className="h-4 w-4" />
-									Link
-								</div>
-								<a
-									href={component.link}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="text-sm font-bold text-primary hover:underline break-all flex items-center gap-2"
-								>
-									<ExternalLink className="h-4 w-4" />
-									{component.link}
-								</a>
-							</div>
-						)}
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Box className="h-4 w-4" />
-								Sıralama
-							</div>
-							<div className="text-lg font-bold text-foreground">{component.sortOrder}</div>
-						</div>
-					</div>
-
-					<Separator />
-
-					{/* Localizations Section */}
+			{/* Two Column Layout */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Left Column */}
+				<div className="lg:col-span-2 space-y-6">
+					{/* Translations Card */}
 					{component.localizations && component.localizations.length > 0 && (
-						<div className="space-y-4">
-							<div className="flex items-center gap-2">
-								<div className="p-1.5 rounded-lg bg-primary/10">
-									<LanguagesIcon className="h-4 w-4 text-primary" />
-								</div>
-								<h3 className="text-lg font-bold">Çeviriler</h3>
-								<Badge variant="secondary" className="bg-background/80 border border-border/50 font-bold">
-									{component.localizations.length}
-								</Badge>
-							</div>
-							<div className="grid gap-4 md:grid-cols-2">
-								{[...component.localizations]
-									.sort((a, b) => {
-										const aIsTurkish = a.languageCode.toLowerCase() === "tr";
-										const bIsTurkish = b.languageCode.toLowerCase() === "tr";
-										if (aIsTurkish && !bIsTurkish) return -1;
-										if (!aIsTurkish && bIsTurkish) return 1;
-										return 0;
-									})
-									.map((localization, index) => (
-										<Card key={index} className="border-2 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-											<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b">
-												<div className="flex items-center gap-2">
-													<div className="p-1.5 rounded-lg bg-primary/20">
-														<LanguagesIcon className="h-4 w-4 text-primary" />
-													</div>
-													<CardTitle className="text-base uppercase font-bold">
-														{localization.languageCode}
-													</CardTitle>
-												</div>
-											</CardHeader>
-											<CardContent className="space-y-3">
-												{localization.title && (
-													<div>
-														<div className="text-xs font-semibold text-muted-foreground mb-1">
-															Başlık
-														</div>
-														<div className="text-sm font-medium text-foreground">{localization.title}</div>
-													</div>
-												)}
-												{localization.excerpt && (
-													<div>
-														<div className="text-xs font-semibold text-muted-foreground mb-1">
-															Özet
-														</div>
-														<div className="text-sm text-foreground">{localization.excerpt}</div>
-													</div>
-												)}
-												{localization.description && (
-													<div>
-														<div className="text-xs font-semibold text-muted-foreground mb-1">
-															Açıklama
-														</div>
-														<div
-															className="text-sm text-foreground prose prose-sm max-w-none"
-															dangerouslySetInnerHTML={{ __html: localization.description }}
-														/>
-													</div>
-												)}
-											</CardContent>
-										</Card>
+						<Card>
+							<CardHeader>
+								<CardTitle>Çeviriler</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								{/* Language Selection Badges */}
+								<div className="flex flex-wrap gap-2 mb-4">
+									{sortedLocalizations.map((loc: any) => (
+										<Badge
+											key={loc.languageCode}
+											className={`cursor-pointer transition-all ${
+												selectedLanguageCode === loc.languageCode
+													? "bg-green-500 text-white"
+													: "bg-gray-200 text-gray-700 hover:bg-gray-300"
+											}`}
+											onClick={() => setSelectedLanguageCode(loc.languageCode)}
+										>
+											{loc.languageCode.toUpperCase()}
+										</Badge>
 									))}
-							</div>
-						</div>
+								</div>
+
+								{/* Selected Language Content */}
+								{currentLoc && (
+									<div className="space-y-4">
+										{currentLoc.title && (
+											<div className="space-y-2">
+												<label className="text-sm font-medium">Başlık</label>
+												<Input
+													value={currentLoc.title}
+													readOnly
+													className="bg-background"
+												/>
+											</div>
+										)}
+										{currentLoc.excerpt && (
+											<div className="space-y-2">
+												<label className="text-sm font-medium">Özet</label>
+												<Input
+													value={currentLoc.excerpt}
+													readOnly
+													className="bg-background"
+												/>
+											</div>
+										)}
+										{currentLoc.description && (
+											<div className="space-y-2">
+												<label className="text-sm font-medium">Açıklama</label>
+												<Textarea
+													value={stripHtml(currentLoc.description)}
+													readOnly
+													className="bg-background min-h-[100px]"
+												/>
+											</div>
+										)}
+									</div>
+								)}
+							</CardContent>
+						</Card>
 					)}
 
-					<Separator />
+					{/* Media Card */}
+					{component.assets && component.assets.length > 0 && (
+						<Card>
+							<CardHeader>
+								<CardTitle>Medya</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-4">
+									{component.assets
+										.sort((a: any, b: any) => {
+											const aSortOrder = a.sortOrder ?? null;
+											const bSortOrder = b.sortOrder ?? null;
+											if (aSortOrder === null && bSortOrder === null) return 0;
+											if (aSortOrder === null) return 1;
+											if (bSortOrder === null) return -1;
+											return aSortOrder - bSortOrder;
+										})
+										.map((assetItem: any, index: number) => {
+											const asset = assetItem.asset || assetItem;
+											const assetLoc = getPreferredLocalization(asset.localizations || []);
+											const assetTitle = assetLoc?.title || asset.type || `Medya ${index + 1}`;
 
-					{/* Assets Section */}
-					{component.assets && component.assets.length > 0 ? (
-						<div className="space-y-4">
-							<div className="flex items-center justify-between">
-								<div className="flex items-center gap-2">
-									<div className="p-1.5 rounded-lg bg-primary/10">
-										<FileImage className="h-4 w-4 text-primary" />
-									</div>
-									<h3 className="text-lg font-bold">Medya</h3>
-									<Badge variant="secondary" className="bg-background/80 border border-border/50 font-bold">
-										{component.assets.length}
+											return (
+												<div key={asset.id || index} className="space-y-2">
+													{asset.url && asset.mime?.startsWith("image/") ? (
+														<div className="w-full rounded-lg overflow-hidden border">
+															<img
+																src={asset.url}
+																alt={assetTitle}
+																className="w-full h-auto object-contain"
+																onError={(e) => {
+																	const target = e.target as HTMLImageElement;
+																	target.style.display = "none";
+																}}
+															/>
+														</div>
+													) : asset.url && asset.mime?.startsWith("video/") ? (
+														<div className="w-full rounded-lg overflow-hidden border">
+															<video
+																src={asset.url}
+																controls
+																className="w-full h-auto"
+															/>
+														</div>
+													) : (
+														<div className="w-full h-64 rounded-lg border flex items-center justify-center bg-muted">
+															<p className="text-muted-foreground">Önizleme mevcut değil</p>
+														</div>
+													)}
+												</div>
+											);
+										})}
+								</div>
+							</CardContent>
+						</Card>
+					)}
+				</div>
+
+				{/* Right Column */}
+				<div className="space-y-6">
+					{/* Quick Information Card */}
+					<Card>
+						<CardHeader>
+							<CardTitle>Hızlı Bilgiler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div>
+								<label className="text-sm text-muted-foreground">ID:</label>
+								<div className="mt-1">
+									<Badge className="bg-green-500 text-white">#{component.id}</Badge>
+								</div>
+							</div>
+							<div>
+								<label className="text-sm text-muted-foreground">Ad:</label>
+								<p className="mt-1 text-sm font-medium">{component.name}</p>
+							</div>
+							<div>
+								<label className="text-sm text-muted-foreground">Tip:</label>
+								<div className="mt-1">
+									<Badge variant="secondary" className="bg-blue-100 text-blue-800">
+										{component.type}
 									</Badge>
 								</div>
 							</div>
-							<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-								{[...component.assets]
-									.sort((a: any, b: any) => {
-										const aSortOrder = a.sortOrder ?? null;
-										const bSortOrder = b.sortOrder ?? null;
-										if (aSortOrder === null && bSortOrder === null) return 0;
-										if (aSortOrder === null) return 1;
-										if (bSortOrder === null) return -1;
-										return aSortOrder - bSortOrder;
-									})
-									.map((assetItem: any, index: number) => {
-										const asset = assetItem.asset || assetItem;
-										const assetId = asset.id || assetItem.id || index;
-										const preferredLoc = getPreferredLocalization(asset.localizations || []);
-
-										const getAssetIcon = () => {
-											if (asset.type === "VIDEO") return <Video className="h-5 w-5 text-primary" />;
-											if (asset.type === "IMAGE") return <ImageIcon className="h-5 w-5 text-primary" />;
-											return <File className="h-5 w-5 text-primary" />;
-										};
-
-										return (
-											<Card key={assetId} className="border-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-												<CardHeader className="pb-3 bg-gradient-to-r from-primary/10 to-transparent border-b">
-													<div className="flex items-center gap-2">
-														<div className="p-1.5 rounded-lg bg-primary/20">
-															{getAssetIcon()}
-														</div>
-														<CardTitle className="text-base font-bold">{asset.type || "N/A"}</CardTitle>
-													</div>
-												</CardHeader>
-												<CardContent className="space-y-4 pt-4">
-													{asset.url && (
-														<div className="space-y-2">
-															{asset.mime && asset.mime.startsWith("image/") ? (
-																<div className="relative w-full h-48 rounded-xl overflow-hidden border-2 border-border shadow-lg group hover:shadow-xl transition-all duration-200">
-																	<img
-																		src={asset.url}
-																		alt={preferredLoc?.title || asset.type || "Asset"}
-																		className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-																		onError={(e) => {
-																			const target = e.target as HTMLImageElement;
-																			target.style.display = "none";
-																		}}
-																	/>
-																	<div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-																</div>
-															) : (
-																<div className="p-4 rounded-lg border-2 border-border bg-muted/30">
-																	<div className="flex items-center gap-3">
-																		{getAssetIcon()}
-																		<div className="flex-1 min-w-0">
-																			<p className="text-xs font-medium text-muted-foreground mb-1">Dosya</p>
-																			<a
-																				href={asset.url}
-																				target="_blank"
-																				rel="noopener noreferrer"
-																				className="text-xs text-primary hover:underline break-all flex items-center gap-2"
-																			>
-																				<ExternalLink className="h-3 w-3 flex-shrink-0" />
-																				<span className="truncate">{asset.url}</span>
-																			</a>
-																		</div>
-																	</div>
-																</div>
-															)}
-														</div>
-													)}
-
-													{asset.localizations && asset.localizations.length > 0 && (
-														<div className="pt-4 border-t space-y-2">
-															<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground mb-2">
-																<LanguagesIcon className="h-3 w-3" />
-																Çeviriler
-															</div>
-															{preferredLoc && (
-																<div className="p-2 rounded-lg border border-border bg-muted/30">
-																	<div className="flex items-center gap-2 mb-1">
-																		<Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
-																			{preferredLoc.languageCode?.toUpperCase() || "N/A"}
-																		</Badge>
-																		{preferredLoc.title && (
-																			<span className="text-xs font-medium text-foreground truncate">{preferredLoc.title}</span>
-																		)}
-																	</div>
-																	{preferredLoc.description && (
-																		<div className="text-xs text-muted-foreground line-clamp-2" dangerouslySetInnerHTML={{ __html: preferredLoc.description }} />
-																	)}
-																</div>
-															)}
-														</div>
-													)}
-												</CardContent>
-											</Card>
-										);
-									})}
-							</div>
-						</div>
-					) : (
-						<div className="space-y-4">
-							<div className="flex items-center gap-2">
-								<div className="p-1.5 rounded-lg bg-primary/10">
-									<FileImage className="h-4 w-4 text-primary" />
+							{component.value && (
+								<div>
+									<label className="text-sm text-muted-foreground">Değer:</label>
+									<p className="mt-1 text-sm font-medium">{component.value}</p>
 								</div>
-								<h3 className="text-lg font-bold">Medya</h3>
+							)}
+							{component.link && (
+								<div>
+									<label className="text-sm text-muted-foreground">Link:</label>
+									<div className="mt-1">
+										<a
+											href={component.link}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-sm text-primary hover:underline flex items-center gap-1"
+										>
+											<ExternalLink className="h-3 w-3" />
+											<span className="truncate">{component.link}</span>
+										</a>
+									</div>
+								</div>
+							)}
+							<div>
+								<label className="text-sm text-muted-foreground">Sıralama:</label>
+								<p className="mt-1 text-sm font-medium">{component.sortOrder}</p>
 							</div>
-							<div className="p-12 rounded-xl border-2 border-dashed border-border bg-muted/30 text-center">
-								<FileImage className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-								<p className="text-sm text-muted-foreground font-medium">Bu bileşene henüz medya eklenmemiş.</p>
-							</div>
-						</div>
-					)}
-				</CardContent>
-			</Card>
+							{component.localizations && component.localizations.length > 0 && (
+								<div>
+									<label className="text-sm text-muted-foreground">Diller:</label>
+									<div className="mt-1 flex flex-wrap gap-2">
+										{sortedLocalizations.map((loc: any) => (
+											<Badge key={loc.languageCode} className="bg-green-500 text-white">
+												{loc.languageCode.toUpperCase()}
+											</Badge>
+										))}
+									</div>
+								</div>
+							)}
+						</CardContent>
+					</Card>
+
+					{/* Actions Card */}
+					<Card>
+						<CardHeader>
+							<CardTitle>İşlemler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-3">
+							<Button
+								onClick={() => navigate(`/components/edit/${component.id}`)}
+								className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+							>
+								<Box className="h-4 w-4 mr-2" />
+								Düzenle
+							</Button>
+						</CardContent>
+					</Card>
+				</div>
+			</div>
 		</div>
 	);
 }

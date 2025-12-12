@@ -527,15 +527,30 @@ export default function DashboardPage() {
 								{recentComponents.map((component, index) => {
 									// Component name veya localizations'dan title çek
 									const turkishLoc = component.localizations?.find(
-										(loc) => loc.languageCode.toLowerCase() === "tr"
+										(loc) => loc.languageCode?.toLowerCase() === "tr"
 									);
 									const defaultLoc = component.localizations?.[0];
-									const displayName = component.name || turkishLoc?.title || defaultLoc?.title || `Bileşen #${component.id}`;
+									
+									// Önce name'i kontrol et, sonra localizations, en son fallback
+									let displayName = component.name?.trim();
+									if (!displayName) {
+										displayName = turkishLoc?.title?.trim();
+									}
+									if (!displayName) {
+										displayName = defaultLoc?.title?.trim();
+									}
+									if (!displayName) {
+										// ID varsa ID ile, yoksa index ile fallback
+										displayName = component.id 
+											? `Bileşen #${component.id}` 
+											: `Bileşen #${index + 1}`;
+									}
+									
 									return (
 										<div
 											key={component.id || `component-${index}`}
 											className="group/item p-3 rounded-xl border border-border/50 bg-gradient-to-r from-muted/30 to-transparent hover:from-primary/10 hover:to-primary/5 hover:border-primary/30 transition-all duration-300 cursor-pointer hover:shadow-md hover:scale-[1.02]"
-											onClick={() => navigate(`/components/detail/${component.id}`)}
+											onClick={() => component.id && navigate(`/components/detail/${component.id}`)}
 										>
 											<div className="flex items-start justify-between gap-2">
 												<div className="flex-1 min-w-0">

@@ -197,6 +197,11 @@ export default function PageCreatePage() {
 				setCurrentStep(1);
 			}
 		} else if (currentStep < STEPS.length - 1) {
+			// Don't allow going to next step if we're on the summary step
+			// Summary step is the last step, user should use the "Kaydet" button
+			if (currentStep === STEPS.length - 1) {
+				return;
+			}
 			setCurrentStep(currentStep + 1);
 		}
 	};
@@ -497,7 +502,12 @@ export default function PageCreatePage() {
 					</div>
 				</CardHeader>
 				<CardContent className="bg-gradient-to-b from-transparent to-muted/10">
-					<form onSubmit={handleSubmit} className="space-y-6">
+					<form onSubmit={handleSubmit} className="space-y-6" onKeyDown={(e) => {
+						// Prevent form submission on Enter key in summary step
+						if (currentStep === STEPS.length - 1 && e.key === 'Enter' && e.keyCode === 13) {
+							e.preventDefault();
+						}
+					}}>
 						{renderStepContent()}
 
 						{/* Form Actions */}

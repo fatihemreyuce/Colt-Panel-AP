@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { ArrowLeft, Save, User, Mail, Linkedin, Image as ImageIcon, Upload, XCircle, Globe, RefreshCw, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Save, User, Mail, Linkedin, Image as ImageIcon, Upload, XCircle, Globe, RefreshCw, Loader2, ExternalLink, Eye } from "lucide-react";
 import { toast } from "sonner";
 import type { TeamMemberRequest } from "@/types/team-members.types";
 import { translateText, translateHtml } from "@/services/translate-service";
@@ -31,6 +33,7 @@ export default function TeamMemberCreatePage() {
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const [selectedLanguageCode, setSelectedLanguageCode] = useState<string>("");
 	const [translating, setTranslating] = useState(false);
+	const [showPreview, setShowPreview] = useState(false);
 
 	// Tüm dilleri otomatik olarak ekle ve ilk dili seç
 	useEffect(() => {
@@ -161,6 +164,27 @@ export default function TeamMemberCreatePage() {
 	const currentLocalization = getCurrentLocalization();
 	const selectedLanguage = languages.find(lang => lang.code === selectedLanguageCode);
 
+	// Helper function to strip HTML tags from text
+	const stripHtml = (html: string): string => {
+		if (!html) return "";
+		const tmp = document.createElement("DIV");
+		tmp.innerHTML = html;
+		return tmp.textContent || tmp.innerText || "";
+	};
+
+	// Get preview localization (prefer selected, then Turkish, then first available)
+	const getPreviewLocalization = () => {
+		if (selectedLanguageCode) {
+			const selected = formData.localizations.find(loc => loc.languageCode === selectedLanguageCode);
+			if (selected) return selected;
+		}
+		const turkish = formData.localizations.find(loc => loc.languageCode.toLowerCase() === "tr");
+		if (turkish) return turkish;
+		return formData.localizations[0] || null;
+	};
+
+	const previewLoc = getPreviewLocalization();
+
 	const handleTranslate = async () => {
 		if (!selectedLanguageCode || (!currentLocalization.title.trim() && !currentLocalization.description.trim())) {
 			toast.warning("Lütfen önce başlık veya açıklama giriniz");
@@ -248,31 +272,40 @@ export default function TeamMemberCreatePage() {
 	};
 
 	return (
-		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+		<div className="flex-1 p-6 bg-muted/30">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div className="flex items-center gap-4">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => navigate("/team-members")}
-						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
-					>
-						<ArrowLeft className="h-5 w-5" />
-					</Button>
-					<div className="space-y-1">
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-							Yeni Takım Üyesi Oluştur
-						</h1>
-						<p className="text-muted-foreground text-sm ml-1">
-							Yeni bir takım üyesi ekleyin
-						</p>
+			<div className="mb-6">
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate("/team-members")}
+					className="mb-4 h-10 w-10"
+				>
+					<ArrowLeft className="h-5 w-5" />
+				</Button>
+				<div className="flex items-center justify-between">
+					<div>
+						<h1 className="text-3xl font-bold mb-1">Yeni Takım Üyesi Oluştur</h1>
+						<p className="text-muted-foreground text-sm">Yeni bir takım üyesi ekleyin</p>
 					</div>
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => setShowPreview(!showPreview)}
+						className="flex items-center gap-2"
+					>
+						<Eye className="h-4 w-4" />
+						{showPreview ? "Önizlemeyi Gizle" : "Önizleme"}
+					</Button>
 				</div>
 			</div>
 
-			{/* Form Container */}
-			<div className="rounded-xl border-2 border-border overflow-hidden bg-card/50 backdrop-blur-sm shadow-xl">
+			{/* Two Column Layout */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Left Column - Form */}
+				<div className={`${showPreview ? "lg:col-span-2" : "lg:col-span-3"}`}>
+					{/* Form Container */}
+					<div className="rounded-xl border-2 border-border overflow-hidden bg-card/50 backdrop-blur-sm shadow-xl">
 				{/* Form Header */}
 				<div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2 border-border px-6 py-5">
 					<div className="flex items-center gap-3">
@@ -557,6 +590,111 @@ export default function TeamMemberCreatePage() {
 						</Button>
 					</div>
 				</form>
+				</div>
+				</div>
+
+				{/* Right Column - Preview */}
+				{showPreview && (
+					<div className="space-y-6">
+						{/* Preview Card */}
+						<Card>
+							<CardHeader>
+								<CardTitle>Önizleme</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-6">
+								{/* Photo Preview */}
+								{photoPreview && (
+									<div className="w-full rounded-lg overflow-hidden border">
+										<img
+											src={photoPreview}
+											alt={formData.name || "Preview"}
+											className="w-full h-auto object-contain"
+										/>
+									</div>
+								)}
+
+								{/* Basic Info */}
+								<div className="space-y-4">
+									<div>
+										<label className="text-sm text-muted-foreground">Ad:</label>
+										<p className="mt-1 text-sm font-medium">{formData.name || "—"}</p>
+									</div>
+									{formData.email && (
+										<div>
+											<label className="text-sm text-muted-foreground">E-posta:</label>
+											<div className="mt-1">
+												<a
+													href={`mailto:${formData.email}`}
+													className="text-sm text-primary hover:underline flex items-center gap-1"
+												>
+													<Mail className="h-3 w-3" />
+													<span className="truncate">{formData.email}</span>
+												</a>
+											</div>
+										</div>
+									)}
+									{formData.linkedinUrl && (
+										<div>
+											<label className="text-sm text-muted-foreground">LinkedIn:</label>
+											<div className="mt-1">
+												<a
+													href={formData.linkedinUrl}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="text-sm text-primary hover:underline flex items-center gap-1"
+												>
+													<ExternalLink className="h-3 w-3" />
+													<span className="truncate">LinkedIn Profili</span>
+												</a>
+											</div>
+										</div>
+									)}
+								</div>
+
+								{/* Localization Preview */}
+								{previewLoc && (
+									<div className="pt-4 border-t space-y-4">
+										<div className="flex items-center gap-2 mb-2">
+											<Globe className="h-4 w-4 text-primary" />
+											<Badge className="bg-green-500 text-white">
+												{previewLoc.languageCode.toUpperCase()}
+											</Badge>
+										</div>
+										{previewLoc.title && (
+											<div>
+												<label className="text-sm font-medium">Başlık</label>
+												<p className="mt-1 text-sm">{previewLoc.title}</p>
+											</div>
+										)}
+										{previewLoc.description && (
+											<div>
+												<label className="text-sm font-medium">Açıklama</label>
+												<div
+													className="mt-1 text-sm prose prose-sm max-w-none"
+													dangerouslySetInnerHTML={{ __html: previewLoc.description }}
+												/>
+											</div>
+										)}
+									</div>
+								)}
+
+								{/* All Languages Badge */}
+								{formData.localizations.length > 0 && (
+									<div className="pt-4 border-t">
+										<label className="text-sm text-muted-foreground mb-2 block">Diller:</label>
+										<div className="flex flex-wrap gap-2">
+											{formData.localizations.map((loc) => (
+												<Badge key={loc.languageCode} className="bg-green-500 text-white">
+													{loc.languageCode.toUpperCase()}
+												</Badge>
+											))}
+										</div>
+									</div>
+								)}
+							</CardContent>
+						</Card>
+					</div>
+				)}
 			</div>
 		</div>
 	);

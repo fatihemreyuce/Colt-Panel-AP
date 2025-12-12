@@ -11,6 +11,7 @@ interface AssetListProps {
 	selectedMediaId: string;
 	assetActiveTabs: Record<number, string>;
 	isTranslatingAsset: Record<number, boolean>;
+	componentTypeId?: number;
 	onSelectMedia: (value: string) => void;
 	onAddAsset: (assetId?: string) => void;
 	onRemoveAsset: (index: number) => void;
@@ -28,6 +29,7 @@ export function AssetList({
 	selectedMediaId,
 	assetActiveTabs,
 	isTranslatingAsset,
+	componentTypeId,
 	onSelectMedia,
 	onAddAsset,
 	onRemoveAsset,
@@ -48,6 +50,7 @@ export function AssetList({
 					availableAssets={availableAssets}
 					selectedMediaId={selectedMediaId}
 					addedAssetIds={assets.map(a => a.assetId)}
+					componentTypeId={componentTypeId}
 					onSelect={(value) => {
 						if (value === "new") {
 							onAddAsset();

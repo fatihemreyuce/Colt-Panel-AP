@@ -13,6 +13,7 @@ interface AssetSelectorProps {
 	availableAssets: assetResponse[];
 	selectedMediaId: string;
 	addedAssetIds: (number | undefined)[];
+	componentTypeId?: number;
 	onSelect: (value: string) => void;
 }
 
@@ -20,8 +21,11 @@ export function AssetSelector({
 	availableAssets,
 	selectedMediaId,
 	addedAssetIds,
+	componentTypeId,
 	onSelect,
 }: AssetSelectorProps) {
+	// Tüm asset'leri göster, component type'a göre filtreleme yapma
+	// Component type seçilmiş olsa bile tüm mevcut asset'ler gösterilsin
 	return (
 		<div className="flex items-center gap-2">
 			<Label className="text-p3 font-medium text-muted-foreground">Mevcut Medya Seç</Label>

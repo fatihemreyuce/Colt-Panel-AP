@@ -48,6 +48,11 @@ export function PageTeamMembersStep({ pageId }: PageTeamMembersStepProps) {
 		const teamMember = teamMembers.find((tm) => tm.id === selectedTeamMemberId);
 		if (!teamMember) return;
 
+		// Check if already added
+		if (pageTeamMembers.some((ptm) => ptm.id === selectedTeamMemberId)) {
+			return;
+		}
+
 		// Calculate sortOrder: find max sortOrder and add 1, or start from 1 if no team members
 		const existingSortOrders = page?.teamMembers
 			?.map((item) => item.sortOrder)
@@ -108,11 +113,20 @@ export function PageTeamMembersStep({ pageId }: PageTeamMembersStepProps) {
 								<SelectValue placeholder="Takım üyesi seçiniz" />
 							</SelectTrigger>
 							<SelectContent>
-								{teamMembers.map((member) => (
-									<SelectItem key={member.id} value={member.id.toString()}>
-										{member.name} ({member.email})
-									</SelectItem>
-								))}
+								{teamMembers.map((member) => {
+									const isAlreadySelected = pageTeamMembers.some(
+										(ptm) => ptm.id === member.id
+									);
+									return (
+										<SelectItem
+											key={member.id}
+											value={member.id.toString()}
+											disabled={isAlreadySelected}
+										>
+											{member.name} ({member.email})
+										</SelectItem>
+									);
+								})}
 							</SelectContent>
 						</Select>
 					</div>
