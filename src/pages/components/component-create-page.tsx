@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateComponent, useCreateComponentAsset } from "@/hooks/use-components";
 import { useComponentTypes } from "@/hooks/use-component-type";
@@ -24,9 +24,9 @@ export default function ComponentCreatePage() {
 	const { data: languagesData } = useLanguages(0, 1000, "id,ASC");
 	const { data: assetsData } = useAssets("", 0, 1000, "id,ASC");
 	
-	const componentTypes = componentTypesData?.content || [];
-	const languages = languagesData?.content || [];
-	const availableAssets = assetsData?.content || [];
+	const componentTypes = useMemo(() => componentTypesData?.content || [], [componentTypesData?.content]);
+	const languages = useMemo(() => languagesData?.content || [], [languagesData?.content]);
+	const availableAssets = useMemo(() => assetsData?.content || [], [assetsData?.content]);
 
 	const [formData, setFormData] = useState<componentRequest>({
 		name: "",
@@ -66,37 +66,49 @@ export default function ComponentCreatePage() {
 	}, [languages]);
 
 	// Tip seçildiğinde veya değiştiğinde Value ve Link alanlarını otomatik güncelle
+	const prevTypeIdRef = useRef<number>(0);
 	useEffect(() => {
+		// Sadece typeId gerçekten değiştiğinde çalış
+		if (formData.typeId === prevTypeIdRef.current) {
+			return;
+		}
+		prevTypeIdRef.current = formData.typeId;
+
 		if (formData.typeId && formData.typeId !== 0 && componentTypes.length > 0) {
 			const selectedType = componentTypes.find(type => type.id === formData.typeId);
 			if (selectedType) {
 				setFormData(prev => {
-					const updates: Partial<componentRequest> = {};
+					const newValue = selectedType.hasValue 
+						? selectedType.type.toLowerCase().replace(/\s+/g, '-')
+						: "";
+					const newLink = selectedType.hasLink
+						? `#${selectedType.type.toLowerCase().replace(/\s+/g, '-')}`
+						: "";
 					
-					// Value alanını güncelle (eğer tip value destekliyorsa)
-					if (selectedType.hasValue) {
-						updates.value = selectedType.type.toLowerCase().replace(/\s+/g, '-');
-					} else {
-						updates.value = "";
+					// Sadece değerler gerçekten değiştiyse güncelle
+					if (prev.value === newValue && prev.link === newLink) {
+						return prev;
 					}
 					
-					// Link alanını güncelle (eğer tip link destekliyorsa)
-					if (selectedType.hasLink) {
-						updates.link = `#${selectedType.type.toLowerCase().replace(/\s+/g, '-')}`;
-					} else {
-						updates.link = "";
-					}
-					
-					return { ...prev, ...updates };
+					return {
+						...prev,
+						value: newValue,
+						link: newLink,
+					};
 				});
 			}
 		} else if (formData.typeId === 0) {
 			// Tip seçilmediğinde alanları temizle
-			setFormData(prev => ({
-				...prev,
-				value: "",
-				link: "",
-			}));
+			setFormData(prev => {
+				if (prev.value === "" && prev.link === "") {
+					return prev;
+				}
+				return {
+					...prev,
+					value: "",
+					link: "",
+				};
+			});
 		}
 	}, [formData.typeId, componentTypes]);
 

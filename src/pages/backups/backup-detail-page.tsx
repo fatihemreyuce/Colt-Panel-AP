@@ -180,157 +180,230 @@ export default function BackupDetailPage() {
 	}
 
 	return (
-		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
+		<div className="flex-1 p-6 bg-muted/30">
 			{/* Header */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div className="flex items-center gap-4">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => navigate("/backups")}
-						className="h-10 w-10 hover:bg-primary/10 hover:text-primary transition-all rounded-xl"
-					>
-						<ArrowLeft className="h-5 w-5" />
-					</Button>
-					<div className="space-y-1">
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-							Yedekleme Detayları
-						</h1>
+			<div className="mb-6">
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate("/backups")}
+					className="mb-4 h-10 w-10"
+				>
+					<ArrowLeft className="h-5 w-5" />
+				</Button>
+				<div className="flex items-center justify-between">
+					<div>
+						<h1 className="text-3xl font-bold mb-1">Yedekleme Detayları</h1>
 						<p className="text-muted-foreground text-sm">Yedekleme bilgilerini görüntüleyin</p>
 					</div>
+					{(backup.status === "COMPLETED" || backup.status === "SUCCESS") && (
+						<Button
+							onClick={handleDownload}
+							className="flex items-center gap-2"
+							size="lg"
+						>
+							<Download className="h-4 w-4" />
+							İndir
+						</Button>
+					)}
 				</div>
-				{(backup.status === "COMPLETED" || backup.status === "SUCCESS") && (
-					<Button
-						onClick={handleDownload}
-						className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
-						size="lg"
-					>
-						<Download className="h-5 w-5 mr-2" />
-						İndir
-					</Button>
-				)}
 			</div>
-			
-			{/* Main Info Card */}
-			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm">
-				<CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b-2">
-					<div className="flex items-center gap-3">
-						<div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
-							<Database className="h-6 w-6 text-primary" />
-						</div>
-						<div>
-							<CardTitle className="text-xl font-bold">Yedekleme Bilgileri</CardTitle>
-							<CardDescription className="text-xs">Yedekleme detay bilgileri</CardDescription>
-						</div>
-					</div>
-				</CardHeader>
 
-				<CardContent className="space-y-6 pt-6 bg-gradient-to-b from-transparent to-muted/10">
-					<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Database className="h-4 w-4 text-primary" />
-								Yedekleme ID
+			{/* Two Column Layout */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Left Column - Main Info */}
+				<div className="lg:col-span-2 space-y-6">
+					{/* Yedekleme Bilgileri Card */}
+					<Card>
+						<CardHeader>
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-lg bg-primary/10">
+									<Database className="h-5 w-5 text-primary" />
+								</div>
+								<div>
+									<CardTitle>Yedekleme Bilgileri</CardTitle>
+									<CardDescription>Yedekleme detay bilgileri</CardDescription>
+								</div>
 							</div>
-							<div className="text-3xl font-bold text-primary">{backup.id}</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Clock className="h-4 w-4" />
-								Durum
-							</div>
-							<div className="mt-2">
-								{getStatusBadge(backup.status)}
-							</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Database className="h-4 w-4" />
-								Yedekleme Tipi
-							</div>
-							<div>
-								<Badge variant="outline" className="text-sm font-semibold">
-									{getBackupTypeLabel((backup as any).backup_type || (backup as any).backupType)}
-								</Badge>
-							</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<FileText className="h-4 w-4" />
-								Dosya Boyutu
-							</div>
-							<div className="text-lg font-bold text-foreground">
-								{(() => {
-									const fileSize = backup.file_size || backup.fileSize;
-									return fileSize ? formatFileSize(fileSize) : "-";
-								})()}
-							</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Calendar className="h-4 w-4" />
-								Oluşturulma Tarihi
-							</div>
-							<div className="text-sm font-bold text-foreground">
-								{backup.createdAt ? formatDate(backup.createdAt) : "-"}
-							</div>
-						</div>
-
-						<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02]">
-							<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-								<Calendar className="h-4 w-4" />
-								Son Geçerlilik Tarihi
-							</div>
-							<div className="text-sm font-bold text-foreground">
-								{backup.expiresAt ? formatDate(backup.expiresAt) : "-"}
-							</div>
-						</div>
-					</div>
-
-					{/* File Name */}
-					<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md">
-						<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-							<FileText className="h-4 w-4" />
-							Dosya Adı
-						</div>
-						<div className="text-sm font-semibold text-foreground break-all">
-							{backup.filename}
-						</div>
-					</div>
-
-					{/* File Path */}
-					<div className="space-y-2 p-5 rounded-xl bg-gradient-to-br from-muted/60 to-muted/40 border-2 border-border/50 shadow-md">
-						<div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-							<FileText className="h-4 w-4" />
-							Dosya Yolu
-						</div>
-						<code className="text-xs font-mono font-medium text-foreground bg-gradient-to-r from-background to-muted/30 px-3 py-2 rounded-lg border border-border/50 shadow-sm block break-all">
-							{backup.file_path || backup.filePath || "-"}
-						</code>
-					</div>
-
-					{/* Error Message */}
-					{backup.status === "FAILED" && backup.errorMessage && (
-						<div className="p-5 rounded-xl bg-destructive/10 border-2 border-destructive/20 shadow-md">
-							<div className="flex items-start gap-3">
-								<AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-								<div className="flex-1">
-									<div className="text-sm font-semibold text-destructive mb-1">
-										Hata Mesajı
+						</CardHeader>
+						<CardContent className="space-y-6">
+							{/* Grid Info */}
+							<div className="grid gap-4 md:grid-cols-2">
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<Database className="h-3.5 w-3.5 text-primary" />
+										Yedekleme ID
 									</div>
-									<div className="text-sm text-destructive/90">
-										{backup.errorMessage}
+									<div className="text-2xl font-bold text-primary">{backup.id}</div>
+								</div>
+
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<Clock className="h-3.5 w-3.5" />
+										Durum
+									</div>
+									<div className="mt-1">
+										{getStatusBadge(backup.status)}
+									</div>
+								</div>
+
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<Database className="h-3.5 w-3.5" />
+										Yedekleme Tipi
+									</div>
+									<div className="mt-1">
+										<Badge variant="outline" className="text-sm">
+											{getBackupTypeLabel((backup as any).backup_type || (backup as any).backupType)}
+										</Badge>
+									</div>
+								</div>
+
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<FileText className="h-3.5 w-3.5" />
+										Dosya Boyutu
+									</div>
+									<div className="text-base font-semibold text-foreground">
+										{(() => {
+											const fileSize = backup.file_size || backup.fileSize;
+											return fileSize ? formatFileSize(fileSize) : "-";
+										})()}
+									</div>
+								</div>
+
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<Calendar className="h-3.5 w-3.5" />
+										Oluşturulma Tarihi
+									</div>
+									<div className="text-sm font-medium text-foreground">
+										{backup.createdAt ? formatDate(backup.createdAt) : "-"}
+									</div>
+								</div>
+
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<Calendar className="h-3.5 w-3.5" />
+										Son Geçerlilik Tarihi
+									</div>
+									<div className="text-sm font-medium text-foreground">
+										{backup.expiresAt ? formatDate(backup.expiresAt) : "-"}
 									</div>
 								</div>
 							</div>
-						</div>
-					)}
-				</CardContent>
-			</Card>
+
+							{/* File Name */}
+							<div className="space-y-2 p-4 rounded-lg border bg-card">
+								<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+									<FileText className="h-3.5 w-3.5" />
+									Dosya Adı
+								</div>
+								<div className="text-sm font-medium text-foreground break-all">
+									{backup.filename}
+								</div>
+							</div>
+
+							{/* File Path */}
+							<div className="space-y-2 p-4 rounded-lg border bg-card">
+								<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase mb-2">
+									<FileText className="h-3.5 w-3.5" />
+									Dosya Yolu
+								</div>
+								<code className="text-xs font-mono text-foreground bg-muted px-3 py-2 rounded border block break-all">
+									{backup.file_path || backup.filePath || "-"}
+								</code>
+							</div>
+
+							{/* Error Message */}
+							{backup.status === "FAILED" && backup.errorMessage && (
+								<div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+									<div className="flex items-start gap-3">
+										<AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+										<div className="flex-1">
+											<div className="text-sm font-semibold text-destructive mb-1">
+												Hata Mesajı
+											</div>
+											<div className="text-sm text-destructive/90">
+												{backup.errorMessage}
+											</div>
+										</div>
+									</div>
+								</div>
+							)}
+						</CardContent>
+					</Card>
+				</div>
+
+				{/* Right Column - Quick Info */}
+				<div className="space-y-6">
+					<Card>
+						<CardHeader>
+							<CardTitle>Hızlı Bilgiler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Yedekleme ID</label>
+								<p className="text-sm font-medium">{backup.id}</p>
+							</div>
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Durum</label>
+								<div>{getStatusBadge(backup.status)}</div>
+							</div>
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Yedekleme Tipi</label>
+								<p className="text-sm font-medium">
+									{getBackupTypeLabel((backup as any).backup_type || (backup as any).backupType)}
+								</p>
+							</div>
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Dosya Boyutu</label>
+								<p className="text-sm font-medium">
+									{(() => {
+										const fileSize = backup.file_size || backup.fileSize;
+										return fileSize ? formatFileSize(fileSize) : "-";
+									})()}
+								</p>
+							</div>
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Oluşturulma Tarihi</label>
+								<p className="text-sm font-medium">
+									{backup.createdAt ? formatDate(backup.createdAt) : "-"}
+								</p>
+							</div>
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Son Geçerlilik Tarihi</label>
+								<p className="text-sm font-medium">
+									{backup.expiresAt ? formatDate(backup.expiresAt) : "-"}
+								</p>
+							</div>
+						</CardContent>
+					</Card>
+
+					{/* Actions Card */}
+					<Card>
+						<CardHeader>
+							<CardTitle>İşlemler</CardTitle>
+						</CardHeader>
+						<CardContent>
+							{(backup.status === "COMPLETED" || backup.status === "SUCCESS") ? (
+								<Button
+									onClick={handleDownload}
+									className="w-full"
+									size="lg"
+								>
+									<Download className="h-4 w-4 mr-2" />
+									İndir
+								</Button>
+							) : (
+								<p className="text-sm text-muted-foreground text-center py-2">
+									Yedekleme tamamlanmadı
+								</p>
+							)}
+						</CardContent>
+					</Card>
+				</div>
+			</div>
 		</div>
 	);
 }

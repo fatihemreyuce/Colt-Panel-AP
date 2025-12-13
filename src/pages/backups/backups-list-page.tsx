@@ -272,74 +272,57 @@ export default function BackupsListPage() {
 	);
 
 	return (
-		<div className="flex-1 space-y-6 p-6 bg-gradient-to-br from-background via-background to-muted/20">
-			{/* Header Section */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-				<div className="space-y-1">
-					<div className="flex items-center gap-3">
-						<div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 shadow-lg">
-							<Database className="h-6 w-6 text-primary" />
-						</div>
-						<h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-							Yedeklemeler
-						</h1>
+		<div className="flex-1 p-6 bg-muted/30">
+			{/* Header */}
+			<div className="mb-6">
+				<div className="flex items-center justify-between mb-4">
+					<div>
+						<h1 className="text-3xl font-bold mb-1">Yedeklemeler</h1>
+						<p className="text-muted-foreground text-sm">Tüm yedeklemeleri görüntüleyin ve yönetin</p>
 					</div>
-					<p className="text-muted-foreground ml-[52px] text-sm">
-						Tüm yedeklemeleri görüntüleyin ve yönetin
-					</p>
+					<Button
+						onClick={() => navigate("/backups/create")}
+						size="lg"
+					>
+						<Plus className="h-4 w-4 mr-2" />
+						Yeni Yedekleme
+					</Button>
 				</div>
-				<Button
-					onClick={() => navigate("/backups/create")}
-					className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
-					size="lg"
-				>
-					<Plus className="h-5 w-5 mr-2" />
-					Yeni Yedekleme
-				</Button>
+
+				{/* Filters */}
+				<div className="flex items-center gap-4">
+					<Select value={String(size)} onValueChange={(value) => handleSizeChange(Number(value))}>
+						<SelectTrigger className="w-[140px]">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{PAGE_SIZE_OPTIONS.map((option) => (
+								<SelectItem key={option} value={String(option)}>
+									{option} / sayfa
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
 			</div>
 
-			{/* Filters Section */}
-			<Card className="border-2 shadow-lg bg-card/50 backdrop-blur-sm">
-				<CardContent className="pt-6">
-					<div className="flex flex-col sm:flex-row gap-4">
-						<Select value={String(size)} onValueChange={(value) => handleSizeChange(Number(value))}>
-							<SelectTrigger className="w-full sm:w-[140px] h-11 border-border">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{PAGE_SIZE_OPTIONS.map((option) => (
-									<SelectItem key={option} value={String(option)}>
-										{option} / sayfa
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-				</CardContent>
-			</Card>
-
 			{/* Table Section */}
-			<Card className="border-2 shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
-				<CardHeader className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border-b">
+			<Card>
+				<CardHeader>
 					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-3">
-							<div className="p-1.5 rounded-lg bg-primary/10">
-								<Database className="h-4 w-4 text-primary" />
-							</div>
-							<div>
-								<CardTitle className="text-lg font-bold">Yedekleme Listesi</CardTitle>
-								<CardDescription className="text-xs mt-0.5">
-									Toplam <span className="font-semibold text-foreground">{totalElements}</span> yedekleme bulundu
-								</CardDescription>
-							</div>
+						<div>
+							<CardTitle>Yedekleme Listesi</CardTitle>
+							<CardDescription>
+								Toplam {totalElements} yedekleme bulundu
+							</CardDescription>
 						</div>
 					</div>
 				</CardHeader>
-				<CardContent className="p-0 bg-gradient-to-b from-transparent to-muted/10">
+				<CardContent className="p-0">
 					<div className="overflow-x-auto">
 						<Table>
 							<TableHeader>
-								<TableRow className="bg-gradient-to-r from-muted/80 via-muted/60 to-muted/40 hover:bg-muted/60 border-b-2">
+								<TableRow>
 									<TableHead className="w-16">ID</TableHead>
 									<TableHead className="min-w-[200px]">Dosya Adı</TableHead>
 									<TableHead className="min-w-[120px]">Tip</TableHead>
@@ -378,7 +361,6 @@ export default function BackupsListPage() {
 												<EmptyContent>
 													<Button
 														onClick={() => navigate("/backups/create")}
-														className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border-0"
 													>
 														<Plus className="h-4 w-4 mr-2" />
 														İlk Yedeklemeyi Oluştur
@@ -406,49 +388,43 @@ export default function BackupsListPage() {
 
 			{/* Pagination */}
 			{totalPages > 0 && (
-				<Card className="border-2 shadow-lg bg-gradient-to-r from-card to-card/50 backdrop-blur-sm">
-					<CardContent className="pt-6">
-						<div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-							<div className="text-sm text-muted-foreground">
-								Toplam <span className="font-bold text-foreground bg-primary/10 px-2 py-0.5 rounded">{totalElements}</span> yedekleme
-								{totalPages > 1 && (
-									<>
-										{" • "}
-										Sayfa <span className="font-bold text-primary">{currentPage + 1}</span> /{" "}
-										<span className="font-bold text-foreground">{totalPages}</span>
-									</>
-								)}
+				<div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+					<div className="text-sm text-muted-foreground">
+						Toplam <span className="font-semibold text-foreground">{totalElements}</span> yedekleme
+						{totalPages > 1 && (
+							<>
+								{" • "}
+								Sayfa <span className="font-semibold text-primary">{currentPage + 1}</span> /{" "}
+								<span className="font-semibold text-foreground">{totalPages}</span>
+							</>
+						)}
+					</div>
+					{totalPages > 1 && (
+						<div className="flex items-center gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => handlePageChange(currentPage - 1)}
+								disabled={currentPage === 0 || isLoading}
+							>
+								<ChevronLeft className="h-4 w-4 mr-1" />
+								Önceki
+							</Button>
+							<div className="px-4 py-2 text-sm font-medium">
+								{currentPage + 1} / {totalPages}
 							</div>
-							{totalPages > 1 && (
-								<div className="flex items-center gap-2">
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => handlePageChange(currentPage - 1)}
-										disabled={currentPage === 0 || isLoading}
-										className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
-									>
-										<ChevronLeft className="h-4 w-4 mr-1" />
-										Önceki
-									</Button>
-									<div className="flex items-center gap-1 px-4 py-2 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border-2 border-primary/20 text-sm font-bold text-primary shadow-sm">
-										{currentPage + 1} / {totalPages}
-									</div>
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => handlePageChange(currentPage + 1)}
-										disabled={currentPage >= totalPages - 1 || isLoading}
-										className="h-9 border-2 hover:bg-primary/10 hover:border-primary/50 hover:scale-105 transition-all shadow-sm"
-									>
-										Sonraki
-										<ChevronRight className="h-4 w-4 ml-1" />
-									</Button>
-								</div>
-							)}
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => handlePageChange(currentPage + 1)}
+								disabled={currentPage >= totalPages - 1 || isLoading}
+							>
+								Sonraki
+								<ChevronRight className="h-4 w-4 ml-1" />
+							</Button>
 						</div>
-					</CardContent>
-				</Card>
+					)}
+				</div>
 			)}
 
 			{/* Delete Confirmation Modal */}
@@ -477,19 +453,19 @@ interface BackupTableRowProps {
 
 function BackupTableRow({ backup, onView, onDownload, onDelete }: BackupTableRowProps) {
 	return (
-		<TableRow className="hover:bg-muted/30 transition-colors border-b">
-			<TableCell className="font-semibold text-foreground">{backup.id}</TableCell>
+		<TableRow className="hover:bg-muted/50">
+			<TableCell className="font-medium">{backup.id}</TableCell>
 			<TableCell>
 				<div className="flex items-center gap-2">
 					<Database className="h-4 w-4 text-muted-foreground" />
-					<span className="text-sm font-medium text-foreground">{backup.filename}</span>
+					<span className="text-sm">{backup.filename}</span>
 				</div>
 			</TableCell>
 			<TableCell>
 				{(() => {
 					const backupType = (backup as any).backup_type || (backup as any).backupType;
 					return backupType ? (
-						<Badge variant="outline" className="bg-muted/50">
+						<Badge variant="outline">
 							{getBackupTypeLabel(backupType)}
 						</Badge>
 					) : (
@@ -509,10 +485,10 @@ function BackupTableRow({ backup, onView, onDownload, onDelete }: BackupTableRow
 				})()}
 			</TableCell>
 			<TableCell>
-				<span className="text-sm text-foreground">{backup.createdAt ? formatDate(backup.createdAt) : "-"}</span>
+				<span className="text-sm">{backup.createdAt ? formatDate(backup.createdAt) : "-"}</span>
 			</TableCell>
 			<TableCell>
-				<span className="text-sm text-foreground">{backup.expiresAt ? formatDate(backup.expiresAt) : "-"}</span>
+				<span className="text-sm">{backup.expiresAt ? formatDate(backup.expiresAt) : "-"}</span>
 			</TableCell>
 			<TableCell className="text-right">
 				<DropdownMenu>
@@ -520,7 +496,7 @@ function BackupTableRow({ backup, onView, onDownload, onDelete }: BackupTableRow
 						<Button
 							variant="ghost"
 							size="icon"
-							className="h-8 w-8 hover:bg-muted"
+							className="h-8 w-8"
 						>
 							<MoreVertical className="h-4 w-4" />
 						</Button>

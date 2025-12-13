@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetOffice } from "@/hooks/use-offices";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Edit, Building2, MapPin, Phone, Loader2 } from "lucide-react";
 
 export default function OfficeDetailPage() {
@@ -11,10 +12,10 @@ export default function OfficeDetailPage() {
 
 	if (isLoading) {
 		return (
-			<div className="w-full py-6 px-6">
-				<div className="flex flex-col items-center justify-center h-64 gap-4">
-					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-					<p className="text-p3 text-muted-foreground">Yükleniyor...</p>
+			<div className="flex-1 flex items-center justify-center min-h-[400px]">
+				<div className="flex flex-col items-center gap-4">
+					<Loader2 className="h-12 w-12 animate-spin text-primary" />
+					<p className="text-sm font-medium text-muted-foreground">Yükleniyor...</p>
 				</div>
 			</div>
 		);
@@ -22,124 +23,148 @@ export default function OfficeDetailPage() {
 
 	if (!office) {
 		return (
-			<div className="w-full py-6 px-6">
-				<div className="text-center py-12">
-					<p className="text-p3 text-muted-foreground mb-4">Ofis bulunamadı</p>
-					<Button
-						onClick={() => navigate("/offices")}
-						className="bg-primary text-primary-foreground hover:bg-primary/90"
-					>
-						Ofisler Listesine Dön
-					</Button>
-				</div>
+			<div className="flex-1 flex items-center justify-center min-h-[400px]">
+				<Card className="max-w-md w-full border-2">
+					<CardHeader className="text-center">
+						<CardTitle className="text-xl">Ofis Bulunamadı</CardTitle>
+						<CardDescription>
+							Aradığınız ofis mevcut değil veya silinmiş olabilir.
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="flex justify-center">
+						<Button
+							onClick={() => navigate("/offices")}
+							className="bg-primary text-primary-foreground hover:bg-primary/90"
+						>
+							<ArrowLeft className="h-4 w-4 mr-2" />
+							Ofisler Listesine Dön
+						</Button>
+					</CardContent>
+				</Card>
 			</div>
 		);
 	}
 
 	return (
-		<div className="w-full py-6 px-6 space-y-6">
+		<div className="flex-1 p-6 bg-muted/30">
 			{/* Header */}
-			<div className="flex h-16 items-center justify-between border-b border-border px-6 -mx-6 mb-6">
-				<div className="flex items-center gap-4">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => navigate("/offices")}
-					>
-						<ArrowLeft className="h-4 w-4" />
-					</Button>
-					<div>
-						<h1 className="text-h2 font-semibold text-foreground">
-							Ofis Detayları
-						</h1>
-						<p className="text-p3 text-muted-foreground mt-1">Ofis bilgilerini görüntüleyin</p>
-					</div>
-				</div>
+			<div className="mb-6">
 				<Button
-					onClick={() => navigate(`/offices/edit/${office.id}`)}
-					className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+					variant="ghost"
+					size="icon"
+					onClick={() => navigate("/offices")}
+					className="mb-4 h-10 w-10"
 				>
-					<Edit className="h-4 w-4 mr-2" />
-					Düzenle
+					<ArrowLeft className="h-5 w-5" />
 				</Button>
+				<div>
+					<h1 className="text-3xl font-bold mb-1">Ofis Detayları</h1>
+					<p className="text-muted-foreground text-sm">Ofis bilgilerini görüntüleyin</p>
+				</div>
 			</div>
-			
-			{/* Info Container */}
-			<div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
-				{/* Info Header */}
-				<div className="bg-muted/50 border-b border-border px-6 py-4">
-					<h2 className="text-h5 font-semibold text-foreground flex items-center gap-2">
-						<Building2 className="h-5 w-5 text-muted-foreground" />
-						Ofis Bilgileri
-					</h2>
-					<p className="text-p3 text-muted-foreground mt-1">Ofis detay bilgileri</p>
+
+			{/* Two Column Layout */}
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Left Column - Main Info */}
+				<div className="lg:col-span-2 space-y-6">
+					{/* Ofis Bilgileri Card */}
+					<Card>
+						<CardHeader>
+							<div className="flex items-center gap-3">
+								<div className="p-2 rounded-lg bg-primary/10">
+									<Building2 className="h-5 w-5 text-primary" />
+								</div>
+								<div>
+									<CardTitle>Ofis Bilgileri</CardTitle>
+									<CardDescription>Ofis detay bilgileri</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent className="space-y-6">
+							{/* Grid Info */}
+							<div className="grid gap-4 md:grid-cols-2">
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<Building2 className="h-3.5 w-3.5 text-primary" />
+										Ofis ID
+									</div>
+									<div className="text-2xl font-bold text-primary">{office.id}</div>
+								</div>
+
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<Building2 className="h-3.5 w-3.5" />
+										Ofis Adı
+									</div>
+									<div className="text-base font-semibold text-foreground">{office.name}</div>
+								</div>
+
+								<div className="space-y-2 p-4 rounded-lg border bg-card md:col-span-2">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<MapPin className="h-3.5 w-3.5" />
+										Adres
+									</div>
+									<div className="text-sm font-medium text-foreground">{office.address}</div>
+								</div>
+
+								<div className="space-y-2 p-4 rounded-lg border bg-card">
+									<div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase">
+										<Phone className="h-3.5 w-3.5" />
+										Telefon Numarası
+									</div>
+									<div className="text-sm font-medium text-foreground">{office.phoneNumber}</div>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
 				</div>
 
-				{/* Info Content */}
-				<div className="p-6">
-					<div className="grid gap-6 md:grid-cols-2">
-						{/* ID */}
-						<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border">
-							<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-								<Building2 className="h-4 w-4" />
-								Ofis ID
+				{/* Right Column - Quick Info */}
+				<div className="space-y-6">
+					<Card>
+						<CardHeader>
+							<CardTitle>Hızlı Bilgiler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-4">
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Ofis ID</label>
+								<p className="text-sm font-medium">{office.id}</p>
 							</div>
-							<div className="text-h5 font-bold text-foreground">
-								{office.id}
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Ofis Adı</label>
+								<p className="text-sm font-medium">{office.name}</p>
 							</div>
-						</div>
+							<div className="space-y-1">
+								<label className="text-xs text-muted-foreground">Telefon</label>
+								<p className="text-sm font-medium">{office.phoneNumber}</p>
+							</div>
+						</CardContent>
+					</Card>
 
-						{/* Name */}
-						<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border">
-							<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-								<Building2 className="h-4 w-4" />
-								Ofis Adı
-							</div>
-							<div className="text-h5 font-bold text-foreground">
-								{office.name}
-							</div>
-						</div>
-
-						{/* Address */}
-						<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border md:col-span-2">
-							<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-								<MapPin className="h-4 w-4" />
-								Adres
-							</div>
-							<div className="text-p1 font-semibold text-foreground">
-								{office.address}
-							</div>
-						</div>
-
-						{/* Phone Number */}
-						<div className="space-y-2 p-4 rounded-lg bg-muted/50 border border-border">
-							<div className="flex items-center gap-2 text-p3 font-semibold text-muted-foreground">
-								<Phone className="h-4 w-4" />
-								Telefon Numarası
-							</div>
-							<div className="text-p1 font-semibold text-foreground">
-								{office.phoneNumber}
-							</div>
-						</div>
-					</div>
-
-					{/* Action Buttons */}
-					<div className="flex items-center justify-end gap-4 pt-6 mt-6 border-t border-border">
-						<Button
-							variant="outline"
-							onClick={() => navigate("/offices")}
-							className="border-border hover:bg-accent min-w-[100px]"
-						>
-							Geri Dön
-						</Button>
-						<Button
-							onClick={() => navigate(`/offices/edit/${office.id}`)}
-							className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[120px]"
-						>
-							<Edit className="h-4 w-4 mr-2" />
-							Düzenle
-						</Button>
-					</div>
+					{/* Actions Card */}
+					<Card>
+						<CardHeader>
+							<CardTitle>İşlemler</CardTitle>
+						</CardHeader>
+						<CardContent className="space-y-3">
+							<Button
+								onClick={() => navigate(`/offices/edit/${office.id}`)}
+								className="w-full"
+								size="lg"
+							>
+								<Edit className="h-4 w-4 mr-2" />
+								Düzenle
+							</Button>
+							<Button
+								variant="outline"
+								onClick={() => navigate("/offices")}
+								className="w-full"
+								size="lg"
+							>
+								Geri Dön
+							</Button>
+						</CardContent>
+					</Card>
 				</div>
 			</div>
 		</div>
