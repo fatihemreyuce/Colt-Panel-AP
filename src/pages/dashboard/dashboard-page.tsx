@@ -1,4 +1,8 @@
 import { useDashboard } from "@/hooks/use-dashboard";
+import { useComponents } from "@/hooks/use-components";
+import { useNotificationSubscribers } from "@/hooks/use-notification-subscribers";
+import { usePages } from "@/hooks/use-page";
+import { useContactForms } from "@/hooks/use-contact-forms";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,9 +17,9 @@ import {
 	XAxis,
 	YAxis,
 	CartesianGrid,
-	AreaChart,
-	Area,
-	ResponsiveContainer,
+	PieChart,
+	Pie,
+	LabelList,
 } from "recharts";
 import {
 	FileText,
@@ -51,6 +55,10 @@ const formatDate = (dateString: string | undefined): string => {
 
 export default function DashboardPage() {
 	const { data: dashboard, isLoading, isError } = useDashboard();
+	const { data: componentsPage } = useComponents("", 0, 5, "id,DESC");
+	const { data: subscribersPage } = useNotificationSubscribers(0, 5, "id,DESC");
+	const { data: pagesPage } = usePages("", "", 0, 5, "id,DESC");
+	const { data: contactFormsPage } = useContactForms("", 0, 5, "id,DESC");
 	const navigate = useNavigate();
 
 	if (isLoading) {
@@ -83,28 +91,28 @@ export default function DashboardPage() {
 	const statsData = [
 		{
 			name: "Sayfalar",
-			value: dashboard.totalPages,
+			value: pagesPage?.totalElements ?? dashboard.totalPages,
 			icon: FileText,
 			color: "hsl(var(--chart-1))",
 			path: "/pages",
 		},
 		{
 			name: "Bildirim Aboneleri",
-			value: dashboard.totalNotificationSubscribers,
+			value: subscribersPage?.totalElements ?? dashboard.totalNotificationSubscribers,
 			icon: Mail,
 			color: "hsl(var(--chart-2))",
 			path: "/notification-subscribers",
 		},
 		{
 			name: "Bileşenler",
-			value: dashboard.totalComponents,
+			value: componentsPage?.totalElements ?? dashboard.totalComponents,
 			icon: Box,
 			color: "hsl(var(--chart-3))",
 			path: "/components",
 		},
 		{
 			name: "İletişim Formları",
-			value: dashboard.totalContactForms,
+			value: contactFormsPage?.totalElements ?? dashboard.totalContactForms,
 			icon: MessageSquare,
 			color: "hsl(var(--chart-4))",
 			path: "/contact-forms",
@@ -118,10 +126,15 @@ export default function DashboardPage() {
 	}));
 
 	// Recent items (last 5)
-	const recentPages = dashboard.pages?.slice(0, 5) || [];
-	const recentNotificationSubscribers = dashboard.notificationSubscribers?.slice(0, 5) || [];
-	const recentComponents = dashboard.components?.slice(0, 5) || [];
-	const recentContactForms = dashboard.contactForms?.slice(0, 5) || [];
+	const recentPages = pagesPage?.content?.slice(0, 5) || dashboard.pages?.slice(0, 5) || [];
+	const recentNotificationSubscribers =
+		subscribersPage?.content?.slice(0, 5) ||
+		dashboard.notificationSubscribers?.slice(0, 5) ||
+		[];
+	const recentComponents =
+		componentsPage?.content?.slice(0, 5) || dashboard.components?.slice(0, 5) || [];
+	const recentContactForms =
+		contactFormsPage?.content?.slice(0, 5) || dashboard.contactForms?.slice(0, 5) || [];
 
 	return (
 		<div className="flex-1 space-y-8 p-8 bg-gradient-to-br from-background via-background/95 to-muted/10 min-h-screen">
@@ -215,7 +228,7 @@ export default function DashboardPage() {
 
 			{/* Charts Row - Enhanced */}
 			<div className="grid gap-6 md:grid-cols-2">
-				{/* Area Chart - Interactive */}
+				{/* Column Chart - Shadcn style */}
 				<Card className="group relative overflow-hidden border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl hover:shadow-3xl transition-all duration-500">
 					<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 					
@@ -241,58 +254,66 @@ export default function DashboardPage() {
 					<CardContent className="pt-6 relative z-10">
 						<ChartContainer
 							config={{
-								value: {
-									label: "Değer",
+								Sayfalar: { label: "Sayfalar", color: "hsl(var(--chart-1))" },
+								"Bildirim Aboneleri": {
+									label: "Bildirim Aboneleri",
+									color: "hsl(var(--chart-2))",
+								},
+								Bileşenler: { label: "Bileşenler", color: "hsl(var(--chart-3))" },
+								"İletişim Formları": {
+									label: "İletişim Formları",
+									color: "hsl(var(--chart-4))",
 								},
 							}}
 							className="h-[320px] w-full"
 						>
-							<ResponsiveContainer width="100%" height="100%">
-								<AreaChart data={barChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-									<defs>
-										<linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-											<stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.9} />
-											<stop offset="50%" stopColor="hsl(var(--chart-1))" stopOpacity={0.5} />
-											<stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
-										</linearGradient>
-									</defs>
-									<CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" opacity={0.3} />
-									<XAxis
-										dataKey="name"
-										stroke="hsl(var(--muted-foreground))"
-										fontSize={12}
-										tickLine={false}
-										axisLine={false}
-										tick={{ fill: 'hsl(var(--muted-foreground))' }}
-									/>
-									<YAxis
-										stroke="hsl(var(--muted-foreground))"
-										fontSize={12}
-										tickLine={false}
-										axisLine={false}
-										tick={{ fill: 'hsl(var(--muted-foreground))' }}
-									/>
-									<ChartTooltip 
-										content={<ChartTooltipContent className="rounded-lg border bg-card shadow-lg" />}
-										cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '5 5' }}
-									/>
-									<Area
-										type="monotone"
+							<BarChart data={barChartData} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
+								<CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" opacity={0.3} vertical={false} />
+								<XAxis
+									dataKey="name"
+									stroke="hsl(var(--muted-foreground))"
+									fontSize={12}
+									tickLine={false}
+									axisLine={false}
+									tick={{ fill: "hsl(var(--muted-foreground))" }}
+								/>
+								<YAxis
+									stroke="hsl(var(--muted-foreground))"
+									fontSize={12}
+									tickLine={false}
+									axisLine={false}
+									allowDecimals={false}
+									tickFormatter={(value) => Math.round(value as number).toString()}
+									tick={{ fill: "hsl(var(--muted-foreground))" }}
+								/>
+								<ChartTooltip
+									content={<ChartTooltipContent className="rounded-lg border bg-card shadow-lg" />}
+								/>
+								<Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={32}>
+									{barChartData.map((entry, index) => (
+										<Cell
+											key={`trend-bar-${index}`}
+											fill={entry.fill}
+											className="transition-opacity duration-200 hover:opacity-80"
+										/>
+									))}
+									<LabelList
 										dataKey="value"
-										stroke="hsl(var(--chart-1))"
-										strokeWidth={3}
-										fillOpacity={1}
-										fill="url(#colorValue)"
-										dot={{ fill: 'hsl(var(--chart-1))', r: 4 }}
-										activeDot={{ r: 6, fill: 'hsl(var(--chart-1))' }}
+										position="top"
+										offset={10}
+										style={{
+											fill: "hsl(var(--foreground))",
+											fontSize: 12,
+											fontWeight: 600,
+										}}
 									/>
-								</AreaChart>
-							</ResponsiveContainer>
+								</Bar>
+							</BarChart>
 						</ChartContainer>
 					</CardContent>
 				</Card>
 
-				{/* Horizontal Bar Chart */}
+				{/* Donut Chart - Category distribution */}
 				<Card className="group relative overflow-hidden border-2 border-primary/20 shadow-2xl bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-xl hover:shadow-3xl transition-all duration-500">
 					<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 					
@@ -303,12 +324,12 @@ export default function DashboardPage() {
 							</div>
 							<div>
 								<CardTitle className="text-xl font-bold flex items-center gap-2">
-									Kategori Karşılaştırması
+									Kategori Dağılımı
 									<TrendingUp className="h-4 w-4 text-primary" />
 								</CardTitle>
 								<CardDescription className="text-sm flex items-center gap-1.5 mt-1">
 									<Activity className="h-3.5 w-3.5" />
-									Kategorilerin yatay karşılaştırması
+									Kategorilerin toplam içindeki payı
 								</CardDescription>
 							</div>
 						</div>
@@ -316,52 +337,56 @@ export default function DashboardPage() {
 					<CardContent className="pt-6 relative z-10">
 						<ChartContainer
 							config={{
-								value: {
-									label: "Değer",
+								Sayfalar: { label: "Sayfalar", color: "hsl(var(--chart-1))" },
+								"Bildirim Aboneleri": {
+									label: "Bildirim Aboneleri",
+									color: "hsl(var(--chart-2))",
+								},
+								Bileşenler: { label: "Bileşenler", color: "hsl(var(--chart-3))" },
+								"İletişim Formları": {
+									label: "İletişim Formları",
+									color: "hsl(var(--chart-4))",
 								},
 							}}
-							className="h-[320px] w-full"
+							className="h-[320px] w-full items-center justify-center"
 						>
-							<ResponsiveContainer width="100%" height="100%">
-								<BarChart
+							<PieChart>
+								<Pie
 									data={barChartData}
-									layout="vertical"
-									margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+									dataKey="value"
+									nameKey="name"
+									innerRadius={70}
+									outerRadius={110}
+									paddingAngle={3}
+									stroke="transparent"
 								>
-									<CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" opacity={0.3} />
-									<XAxis 
-										type="number" 
-										stroke="hsl(var(--muted-foreground))" 
-										fontSize={12} 
-										tickLine={false} 
-										axisLine={false}
-										tick={{ fill: 'hsl(var(--muted-foreground))' }}
+									{barChartData.map((entry, index) => (
+										<Cell
+											key={`pie-cell-${index}`}
+											fill={entry.fill}
+											className="transition-opacity duration-200 hover:opacity-80"
+										/>
+									))}
+									<LabelList
+										dataKey="value"
+										position="outside"
+										offset={8}
+										style={{
+											fill: "hsl(var(--foreground))",
+											fontSize: 11,
+											fontWeight: 500,
+										}}
 									/>
-									<YAxis
-										dataKey="name"
-										type="category"
-										stroke="hsl(var(--muted-foreground))"
-										fontSize={12}
-										tickLine={false}
-										axisLine={false}
-										width={100}
-										tick={{ fill: 'hsl(var(--muted-foreground))' }}
-									/>
-									<ChartTooltip 
-										content={<ChartTooltipContent className="rounded-lg border bg-card shadow-lg" />}
-										cursor={{ fill: 'hsl(var(--primary))', opacity: 0.1 }}
-									/>
-									<Bar dataKey="value" radius={[0, 12, 12, 0]} barSize={40}>
-										{barChartData.map((entry, index) => (
-											<Cell 
-												key={`bar-cell-${index}`} 
-												fill={entry.fill}
-												className="hover:opacity-80 transition-opacity duration-200"
-											/>
-										))}
-									</Bar>
-								</BarChart>
-							</ResponsiveContainer>
+								</Pie>
+								<ChartTooltip
+									content={
+										<ChartTooltipContent
+											className="rounded-lg border bg-card shadow-lg"
+											nameKey="name"
+										/>
+									}
+								/>
+							</PieChart>
 						</ChartContainer>
 					</CardContent>
 				</Card>
@@ -530,22 +555,15 @@ export default function DashboardPage() {
 										(loc) => loc.languageCode?.toLowerCase() === "tr"
 									);
 									const defaultLoc = component.localizations?.[0];
-									
-									// Önce name'i kontrol et, sonra localizations, en son fallback
-									let displayName = component.name?.trim();
-									if (!displayName) {
-										displayName = turkishLoc?.title?.trim();
-									}
-									if (!displayName) {
-										displayName = defaultLoc?.title?.trim();
-									}
-									if (!displayName) {
-										// ID varsa ID ile, yoksa index ile fallback
-										displayName = component.id 
-											? `Bileşen #${component.id}` 
-											: `Bileşen #${index + 1}`;
-									}
-									
+
+									const displayName =
+										component.name?.trim() ||
+										turkishLoc?.title?.trim() ||
+										defaultLoc?.title?.trim() ||
+										(component.id
+											? `Bileşen #${component.id}`
+											: `Bileşen #${index + 1}`);
+
 									return (
 										<div
 											key={component.id || `component-${index}`}

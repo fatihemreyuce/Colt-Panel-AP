@@ -5,6 +5,7 @@ export interface LanguageRequest {
 export interface LanguageResponse {
     id: number;
     code: string;
+    name?: string;
 }
 
 export type language = LanguageResponse;

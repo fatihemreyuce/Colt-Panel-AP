@@ -2,7 +2,7 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/dark-mode-toggle";
 import { useLoginState } from "@/hooks/use-login-state";
-import { LayoutDashboard, LogOut, Sparkles, Sun, Moon, Users, Languages, UserCircle, Building2, Handshake, FileImage, Briefcase, Database, Bell, Mail, Layers, Box, MessageSquare, FileType, FileText, Settings } from "lucide-react";
+import { Home, LogOut, Sparkles, UserCog, Globe, UsersRound, Leaf, Handshake, Image, Building, HardDrive, Bell, Mail, Package, Boxes, MessageCircle, FileCode, FileText, Settings } from "lucide-react";
 
 interface NavItem {
 	to: string;
@@ -15,31 +15,31 @@ const navigationItems: NavItem[] = [
 	{
 		to: "/",
 		label: "Kontrol Paneli",
-		icon: LayoutDashboard,
+		icon: Home,
 		end: true,
 	},
 	{
 		to: "/users",
 		label: "Kullanıcılar",
-		icon: Users,
+		icon: UserCog,
 		end: false,
 	},
 	{
 		to: "/languages",
 		label: "Diller",
-		icon: Languages,
+		icon: Globe,
 		end: false,
 	},
 	{
 		to: "/team-members",
 		label: "Takım Üyeleri",
-		icon: UserCircle,
+		icon: UsersRound,
 		end: false,
 	},
 	{
 		to: "/eco-partners",
 		label: "Eco Partnerler",
-		icon: Building2,
+		icon: Leaf,
 		end: false,
 	},
 	{
@@ -51,19 +51,19 @@ const navigationItems: NavItem[] = [
 	{
 		to: "/assets",
 		label: "Medya",
-		icon: FileImage,
+		icon: Image,
 		end: false,
 	},
 	{
 		to: "/offices",
 		label: "Ofisler",
-		icon: Briefcase,
+		icon: Building,
 		end: false,
 	},
 	{
 		to: "/backups",
 		label: "Yedeklemeler",
-		icon: Database,
+		icon: HardDrive,
 		end: false,
 	},
 	{
@@ -81,25 +81,25 @@ const navigationItems: NavItem[] = [
 	{
 		to: "/component-types",
 		label: "Bileşen Tipleri",
-		icon: Layers,
+		icon: Package,
 		end: false,
 	},
 	{
 		to: "/components",
 		label: "Bileşenler",
-		icon: Box,
+		icon: Boxes,
 		end: false,
 	},
 	{
 		to: "/contact-forms",
 		label: "İletişim Formları",
-		icon: MessageSquare,
+		icon: MessageCircle,
 		end: false,
 	},
 	{
 		to: "/page-types",
 		label: "Sayfa Tipleri",
-		icon: FileType,
+		icon: FileCode,
 		end: false,
 	},
 	{
@@ -131,30 +131,37 @@ export default function Sidebar() {
 	};
 
 	return (
-		<aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border bg-card/50 backdrop-blur-sm dark:bg-card flex flex-col animate-in slide-in-from-left duration-300">
+		<aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-border/60 bg-background/98 backdrop-blur-md flex flex-col shadow-sm animate-in slide-in-from-left duration-300">
 			{/* Header */}
-			<div className="flex h-16 items-center px-6 border-b border-border shrink-0">
+			<header className="flex h-16 items-center justify-between px-5 border-b border-border/60 shrink-0 bg-background/95">
 				<div className="flex items-center gap-3">
-					<div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-foreground to-foreground/90 shadow-md">
-						<Sparkles className="h-5 w-5 text-background" />
+					<div className="flex items-center justify-center w-9 h-9 rounded-xl bg-muted/70 border border-border/70">
+						<Sparkles className="h-4 w-4 text-foreground" />
 					</div>
 					<div className="flex flex-col">
-						<span className="text-base font-bold text-foreground leading-tight">
-							Colt Panel
+						<span className="text-[11px] font-medium text-muted-foreground uppercase tracking-[0.18em]">
+							Colt
 						</span>
-						<span className="text-xs text-muted-foreground leading-tight font-medium">Kontrol Paneli</span>
+						<span className="text-sm font-semibold text-foreground leading-tight">
+							Kontrol Paneli
+						</span>
 					</div>
 				</div>
-			</div>
+				{/* Theme Toggle */}
+				<DarkModeToggle size="sm" />
+			</header>
 
 			{/* Navigation */}
-			<nav className="flex flex-col gap-1 p-3 overflow-y-auto flex-1 min-h-0">
+			<nav className="flex flex-col gap-2 px-3 pt-4 pb-3 overflow-y-auto flex-1 min-h-0">
+				<div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+					Genel
+				</div>
 				{navigationItems.map((item, index) => {
 					const Icon = item.icon;
-					const isActive = item.end 
-						? location.pathname === item.to 
+					const isActive = item.end
+						? location.pathname === item.to
 						: location.pathname.startsWith(item.to);
-					
+
 					return (
 						<NavLink
 							key={item.to}
@@ -163,44 +170,32 @@ export default function Sidebar() {
 							style={{
 								animationDelay: `${index * 30}ms`,
 							}}
-							className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300 relative animate-in fade-in slide-in-from-left-4 ${
+							className={`group flex items-center gap-3 rounded-full px-3 py-2 text-sm font-medium transition-all duration-200 ${
 								isActive
-									? "bg-primary text-primary-foreground shadow-sm scale-[1.02]"
-									: "text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:scale-[1.02] hover:translate-x-1"
+									? "bg-foreground text-background shadow-sm"
+									: "text-muted-foreground hover:bg-muted/70 hover:text-foreground"
 							}`}
 						>
-							<Icon className={`h-4 w-4 shrink-0 transition-all duration-300 ${
-								isActive 
-									? "text-primary-foreground scale-110" 
-									: "text-muted-foreground group-hover:text-accent-foreground group-hover:scale-110 group-hover:rotate-3"
-							}`} />
-							<span className="transition-all duration-300">{item.label}</span>
-							{isActive && (
-								<div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary-foreground rounded-r-full animate-in slide-in-from-left-2 duration-300" />
-							)}
+							<Icon
+								className={`h-4 w-4 transition-transform duration-200 ${
+									isActive ? "scale-105" : "group-hover:scale-110"
+								}`}
+							/>
+							<span className="transition-colors duration-200 truncate">
+								{item.label}
+							</span>
 						</NavLink>
 					);
 				})}
 			</nav>
 
-			{/* Footer with dark mode toggle and logout */}
-			<div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border bg-card/50 backdrop-blur-sm dark:bg-card space-y-2">
-				{/* Dark Mode Toggle */}
-				<div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-					<div className="flex items-center gap-2.5">
-						<Sun className="h-4 w-4 text-muted-foreground dark:hidden" />
-						<Moon className="h-4 w-4 text-muted-foreground hidden dark:block" />
-						<span className="text-sm font-semibold text-foreground">Tema</span>
-					</div>
-					<DarkModeToggle size="sm" />
-				</div>
-				
-				{/* Logout Button */}
+			{/* Footer with logout */}
+			<div className="absolute bottom-0 left-0 right-0 p-3 border-t border-border/60 bg-background/95 backdrop-blur-sm">
 				<Button
 					variant="ghost"
 					onClick={handleLogout}
 					disabled={!isActionable || isLoading}
-					className="w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+					className="w-full justify-start gap-2.5 rounded-full px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
 					aria-busy={isLoading}
 				>
 					<LogOut className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />

@@ -10,7 +10,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save, Database, RefreshCw, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Database, Loader2 } from "lucide-react";
 import type { backupRequest } from "@/types/backups.types";
 
 const BACKUP_TYPES = [

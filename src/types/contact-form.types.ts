@@ -27,4 +27,4 @@ export interface ContactFormResponse {
   message: string;
   legal: boolean;
   keepInTouch: boolean;
-}
+} 

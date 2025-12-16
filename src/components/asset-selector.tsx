@@ -24,6 +24,8 @@ export function AssetSelector({
 	componentTypeId,
 	onSelect,
 }: AssetSelectorProps) {
+	// componentTypeId şu an filtrelemede kullanılmıyor, sadece gelecekteki geliştirmeler için tutuluyor
+	void componentTypeId;
 	// Tüm asset'leri göster, component type'a göre filtreleme yapma
 	// Component type seçilmiş olsa bile tüm mevcut asset'ler gösterilsin
 	return (

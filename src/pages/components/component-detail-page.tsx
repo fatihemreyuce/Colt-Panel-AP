@@ -10,9 +10,6 @@ import {
 	ArrowLeft,
 	Box,
 	Loader2,
-	FileImage,
-	Video,
-	Image as ImageIcon,
 	ExternalLink,
 } from "lucide-react";
 
@@ -32,16 +29,6 @@ export default function ComponentDetailPage() {
 			setSelectedLanguageCode(turkish ? turkish.languageCode : component.localizations[0].languageCode);
 		}
 	}, [component]);
-
-	const formatDate = (dateString: string) => {
-		return new Date(dateString).toLocaleDateString("tr-TR", {
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
-	};
 
 	if (isLoading) {
 		return (

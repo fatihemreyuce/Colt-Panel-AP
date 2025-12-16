@@ -46,57 +46,32 @@ export default function DarkModeToggle({ className, size = "md" }: DarkModeToggl
 	};
 
 	const sizeClasses = {
-		sm: "h-7 w-12",
-		md: "h-8 w-14",
-		lg: "h-10 w-16"
+		sm: "h-8 w-8",
+		md: "h-9 w-9",
+		lg: "h-10 w-10",
 	};
 
 	const iconSizes = {
 		sm: "h-4 w-4",
-		md: "h-4 w-4",
-		lg: "h-5 w-5"
-	};
-
-	const sliderSizes = {
-		sm: "h-5 w-5",
-		md: "h-6 w-6",
-		lg: "h-7 w-7"
-	};
-
-	const translateClasses = {
-		sm: isDark ? "translate-x-5" : "translate-x-0.5",
-		md: isDark ? "translate-x-8" : "translate-x-1",
-		lg: isDark ? "translate-x-9" : "translate-x-1"
+		md: "h-5 w-5",
+		lg: "h-5 w-5",
 	};
 
 	return (
 		<button
 			onClick={toggleTheme}
-			className={`group relative inline-flex items-center ${sizeClasses[size]} rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
-				isDark 
-					? "bg-muted hover:bg-muted/80 border border-border" 
-					: "bg-foreground hover:bg-foreground/90"
+			className={`inline-flex items-center justify-center ${sizeClasses[size]} rounded-full border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+				isDark
+					? "bg-foreground text-background hover:bg-foreground/90"
+					: "bg-muted text-foreground hover:bg-muted/80"
 			} ${className || ""}`}
 			aria-label="Toggle dark mode"
 		>
-			{/* Icons */}
-			<div className={`absolute left-1.5 flex items-center justify-center transition-all duration-300 ${
-				isDark ? "opacity-0 scale-0" : "opacity-100 scale-100"
-			}`}>
-				<Sun className={`${iconSizes[size]} text-background`} />
-			</div>
-			<div className={`absolute right-1.5 flex items-center justify-center transition-all duration-300 ${
-				isDark ? "opacity-100 scale-100" : "opacity-0 scale-0"
-			}`}>
-				<Moon className={`${iconSizes[size]} text-background`} />
-			</div>
-			
-			{/* Slider */}
-			<span
-				className={`${sliderSizes[size]} ${translateClasses[size]} absolute rounded-full bg-background shadow-md transition-all duration-300 ease-in-out ${
-					isDark ? "border border-border" : ""
-				}`}
-			/>
+			{isDark ? (
+				<Moon className={`${iconSizes[size]}`} />
+			) : (
+				<Sun className={`${iconSizes[size]}`} />
+			)}
 		</button>
 	);
 }

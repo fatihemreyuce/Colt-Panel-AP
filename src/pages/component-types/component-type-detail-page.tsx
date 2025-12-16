@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Edit, Layers, Image as ImageIcon, Check, X, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Edit, Layers, Image as ImageIcon, X, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ComponentTypeDetailPage() {
 	const { id } = useParams<{ id: string }>();

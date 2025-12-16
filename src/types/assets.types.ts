@@ -10,6 +10,7 @@ export interface assetRequest{
     localizations: localization[];
     type?: string;
     componentTypeId?: number;
+    assetId?: number;
 }
 
 export interface assetResponse{
@@ -21,4 +22,5 @@ export interface assetResponse{
     height: number;
     localizations: localization[];
     componentTypeId?: number;
+    assetId?: number;
 }

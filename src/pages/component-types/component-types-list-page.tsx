@@ -397,7 +397,10 @@ function ComponentTypeCard({ componentType, onView, onEdit, onDelete }: Componen
 	].filter(f => f.enabled);
 
 	return (
-		<Card className="group relative border-2 shadow-lg bg-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden">
+		<Card
+			className="group relative border-2 shadow-lg bg-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden cursor-pointer"
+			onClick={onView}
+		>
 			<CardContent className="p-5">
 				<div className="flex items-start gap-4">
 					{/* Preview Thumbnail */}
